@@ -71,3 +71,6 @@ npm test
 - Sign-up page: animated `/sign-up` form with pure client-side validation
   (`lib/auth/validate.ts`, unit-tested) wired to Supabase Auth, with loading and
   error/confirmation states, plus a "Sign up" nav link.
+- Login page: animated `/login` form with pure `validateLogin` logic (unit-tested)
+  wired to Supabase Auth, server-error handling, a "Log in" nav link, and
+  cross-links between the login and sign-up forms.

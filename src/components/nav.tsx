@@ -6,6 +6,7 @@ import { usePrefersReducedMotion } from "@/components/use-prefers-reduced-motion
 const links = [
   { label: "Features", href: "#features" },
   { label: "How it works", href: "#how-it-works" },
+  { label: "Log in", href: "/login" },
   { label: "Sign up", href: "/sign-up" },
 ];
 
