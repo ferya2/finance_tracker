@@ -55,6 +55,12 @@ database or network. UI and Supabase calls stay thin.
 - Do not introduce a new state/data library unless a task requires it.
 - Never commit secrets. Supabase keys come from environment variables only
   (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`).
+- **Database schema is fixed and owned by the human.** The app only reads/writes
+  ROWS via the `supabase-js` client (`.from(...).select()/.insert()/.update()/
+  .delete()` and `supabase.auth.*`). NEVER generate or run DDL — no `CREATE TABLE`,
+  `ALTER TABLE`, migrations, or raw SQL — and never a Supabase service-role key.
+  The tables (`transactions`, `categories`, `budgets`) already exist with RLS; if
+  a task seems to need a schema change, note it in the PR instead of doing it.
 - Do not manually edit the `version` in `package.json` — the release workflow
   manages it.
 - Do NOT add any AI attribution (no `Co-Authored-By`, no "Generated with ...",
