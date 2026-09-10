@@ -7,27 +7,27 @@ import {
   CheckCircle2,
   Loader2,
   Lock,
+  LogIn,
   Mail,
-  Wallet,
 } from "lucide-react";
 import Link from "next/link";
 import { type FormEvent, useState } from "react";
-import { hasErrors, validateSignUp } from "@/lib/auth/validate";
-import { signUp } from "@/lib/supabase/client";
+import { hasErrors, validateLogin } from "@/lib/auth/validate";
+import { signInWithPassword } from "@/lib/supabase/client";
 import { usePrefersReducedMotion } from "@/components/use-prefers-reduced-motion";
 
 type Status =
   | { type: "idle" }
   | { type: "loading" }
   | { type: "error"; message: string }
-  | { type: "success"; needsConfirmation: boolean };
+  | { type: "success" };
 
 const inputClassName =
   "w-full rounded-xl border border-border bg-surface-muted pl-11 pr-4 py-3 text-sm text-text placeholder:text-text-muted focus:border-primary focus:bg-surface focus:outline-none focus:ring-2 focus:ring-primary/20 transition-colors";
 
 const errorInputClassName = "border-danger focus:border-danger focus:ring-danger/20";
 
-export function SignUpForm() {
+export function LoginForm() {
   const reduced = usePrefersReducedMotion();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -37,7 +37,7 @@ export function SignUpForm() {
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    const errors = validateSignUp({ email, password });
+    const errors = validateLogin({ email, password });
     setFieldErrors(errors);
     if (hasErrors(errors)) {
       setStatus({ type: "idle" });
@@ -45,28 +45,28 @@ export function SignUpForm() {
     }
 
     setStatus({ type: "loading" });
-    const { data, error } = await signUp({ email: email.trim(), password });
+    const { error } = await signInWithPassword({ email: email.trim(), password });
 
     if (error) {
       setStatus({ type: "error", message: error.message });
       return;
     }
 
-    setStatus({ type: "success", needsConfirmation: !data.session });
+    setStatus({ type: "success" });
   }
 
   const card = (
     <div className="w-full max-w-md rounded-2xl border border-border bg-surface p-8 shadow-xl shadow-black/5 dark:shadow-black/20">
       <div className="mb-8 flex flex-col items-center gap-3 text-center">
         <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary-light text-primary">
-          <Wallet className="h-6 w-6" />
+          <LogIn className="h-6 w-6" />
         </span>
         <div>
           <h1 className="text-2xl font-semibold tracking-tight text-text sm:text-3xl">
-            Create your account
+            Welcome back
           </h1>
           <p className="mt-2 text-sm text-text-secondary">
-            Start tracking income and expenses in minutes.
+            Log in to pick up where you left off.
           </p>
         </div>
       </div>
@@ -83,11 +83,9 @@ export function SignUpForm() {
             <CheckCircle2 className="h-6 w-6" />
           </span>
           <div>
-            <p className="font-semibold text-text">Account created</p>
+            <p className="font-semibold text-text">Logged in</p>
             <p className="mt-1 text-sm text-text-secondary">
-              {status.needsConfirmation
-                ? "Check your email for a confirmation link to activate your account."
-                : "You're all set — welcome aboard."}
+              You are all set — welcome back.
             </p>
           </div>
         </motion.div>
@@ -134,10 +132,10 @@ export function SignUpForm() {
                 <input
                   id="password"
                   type="password"
-                  autoComplete="new-password"
+                  autoComplete="current-password"
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
-                  placeholder="At least 6 characters"
+                  placeholder="Your password"
                   aria-invalid={Boolean(fieldErrors.password)}
                   aria-describedby={fieldErrors.password ? "password-error" : undefined}
                   className={`${inputClassName} ${
@@ -180,23 +178,23 @@ export function SignUpForm() {
               {status.type === "loading" ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  Creating account…
+                  Logging in…
                 </>
               ) : (
                 <>
-                  Create account
+                  Log in
                   <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5" />
                 </>
               )}
             </motion.button>
 
             <p className="text-center text-sm text-text-secondary">
-              Already have an account?{" "}
+              New here?{" "}
               <Link
-                href="/login"
+                href="/sign-up"
                 className="font-medium text-primary transition-opacity hover:opacity-80"
               >
-                Log in
+                Create an account
               </Link>
             </p>
           </div>

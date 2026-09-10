@@ -44,7 +44,7 @@ whitespace, an interactive drag-to-rotate **3D** hero, and smooth scroll-reveal
   auth helper. Test the module loads with mocked env.
 - [x] **Day 10 — Sign up page.** Form + validation wired to Supabase Auth. Animated.
   Tests.
-- [ ] **Day 11 — Login page.** Login form + error handling. Animated. Tests.
+- [x] **Day 11 — Login page.** Login form + error handling. Animated. Tests.
 - [ ] **Day 12 — Session & logout.** User/session context/provider + logout. Tests
   for the pure helpers.
 - [ ] **Day 13 — Protected routes.** Middleware/guard: redirect unauthenticated
