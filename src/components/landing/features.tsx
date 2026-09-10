@@ -59,19 +59,22 @@ const features: Feature[] = [
 
 export function Features() {
   return (
-    <section id="features" className="border-t border-border py-20">
+    <section id="features" className="border-t border-border py-28">
       <div className="mx-auto w-full max-w-6xl px-6">
         <Reveal className="mx-auto max-w-2xl text-center">
-          <h2 className="text-3xl font-bold tracking-tight text-text sm:text-4xl">
+          <span className="inline-block text-xs font-semibold tracking-widest text-text-muted">
+            02
+          </span>
+          <h2 className="mt-3 text-3xl font-bold tracking-tight text-text sm:text-4xl">
             Everything you need to master your finances
           </h2>
-          <p className="mt-4 text-lg leading-8 text-text-secondary">
+          <p className="mt-5 text-lg leading-8 text-text-secondary">
             A simple, powerful toolkit that grows with you — from your first
             budget to your best year yet.
           </p>
         </Reveal>
         <Stagger
-          className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
+          className="mt-16 grid gap-5 sm:grid-cols-2 lg:grid-cols-3"
           stagger={0.08}
           delay={0.15}
         >
@@ -82,7 +85,7 @@ export function Features() {
                 <motion.div
                   whileHover={{ y: -4 }}
                   transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                  className="group rounded-2xl border border-border bg-surface p-6 shadow-sm transition-colors duration-300 hover:border-primary/40 hover:bg-primary-light/40 hover:shadow-lg hover:shadow-primary/5"
+                  className="group rounded-2xl border border-border bg-surface p-7 transition-colors duration-300 hover:border-primary/30 hover:bg-primary-light/30 hover:shadow-md hover:shadow-primary/5"
                 >
                   <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-success-subtle text-primary transition-all duration-300 group-hover:scale-110 group-hover:bg-primary group-hover:text-primary-foreground">
                     <Icon className="h-5 w-5" />

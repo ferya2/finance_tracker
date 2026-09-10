@@ -63,10 +63,10 @@ function Coin() {
       <meshStandardMaterial
         ref={mat}
         color={baseColor}
-        metalness={0.85}
-        roughness={0.15}
+        metalness={0.8}
+        roughness={0.18}
         emissive={emissiveColor}
-        emissiveIntensity={0.3}
+        emissiveIntensity={0.25}
       />
     </mesh>
   );
@@ -129,9 +129,9 @@ function AmbientRing() {
         <meshStandardMaterial
           color={dark ? "#34d399" : "#059669"}
           transparent
-          opacity={0.2}
+          opacity={0.15}
           emissive={dark ? "#34d399" : "#059669"}
-          emissiveIntensity={0.5}
+          emissiveIntensity={0.4}
         />
       </mesh>
     </group>
@@ -143,31 +143,25 @@ function AmbientRing() {
 function Scene() {
   return (
     <>
-      <ambientLight intensity={0.4} />
-      <directionalLight position={[5, 5, 5]} intensity={1.2} />
-      <directionalLight position={[-3, -2, 4]} intensity={0.3} />
+      <ambientLight intensity={0.5} />
+      <directionalLight position={[5, 5, 5]} intensity={1} />
+      <directionalLight position={[-3, -2, 4]} intensity={0.2} />
 
-      <Float speed={2} rotationIntensity={0.15} floatIntensity={1.2}>
+      <Float speed={1.8} rotationIntensity={0.12} floatIntensity={1}>
         <Coin />
       </Float>
 
       <FloatingDecor
-        position={[-2, 1.2, -0.5]}
+        position={[-2.2, 1, -0.5]}
         color="#0d9488"
-        speed={1.2}
-        size={0.35}
-      />
-      <FloatingDecor
-        position={[1.8, -0.9, -0.3]}
-        color="#059669"
         speed={0.8}
-        size={0.25}
+        size={0.3}
       />
       <FloatingDecor
-        position={[0.5, 1.6, -1]}
-        color="#2dd4bf"
-        speed={1}
-        size={0.2}
+        position={[2, -0.8, -0.4]}
+        color="#059669"
+        speed={0.6}
+        size={0.22}
       />
 
       <AmbientRing />

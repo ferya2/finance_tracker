@@ -29,7 +29,7 @@ function PreviewCard() {
     <HeroReveal delay={0.45} className="w-full max-w-sm">
       <div
         aria-hidden
-        className="relative overflow-hidden rounded-2xl border border-border bg-surface/80 p-5 shadow-xl shadow-black/10 backdrop-blur"
+        className="relative overflow-hidden rounded-2xl border border-border/60 bg-surface/90 p-5 shadow-xl shadow-black/8 backdrop-blur-md"
       >
         <div className="flex items-center justify-between">
           <p className="text-sm font-medium text-text-secondary">
@@ -91,7 +91,7 @@ export function Hero() {
         aria-hidden
         className="pointer-events-none absolute inset-0 [mask-image:linear-gradient(to_bottom,black,transparent)] bg-[radial-gradient(ellipse_at_top,var(--color-primary-light),transparent_60%)]"
       />
-      <div className="relative mx-auto flex w-full max-w-6xl flex-col items-center gap-12 px-6 pb-20 pt-24 sm:pt-32 lg:flex-row lg:items-center lg:gap-16 lg:pb-28 lg:pt-36">
+      <div className="relative mx-auto flex w-full max-w-6xl flex-col items-center gap-14 px-6 pb-24 pt-28 sm:pt-36 lg:flex-row lg:items-center lg:gap-20 lg:pb-32 lg:pt-40">
         <div className="flex max-w-2xl flex-1 flex-col items-center text-center lg:items-start lg:text-left">
           <HeroReveal delay={0.05}>
             <span className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary-light px-3 py-1 text-xs font-medium text-primary">
@@ -101,7 +101,7 @@ export function Hero() {
           </HeroReveal>
 
           <HeroReveal delay={0.15}>
-            <h1 className="mt-6 text-4xl font-bold leading-tight tracking-tight text-text sm:text-5xl sm:leading-tight lg:text-6xl">
+            <h1 className="mt-7 text-4xl font-bold leading-[1.1] tracking-tight text-text sm:text-5xl lg:text-6xl">
               Take control of your money,
               <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                 {" "}

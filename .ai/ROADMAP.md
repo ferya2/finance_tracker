@@ -4,7 +4,7 @@ Source of truth for **what** to build. The agent picks daily tasks from
 `.ai/TASKS.md`. Tick a box when a whole phase is done.
 
 ## Phase 1 — Landing page (Week 1, Days 01-08)
-- [ ] Complete landing page, then modern UI + framer-motion + 3D, refined to match
+- [x] Complete landing page, then modern UI + framer-motion + 3D, refined to match
   the design reference https://pasin.ryyarf.my.id/ (see `.ai/DESIGN.md`).
   Days 01-07 done; Day 08 refinement pass remaining.
 
