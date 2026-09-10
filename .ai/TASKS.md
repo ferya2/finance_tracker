@@ -11,7 +11,7 @@ it, ticks the box, and opens a PR. Never bundle two days into one run.
 
 ## Week 1 — Landing page
 
-- [ ] **Day 01 — Landing page (rough, complete).** Build a full landing page:
+- [x] **Day 01 — Landing page (rough, complete).** Build a full landing page:
   hero (headline + CTA), features section, "how it works", and footer. Real
   content, sensible layout. `npm run lint` + `npm test` pass.
 - [ ] **Day 02 — Design system + modern polish.** Color tokens, typography scale,
