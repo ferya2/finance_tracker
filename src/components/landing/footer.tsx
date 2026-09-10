@@ -5,7 +5,7 @@ import { Reveal } from "@/components/motion";
 
 export function Footer() {
   return (
-    <footer className="border-t border-border py-12">
+    <footer className="relative z-10 border-t border-border py-12">
       <Reveal variant="fadeIn">
         <div className="mx-auto flex w-full max-w-6xl flex-col items-center gap-6 px-6 text-center sm:flex-row sm:justify-between sm:text-left">
           <div className="flex items-center gap-2">

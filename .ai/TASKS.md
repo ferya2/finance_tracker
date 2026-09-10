@@ -20,7 +20,7 @@ it, ticks the box, and opens a PR. Never bundle two days into one run.
   section reveal-on-scroll, staggered feature cards.
 - [x] **Day 04 — 3D hero.** Add a react-three-fiber scene to the hero (e.g. a
   floating coin/card/abstract shape) that reacts subtly to the pointer.
-- [ ] **Day 05 — 3D / interactive background.** Ambient 3D or animated gradient
+- [x] **Day 05 — 3D / interactive background.** Ambient 3D or animated gradient
   mesh / particles behind sections, kept performant.
 - [ ] **Day 06 — Micro-interactions.** Buttons, hover states, magnetic CTA,
   animated nav, smooth anchor scrolling.

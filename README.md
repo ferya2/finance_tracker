@@ -53,3 +53,6 @@ npm test
   scroll-reveal, and staggered feature/step cards via framer-motion.
 - 3D hero scene: an interactive floating coin that reacts to the pointer, with
   floating crystal accents and an ambient ring, rendered via react-three-fiber.
+- Ambient 3D page background: a pointer-reactive, instanced particle field plus
+  animated gradient-mesh orbs behind the landing sections, dark-mode aware and
+  lazy-loaded.
