@@ -1,7 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   createSupabaseClient,
+  getSession,
   getSupabaseClient,
+  onAuthStateChange,
   signInWithPassword,
   signOut,
   signUp,
@@ -12,6 +14,8 @@ const { mockAuth, mockCreateClient } = vi.hoisted(() => ({
     signUp: vi.fn(),
     signInWithPassword: vi.fn(),
     signOut: vi.fn(),
+    getSession: vi.fn(),
+    onAuthStateChange: vi.fn(),
   },
   mockCreateClient: vi.fn(),
 }));
@@ -25,6 +29,8 @@ beforeEach(() => {
   mockAuth.signUp.mockReset();
   mockAuth.signInWithPassword.mockReset();
   mockAuth.signOut.mockReset();
+  mockAuth.getSession.mockReset();
+  mockAuth.onAuthStateChange.mockReset();
   mockCreateClient.mockReturnValue({ auth: mockAuth });
 });
 
@@ -121,5 +127,34 @@ describe("auth helpers", () => {
 
     expect(mockAuth.signOut).toHaveBeenCalledOnce();
     expect(result).toEqual({ error: null });
+  });
+
+  it("fetches the current session", async () => {
+    mockAuth.getSession.mockResolvedValue({
+      data: { session: { user: { id: "user-1" } } },
+      error: null,
+    });
+
+    const result = await getSession();
+
+    expect(mockAuth.getSession).toHaveBeenCalledOnce();
+    expect(result).toEqual({
+      data: { session: { user: { id: "user-1" } } },
+      error: null,
+    });
+  });
+
+  it("subscribes to auth state changes and returns a subscription", () => {
+    const callback = vi.fn();
+    const unsubscribe = vi.fn();
+    mockAuth.onAuthStateChange.mockReturnValue({
+      data: { subscription: { unsubscribe } },
+    });
+
+    const result = onAuthStateChange(callback);
+
+    expect(mockAuth.onAuthStateChange).toHaveBeenCalledWith(callback);
+    result.data.subscription.unsubscribe();
+    expect(unsubscribe).toHaveBeenCalledOnce();
   });
 });

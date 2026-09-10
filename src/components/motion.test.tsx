@@ -1,8 +1,20 @@
-import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
+import { SessionProvider } from "@/components/auth/session-provider";
 import { HeroReveal, Reveal } from "./motion";
 import { Nav } from "./nav";
 import { AmbientBackground } from "./landing/ambient-background";
+
+const { mockGetSession, mockOnAuthStateChange } = vi.hoisted(() => ({
+  mockGetSession: vi.fn(),
+  mockOnAuthStateChange: vi.fn(),
+}));
+
+vi.mock("@/lib/supabase/client", () => ({
+  getSession: mockGetSession,
+  onAuthStateChange: mockOnAuthStateChange,
+  signOut: vi.fn(),
+}));
 
 /* jsdom has no IntersectionObserver; framer-motion's useInView needs one.
    The mock never fires, so scroll-triggered state stays hidden — fine. */
@@ -32,6 +44,15 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
+beforeEach(() => {
+  mockGetSession.mockReset();
+  mockOnAuthStateChange.mockReset();
+  mockGetSession.mockResolvedValue({ data: { session: null }, error: null });
+  mockOnAuthStateChange.mockImplementation(() => ({
+    data: { subscription: { unsubscribe: vi.fn() } },
+  }));
+});
+
 describe("reduced motion", () => {
   it("renders Reveal content statically (visible) when reduced motion is preferred", () => {
     stubMatchMedia(true);
@@ -49,9 +70,13 @@ describe("reduced motion", () => {
     expect(el.closest("[data-reduced-motion]")).not.toBeNull();
   });
 
-  it("keeps nav links clickable with no entrance animation when reduced", () => {
+  it("keeps nav links clickable with no entrance animation when reduced", async () => {
     stubMatchMedia(true);
-    render(<Nav />);
+    render(
+      <SessionProvider>
+        <Nav />
+      </SessionProvider>,
+    );
     expect(screen.getByRole("link", { name: "Features" })).toHaveAttribute(
       "href",
       "#features",
@@ -60,6 +85,7 @@ describe("reduced motion", () => {
       "href",
       "#how-it-works",
     );
+    await screen.findAllByRole("link");
   });
 
   it("skips the 3D background when reduced motion is preferred", () => {
