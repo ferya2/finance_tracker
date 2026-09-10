@@ -22,7 +22,7 @@ it, ticks the box, and opens a PR. Never bundle two days into one run.
   floating coin/card/abstract shape) that reacts subtly to the pointer.
 - [x] **Day 05 — 3D / interactive background.** Ambient 3D or animated gradient
   mesh / particles behind sections, kept performant.
-- [ ] **Day 06 — Micro-interactions.** Buttons, hover states, magnetic CTA,
+- [x] **Day 06 — Micro-interactions.** Buttons, hover states, magnetic CTA,
   animated nav, smooth anchor scrolling.
 - [ ] **Day 07 — Responsive + performance.** Make the landing flawless on mobile;
   lazy-load 3D, respect prefers-reduced-motion, Lighthouse-friendly.

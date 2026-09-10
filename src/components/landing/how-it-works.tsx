@@ -1,5 +1,6 @@
 "use client";
 
+import { motion } from "framer-motion";
 import { Calculator, ListChecks, LineChart, type LucideIcon } from "lucide-react";
 import { Reveal, Stagger, StaggerItem } from "@/components/motion";
 
@@ -59,11 +60,15 @@ export function HowItWorks() {
             const Icon = step.icon;
             return (
               <StaggerItem key={step.number}>
-                <div className="relative rounded-2xl border border-border bg-surface p-6">
-                  <span className="absolute right-6 top-6 text-4xl font-bold text-border">
+                <motion.div
+                  whileHover={{ y: -4 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                  className="group relative rounded-2xl border border-border bg-surface p-6 shadow-sm transition-colors duration-300 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5"
+                >
+                  <span className="absolute right-6 top-6 text-4xl font-bold text-border transition-colors duration-300 group-hover:text-primary/40">
                     {step.number}
                   </span>
-                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-text text-surface">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-text text-surface transition-all duration-300 group-hover:scale-110 group-hover:bg-primary group-hover:text-primary-foreground">
                     <Icon className="h-5 w-5" />
                   </div>
                   <h3 className="mt-5 text-lg font-semibold text-text">
@@ -72,7 +77,7 @@ export function HowItWorks() {
                   <p className="mt-2 text-sm leading-6 text-text-secondary">
                     {step.description}
                   </p>
-                </div>
+                </motion.div>
               </StaggerItem>
             );
           })}
