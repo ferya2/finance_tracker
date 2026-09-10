@@ -51,3 +51,5 @@ npm test
   dark mode with a sticky-nav toggle, and Geist typography across the landing.
 - Landing page entrance & scroll animations: staggered hero reveal, section
   scroll-reveal, and staggered feature/step cards via framer-motion.
+- 3D hero scene: an interactive floating coin that reacts to the pointer, with
+  floating crystal accents and an ambient ring, rendered via react-three-fiber.
