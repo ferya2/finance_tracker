@@ -2,11 +2,12 @@
 
 import dynamic from "next/dynamic";
 import {
-  ArrowRight,
   ChartPie,
   Sparkles,
   Wallet,
 } from "lucide-react";
+import { Button } from "@/components/button";
+import { Magnetic } from "@/components/magnetic";
 import { HeroReveal } from "@/components/motion";
 
 const HeroScene = dynamic(
@@ -113,20 +114,14 @@ export function Hero() {
 
           <HeroReveal delay={0.35}>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
-              <a
-                href="#how-it-works"
-                className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-primary px-7 text-sm font-medium text-primary-foreground transition-colors hover:opacity-90"
-              >
-                Start tracking
-                <ArrowRight className="h-4 w-4" />
-              </a>
-              <a
-                href="#features"
-                className="inline-flex h-12 items-center justify-center gap-2 rounded-full border border-border px-7 text-sm font-medium text-text-secondary transition-colors hover:bg-surface-subtle"
-              >
-                <ChartPie className="h-4 w-4" />
+              <Magnetic>
+                <Button href="#how-it-works" arrow>
+                  Start tracking
+                </Button>
+              </Magnetic>
+              <Button href="#features" variant="secondary" icon={ChartPie}>
                 See features
-              </a>
+              </Button>
             </div>
           </HeroReveal>
         </div>

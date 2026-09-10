@@ -1,5 +1,6 @@
 "use client";
 
+import { motion } from "framer-motion";
 import {
   BarChart3,
   Landmark,
@@ -78,8 +79,12 @@ export function Features() {
             const Icon = feature.icon;
             return (
               <StaggerItem key={feature.title}>
-                <div className="group rounded-2xl border border-border bg-surface p-6 transition-colors hover:border-primary/30 hover:bg-primary-light/40">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-success-subtle text-primary">
+                <motion.div
+                  whileHover={{ y: -4 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                  className="group rounded-2xl border border-border bg-surface p-6 shadow-sm transition-colors duration-300 hover:border-primary/40 hover:bg-primary-light/40 hover:shadow-lg hover:shadow-primary/5"
+                >
+                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-success-subtle text-primary transition-all duration-300 group-hover:scale-110 group-hover:bg-primary group-hover:text-primary-foreground">
                     <Icon className="h-5 w-5" />
                   </div>
                   <h3 className="mt-5 text-lg font-semibold text-text">
@@ -88,7 +93,7 @@ export function Features() {
                   <p className="mt-2 text-sm leading-6 text-text-secondary">
                     {feature.description}
                   </p>
-                </div>
+                </motion.div>
               </StaggerItem>
             );
           })}

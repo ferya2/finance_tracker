@@ -56,3 +56,6 @@ npm test
 - Ambient 3D page background: a pointer-reactive, instanced particle field plus
   animated gradient-mesh orbs behind the landing sections, dark-mode aware and
   lazy-loaded.
+- Micro-interactions: reusable animated buttons, magnetic hero CTA, animated nav
+  with gradient hover underlines, lift/glow hover states on cards, and smooth
+  anchor scrolling.
