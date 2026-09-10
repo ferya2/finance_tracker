@@ -1,3 +1,5 @@
+"use client";
+
 import {
   BarChart3,
   Landmark,
@@ -7,6 +9,7 @@ import {
   Wallet,
   type LucideIcon,
 } from "lucide-react";
+import { Reveal, Stagger, StaggerItem } from "@/components/motion";
 
 interface Feature {
   icon: LucideIcon;
@@ -57,7 +60,7 @@ export function Features() {
   return (
     <section id="features" className="border-t border-border py-20">
       <div className="mx-auto w-full max-w-6xl px-6">
-        <div className="mx-auto max-w-2xl text-center">
+        <Reveal className="mx-auto max-w-2xl text-center">
           <h2 className="text-3xl font-bold tracking-tight text-text sm:text-4xl">
             Everything you need to master your finances
           </h2>
@@ -65,28 +68,31 @@ export function Features() {
             A simple, powerful toolkit that grows with you — from your first
             budget to your best year yet.
           </p>
-        </div>
-        <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        </Reveal>
+        <Stagger
+          className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
+          stagger={0.08}
+          delay={0.15}
+        >
           {features.map((feature) => {
             const Icon = feature.icon;
             return (
-              <div
-                key={feature.title}
-                className="group rounded-2xl border border-border bg-surface p-6 transition-colors hover:border-primary/30 hover:bg-primary-light/40"
-              >
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-success-subtle text-primary">
-                  <Icon className="h-5 w-5" />
+              <StaggerItem key={feature.title}>
+                <div className="group rounded-2xl border border-border bg-surface p-6 transition-colors hover:border-primary/30 hover:bg-primary-light/40">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-success-subtle text-primary">
+                    <Icon className="h-5 w-5" />
+                  </div>
+                  <h3 className="mt-5 text-lg font-semibold text-text">
+                    {feature.title}
+                  </h3>
+                  <p className="mt-2 text-sm leading-6 text-text-secondary">
+                    {feature.description}
+                  </p>
                 </div>
-                <h3 className="mt-5 text-lg font-semibold text-text">
-                  {feature.title}
-                </h3>
-                <p className="mt-2 text-sm leading-6 text-text-secondary">
-                  {feature.description}
-                </p>
-              </div>
+              </StaggerItem>
             );
           })}
-        </div>
+        </Stagger>
       </div>
     </section>
   );

@@ -49,3 +49,5 @@ npm test
   mode support.
 - Design system foundation: semantic color/typography/spacing tokens, class-based
   dark mode with a sticky-nav toggle, and Geist typography across the landing.
+- Landing page entrance & scroll animations: staggered hero reveal, section
+  scroll-reveal, and staggered feature/step cards via framer-motion.
