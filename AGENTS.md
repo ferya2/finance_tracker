@@ -23,6 +23,11 @@ local filesystem DB — everything works serverless).
 The UI must be **premium**: modern, smooth `framer-motion` animations, tasteful
 **3D** touches, dark mode, and polished micro-interactions.
 
+**Landing page design reference:** https://pasin.ryyarf.my.id/ — clean minimal
+light aesthetic, numbered sections, humanist sans-serif, an interactive
+drag-to-rotate 3D hero, and smooth scroll-reveal motion. Full brief in
+`.ai/DESIGN.md` — follow it for all landing-page work (Week 1).
+
 ## Architecture (testability first)
 
 ```
