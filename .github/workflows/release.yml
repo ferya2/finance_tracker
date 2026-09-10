@@ -1,0 +1,59 @@
+name: Release
+
+# Runs on every merge to main (plus a manual button). semantic-release reads
+# Conventional Commits since the last tag, bumps the version in package.json,
+# creates the git tag + GitHub Release with notes. A web app has no binary asset;
+# Vercel handles deployment separately.
+#
+# A release only happens if there is a `feat:`/`fix:` commit since the last tag.
+# The version-bump commit carries "[skip ci]", so it does not re-trigger this.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install semantic-release
+        run: |
+          npm install --no-save \
+            semantic-release \
+            @semantic-release/commit-analyzer \
+            @semantic-release/release-notes-generator \
+            @semantic-release/npm \
+            @semantic-release/git \
+            @semantic-release/github
+
+      - name: Run semantic-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GIT_AUTHOR_NAME: ferya2
+          GIT_AUTHOR_EMAIL: adefery221@gmail.com
+          GIT_COMMITTER_NAME: ferya2
+          GIT_COMMITTER_EMAIL: adefery221@gmail.com
+        run: npx semantic-release

@@ -1,0 +1,124 @@
+name: Autonomous Development
+
+# Runs the OpenCode agent once per day. It does ONE small task from .ai/TASKS.md,
+# validates it (lint + tests), opens a PR, and auto-merges when the test gate is
+# green. Never pushes to main directly. Commits as the repo owner (no watermark).
+
+on:
+  schedule:
+    # Daily at 20:00 UTC == 03:00 WIB (UTC+7). GitHub cron may run 5-15 min late.
+    - cron: "0 20 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: autonomous-development
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  develop:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          # Commit as the repo owner so every automated commit shows on their account.
+          git config user.name "ferya2"
+          git config user.email "adefery221@gmail.com"
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Write shared agent prompt
+        run: |
+          cat > "${RUNNER_TEMP}/agent_prompt.txt" <<'PROMPT'
+          You are an autonomous Next.js engineer working on a Finance Tracker web app.
+
+          Your goal: make ONE meaningful, small, incremental change and open a PR.
+
+          Steps:
+          1. Read AGENTS.md first.
+          2. Read .ai/ARCHITECTURE.md and .ai/DEVELOPMENT.md.
+          3. Read .ai/TASKS.md and pick the FIRST unchecked "Day NN" task.
+          4. Implement ONLY that task. Follow the existing architecture.
+             Do not implement other days. Do not refactor unrelated code.
+          5. Keep business logic pure in src/lib/finance/ and add Vitest tests.
+             Do NOT hit real Supabase in tests — mock the client.
+          6. The UI must be modern and smoothly animated (framer-motion); use 3D
+             (@react-three/fiber) where the task calls for it.
+          7. Run validation: `npm run lint`, then `npm test`. Both must pass.
+          8. If validation fails, fix it. If it cannot pass cleanly, make NO changes
+             and stop.
+          9. Tick that Day's checkbox in .ai/TASKS.md (and the matching item in
+             .ai/ROADMAP.md if the phase is complete).
+          10. Update README.md: append ONE concise bullet under "## Progress" for the
+              task you just finished. Keep it brief.
+          11. Create a branch `feat/day<NN>/<YYYY-MM-DD>` where <NN> is the
+              zero-padded day number (e.g. `feat/day08/2026-09-10`). Reuse it if it
+              already exists.
+          12. Commit with a Conventional Commit message (e.g.
+              `feat(landing): add 3D hero`) and open a Pull Request against `main`
+              with the `gh` CLI, stating which Day was done and how it was validated.
+
+          Hard rules:
+          - Do exactly ONE task. Prefer the smallest correct implementation.
+          - Never push to main. Never modify secrets or CI credentials.
+          - Never commit .env.local, supabase.md, or kredensial.md.
+          - Do NOT add any AI attribution: no "Co-Authored-By", no "Generated with
+            ...", no bot signatures, in commits OR in the PR body.
+          PROMPT
+
+      - name: Install OpenCode
+        run: npm install -g opencode-ai
+
+      - name: Run AI Developer (OpenCode)
+        env:
+          # OpenCode Zen API key (opencode.ai/zen). Model overridable via a repo
+          # variable OPENCODE_MODEL.
+          OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          opencode run --auto \
+            --model "${{ vars.OPENCODE_MODEL || 'opencode/big-pickle' }}" \
+            "$(cat "${RUNNER_TEMP}/agent_prompt.txt")"
+
+      - name: Verify and auto-merge if tests pass
+        env:
+          # PAT (not GITHUB_TOKEN) so the merge is attributed to you AND triggers
+          # release.yml (GitHub anti-loop rule).
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          set -e
+          BRANCH="$(git rev-parse --abbrev-ref HEAD)"
+          if [ "$BRANCH" = "main" ]; then
+            echo "Agent stayed on main (no task/PR). Nothing to merge."
+            exit 0
+          fi
+          if ! gh pr view "$BRANCH" >/dev/null 2>&1; then
+            echo "No open PR for '$BRANCH'. Nothing to merge."
+            exit 0
+          fi
+
+          echo "== Independent verification gate =="
+          npm install
+          npm run lint
+          npm test
+
+          echo "== Green -> auto-merging PR (squash) =="
+          gh pr merge "$BRANCH" --squash --delete-branch
