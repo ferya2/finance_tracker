@@ -68,3 +68,6 @@ npm test
 - Supabase client bootstrap: `lib/supabase/client.ts` with env-driven client
   creation, auth helpers (sign up / sign in / sign out), a committed
   `.env.example`, and mocked-client unit tests.
+- Sign-up page: animated `/sign-up` form with pure client-side validation
+  (`lib/auth/validate.ts`, unit-tested) wired to Supabase Auth, with loading and
+  error/confirmation states, plus a "Sign up" nav link.
