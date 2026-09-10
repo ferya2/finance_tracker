@@ -65,3 +65,6 @@ npm test
 - Landing UI refinement pass: added numbered section dividers (02, 03), increased
   vertical whitespace and section padding, tighter card gaps, softer 3D lighting
   and reduced decoration count, and subtler card hover effects.
+- Supabase client bootstrap: `lib/supabase/client.ts` with env-driven client
+  creation, auth helpers (sign up / sign in / sign out), a committed
+  `.env.example`, and mocked-client unit tests.
