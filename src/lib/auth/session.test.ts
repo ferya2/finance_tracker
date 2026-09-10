@@ -56,7 +56,9 @@ describe("sessionReducer", () => {
       status: "signedOut" as const,
       user: null,
     };
-    expect(sessionReducer(state, { type: "unknown" } as SessionAction)).toBe(
+    expect(
+      sessionReducer(state, { type: "unknown" } as unknown as SessionAction),
+    ).toBe(
       state,
     );
   });

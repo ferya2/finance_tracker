@@ -73,9 +73,12 @@ database or network. UI and Supabase calls stay thin.
 Run, in order:
 
 - `npm run lint`
+- `npm run typecheck` (`tsc --noEmit` — also checks test files, like Vercel's build)
 - `npm test`
 
-Only commit if both pass. If a task cannot be completed cleanly, make no changes.
+Only commit if all pass. If a task cannot be completed cleanly, make no changes.
+Keep test files type-clean: to test an invalid value, cast via `unknown` first
+(e.g. `x as unknown as SomeType`), never a direct incompatible cast.
 
 ## Commit Format
 

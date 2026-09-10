@@ -61,7 +61,9 @@ jobs:
              Do NOT hit real Supabase in tests — mock the client.
           6. The UI must be modern and smoothly animated (framer-motion); use 3D
              (@react-three/fiber) where the task calls for it.
-          7. Run validation: `npm run lint`, then `npm test`. Both must pass.
+          7. Run validation: `npm run lint`, `npm run typecheck`, then `npm test`.
+             All must pass. `typecheck` runs `tsc --noEmit` and covers test files,
+             so keep test files type-clean too (this is what Vercel's build checks).
           8. If validation fails, fix it. If it cannot pass cleanly, make NO changes
              and stop.
           9. Tick that Day's checkbox in .ai/TASKS.md (and the matching item in
@@ -118,6 +120,7 @@ jobs:
           echo "== Independent verification gate =="
           npm install
           npm run lint
+          npm run typecheck
           npm test
 
           echo "== Green -> auto-merging PR (squash) =="
