@@ -14,7 +14,7 @@ it, ticks the box, and opens a PR. Never bundle two days into one run.
 - [x] **Day 01 — Landing page (rough, complete).** Build a full landing page:
   hero (headline + CTA), features section, "how it works", and footer. Real
   content, sensible layout. `npm run lint` + `npm test` pass.
-- [ ] **Day 02 — Design system + modern polish.** Color tokens, typography scale,
+- [x] **Day 02 — Design system + modern polish.** Color tokens, typography scale,
   spacing, dark mode. Refine the landing to look modern and intentional.
 - [ ] **Day 03 — Entrance & scroll animations.** framer-motion: hero entrance,
   section reveal-on-scroll, staggered feature cards.

@@ -35,14 +35,14 @@ export function HowItWorks() {
   return (
     <section
       id="how-it-works"
-      className="bg-zinc-50 py-20 transition-colors dark:bg-zinc-900/40"
+      className="bg-surface-subtle py-20 transition-colors"
     >
       <div className="mx-auto w-full max-w-6xl px-6">
         <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-3xl font-bold tracking-tight text-zinc-900 sm:text-4xl dark:text-zinc-50">
+          <h2 className="text-3xl font-bold tracking-tight text-text sm:text-4xl">
             How it works
           </h2>
-          <p className="mt-4 text-lg leading-8 text-zinc-600 dark:text-zinc-400">
+          <p className="mt-4 text-lg leading-8 text-text-secondary">
             Get set up in minutes and see real clarity in your spending within
             the first month.
           </p>
@@ -53,18 +53,18 @@ export function HowItWorks() {
             return (
               <li
                 key={step.number}
-                className="relative rounded-2xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900"
+                className="relative rounded-2xl border border-border bg-surface p-6"
               >
-                <span className="absolute right-6 top-6 text-4xl font-bold text-zinc-100 dark:text-zinc-800">
+                <span className="absolute right-6 top-6 text-4xl font-bold text-border">
                   {step.number}
                 </span>
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-zinc-900 text-zinc-50 dark:bg-zinc-100 dark:text-zinc-900">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-text text-surface">
                   <Icon className="h-5 w-5" />
                 </div>
-                <h3 className="mt-5 text-lg font-semibold text-zinc-900 dark:text-zinc-50">
+                <h3 className="mt-5 text-lg font-semibold text-text">
                   {step.title}
                 </h3>
-                <p className="mt-2 text-sm leading-6 text-zinc-600 dark:text-zinc-400">
+                <p className="mt-2 text-sm leading-6 text-text-secondary">
                   {step.description}
                 </p>
               </li>

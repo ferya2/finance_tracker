@@ -47,3 +47,5 @@ npm test
   autonomous CI/CD set up.
 - Complete landing page (hero + CTA, features, how-it-works, footer) with dark
   mode support.
+- Design system foundation: semantic color/typography/spacing tokens, class-based
+  dark mode with a sticky-nav toggle, and Geist typography across the landing.
