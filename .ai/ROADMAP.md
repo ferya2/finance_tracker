@@ -4,7 +4,7 @@ Source of truth for **what** to build. The agent picks daily tasks from
 `.ai/TASKS.md`. Tick a box when a whole phase is done.
 
 ## Phase 1 — Landing page (Week 1)
-- [ ] Complete landing page, then modern UI + framer-motion + 3D + polish
+- [x] Complete landing page, then modern UI + framer-motion + 3D + polish
 
 ## Phase 2 — Auth (Week 2)
 - [ ] Supabase Auth: sign up, login, session, protected routes, account

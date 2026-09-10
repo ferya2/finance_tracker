@@ -9,6 +9,8 @@ import {
 import { Button } from "@/components/button";
 import { Magnetic } from "@/components/magnetic";
 import { HeroReveal } from "@/components/motion";
+import { useMediaQuery } from "@/components/use-media-query";
+import { usePrefersReducedMotion } from "@/components/use-prefers-reduced-motion";
 
 const HeroScene = dynamic(
   () =>
@@ -79,6 +81,10 @@ function PreviewCard() {
 }
 
 export function Hero() {
+  const isDesktop = useMediaQuery("(min-width: 1024px)");
+  const reduced = usePrefersReducedMotion();
+  const showScene = isDesktop && !reduced;
+
   return (
     <section className="relative overflow-hidden">
       <div
@@ -126,7 +132,7 @@ export function Hero() {
           </HeroReveal>
         </div>
         <div className="relative hidden w-full max-w-sm lg:block">
-          <HeroScene className="absolute inset-0 h-full w-full" />
+          {showScene && <HeroScene className="absolute inset-0 h-full w-full" />}
           <PreviewCard />
         </div>
       </div>

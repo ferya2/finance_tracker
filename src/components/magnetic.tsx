@@ -2,6 +2,7 @@
 
 import { motion, useMotionValue, useSpring } from "framer-motion";
 import { type PointerEvent, type ReactNode, useRef } from "react";
+import { usePrefersReducedMotion } from "@/components/use-prefers-reduced-motion";
 
 const MAX_OFFSET = 8;
 
@@ -16,6 +17,11 @@ export function Magnetic({ children, className }: MagneticProps) {
   const y = useMotionValue(0);
   const springX = useSpring(x, { stiffness: 300, damping: 20, mass: 0.5 });
   const springY = useSpring(y, { stiffness: 300, damping: 20, mass: 0.5 });
+  const reduced = usePrefersReducedMotion();
+
+  if (reduced) {
+    return <div className={className}>{children}</div>;
+  }
 
   function onPointerMove(event: PointerEvent<HTMLDivElement>) {
     if (event.pointerType !== "mouse") return;
