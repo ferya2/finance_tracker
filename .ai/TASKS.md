@@ -16,7 +16,7 @@ it, ticks the box, and opens a PR. Never bundle two days into one run.
   content, sensible layout. `npm run lint` + `npm test` pass.
 - [x] **Day 02 — Design system + modern polish.** Color tokens, typography scale,
   spacing, dark mode. Refine the landing to look modern and intentional.
-- [ ] **Day 03 — Entrance & scroll animations.** framer-motion: hero entrance,
+- [x] **Day 03 — Entrance & scroll animations.** framer-motion: hero entrance,
   section reveal-on-scroll, staggered feature cards.
 - [ ] **Day 04 — 3D hero.** Add a react-three-fiber scene to the hero (e.g. a
   floating coin/card/abstract shape) that reacts subtly to the pointer.
