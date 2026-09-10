@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import {
   ArrowRight,
   ChartPie,
@@ -7,6 +8,12 @@ import {
   Wallet,
 } from "lucide-react";
 import { HeroReveal } from "@/components/motion";
+
+const HeroScene = dynamic(
+  () =>
+    import("@/components/3d/hero-scene").then((m) => m.HeroScene),
+  { ssr: false },
+);
 
 function PreviewCard() {
   const rows = [
@@ -16,7 +23,7 @@ function PreviewCard() {
   ];
 
   return (
-    <HeroReveal delay={0.45} className="hidden w-full max-w-sm lg:block">
+    <HeroReveal delay={0.45} className="w-full max-w-sm">
       <div
         aria-hidden
         className="relative overflow-hidden rounded-2xl border border-border bg-surface/80 p-5 shadow-xl shadow-black/10 backdrop-blur"
@@ -123,7 +130,10 @@ export function Hero() {
             </div>
           </HeroReveal>
         </div>
-        <PreviewCard />
+        <div className="relative hidden w-full max-w-sm lg:block">
+          <HeroScene className="absolute inset-0 h-full w-full" />
+          <PreviewCard />
+        </div>
       </div>
     </section>
   );
