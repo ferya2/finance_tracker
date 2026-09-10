@@ -7,6 +7,7 @@ import {
   type Variants,
 } from "framer-motion";
 import { type ReactNode, useRef } from "react";
+import { usePrefersReducedMotion } from "@/components/use-prefers-reduced-motion";
 
 /* ── Variant presets ── */
 
@@ -36,9 +37,18 @@ export function Reveal({
   delay = 0,
   variant = "fadeUp",
 }: RevealProps) {
+  const reduced = usePrefersReducedMotion();
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: "-60px" });
   const v = variant === "fadeIn" ? fadeIn : fadeUp;
+
+  if (reduced) {
+    return (
+      <div ref={ref} data-reduced-motion="true" className={className}>
+        {children}
+      </div>
+    );
+  }
 
   return (
     <motion.div
@@ -72,8 +82,17 @@ export function Stagger({
   stagger = 0.1,
   delay = 0,
 }: StaggerProps) {
+  const reduced = usePrefersReducedMotion();
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: "-60px" });
+
+  if (reduced) {
+    return (
+      <div ref={ref} data-reduced-motion="true" className={className}>
+        {children}
+      </div>
+    );
+  }
 
   const containerVariants: Variants = {
     hidden: {},
@@ -105,6 +124,16 @@ interface StaggerItemProps {
 
 /** Child element of a `<Stagger>` — fades up when the parent triggers. */
 export function StaggerItem({ children, className }: StaggerItemProps) {
+  const reduced = usePrefersReducedMotion();
+
+  if (reduced) {
+    return (
+      <div data-reduced-motion="true" className={className}>
+        {children}
+      </div>
+    );
+  }
+
   return (
     <motion.div
       variants={fadeUp}
@@ -126,6 +155,16 @@ export function HeroReveal({
   className?: string;
   delay?: number;
 }) {
+  const reduced = usePrefersReducedMotion();
+
+  if (reduced) {
+    return (
+      <div data-reduced-motion="true" className={className}>
+        {children}
+      </div>
+    );
+  }
+
   return (
     <motion.div
       initial="hidden"

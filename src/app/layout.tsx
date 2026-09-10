@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Wallet } from "lucide-react";
@@ -20,6 +20,15 @@ export const metadata: Metadata = {
   title: "Finance Tracker — Track income, budget smarter",
   description:
     "A modern personal finance tracker. Track income and expenses, set monthly budgets, and understand your spending with clear reports.",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: [
+    { media: "(prefers-color-scheme: dark)", color: "#09090b" },
+    { color: "#ffffff" },
+  ],
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

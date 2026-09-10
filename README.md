@@ -59,3 +59,6 @@ npm test
 - Micro-interactions: reusable animated buttons, magnetic hero CTA, animated nav
   with gradient hover underlines, lift/glow hover states on cards, and smooth
   anchor scrolling.
+- Responsive + performance pass: mobile-friendly overflow handling, 3D hero only
+  on desktop, idle-deferred ambient 3D, full `prefers-reduced-motion` support
+  (static content, no 3D), and theme-color viewport metadata.
