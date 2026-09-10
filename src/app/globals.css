@@ -1,26 +1,143 @@
 @import "tailwindcss";
 
+/* ── Dark mode via class (add/remove "dark" on <html>) ── */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ── Light mode tokens ── */
 :root {
   --background: #ffffff;
   --foreground: #171717;
+
+  /* Primary — emerald */
+  --color-primary: #059669;
+  --color-primary-light: #d1fae5;
+  --color-primary-foreground: #ffffff;
+
+  /* Accent — teal */
+  --color-accent: #0d9488;
+
+  /* Surfaces */
+  --color-surface: #ffffff;
+  --color-surface-subtle: #f4f4f5;
+  --color-surface-muted: #f9fafb;
+
+  /* Text */
+  --color-text: #09090b;
+  --color-text-secondary: #52525b;
+  --color-text-muted: #a1a1aa;
+
+  /* Borders */
+  --color-border: #e4e4e7;
+  --color-border-strong: #d4d4d8;
+
+  /* Semantic */
+  --color-danger: #e11d48;
+  --color-danger-light: #ffe4e6;
+  --color-success: #059669;
+  --color-success-light: #d1fae5;
+  --color-warning: #d97706;
+  --color-warning-light: #fef3c7;
+
+  /* Feedback */
+  --color-success-subtle: #ecfdf5;
+  --color-danger-subtle: #fef2f2;
+
+  /* Typography */
+  --font-size-display: 3.75rem;
+  --font-size-h1: 3rem;
+  --font-size-h2: 2.25rem;
+  --font-size-h3: 1.25rem;
+  --font-size-body: 1rem;
+  --font-size-body-lg: 1.125rem;
+  --font-size-body-sm: 0.875rem;
+  --font-size-caption: 0.75rem;
+  --line-height-tight: 1.2;
+  --line-height-snug: 1.375;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.75;
+
+  /* Spacing */
+  --space-section: 5rem;
+  --space-card: 1.5rem;
 }
 
+/* ── Dark mode tokens ── */
+.dark {
+  --background: #09090b;
+  --foreground: #fafafa;
+
+  /* Primary — lighter emerald for dark bg contrast */
+  --color-primary: #34d399;
+  --color-primary-light: rgba(52, 211, 153, 0.12);
+  --color-primary-foreground: #022c22;
+
+  /* Accent */
+  --color-accent: #2dd4bf;
+
+  /* Surfaces */
+  --color-surface: #18181b;
+  --color-surface-subtle: #27272a;
+  --color-surface-muted: #1c1c1f;
+
+  /* Text */
+  --color-text: #fafafa;
+  --color-text-secondary: #a1a1aa;
+  --color-text-muted: #71717a;
+
+  /* Borders */
+  --color-border: #27272a;
+  --color-border-strong: #3f3f46;
+
+  /* Semantic */
+  --color-danger: #fb7185;
+  --color-danger-light: rgba(251, 113, 133, 0.12);
+  --color-success: #34d399;
+  --color-success-light: rgba(52, 211, 153, 0.12);
+  --color-warning: #fbbf24;
+  --color-warning-light: rgba(251, 191, 36, 0.12);
+
+  /* Feedback */
+  --color-success-subtle: rgba(52, 211, 153, 0.06);
+  --color-danger-subtle: rgba(251, 113, 133, 0.06);
+}
+
+/* ── Tailwind v4 theme tokens ── */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+
+  --color-primary: var(--color-primary);
+  --color-primary-light: var(--color-primary-light);
+  --color-primary-foreground: var(--color-primary-foreground);
+  --color-accent: var(--color-accent);
+
+  --color-surface: var(--color-surface);
+  --color-surface-subtle: var(--color-surface-subtle);
+  --color-surface-muted: var(--color-surface-muted);
+
+  --color-text: var(--color-text);
+  --color-text-secondary: var(--color-text-secondary);
+  --color-text-muted: var(--color-text-muted);
+
+  --color-border: var(--color-border);
+  --color-border-strong: var(--color-border-strong);
+
+  --color-danger: var(--color-danger);
+  --color-danger-light: var(--color-danger-light);
+  --color-success: var(--color-success);
+  --color-success-light: var(--color-success-light);
+  --color-warning: var(--color-warning);
+  --color-warning-light: var(--color-warning-light);
+
+  --color-success-subtle: var(--color-success-subtle);
+  --color-danger-subtle: var(--color-danger-subtle);
+
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
 }

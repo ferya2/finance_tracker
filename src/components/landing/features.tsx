@@ -55,13 +55,13 @@ const features: Feature[] = [
 
 export function Features() {
   return (
-    <section id="features" className="border-t border-zinc-200 py-20 dark:border-zinc-800">
+    <section id="features" className="border-t border-border py-20">
       <div className="mx-auto w-full max-w-6xl px-6">
         <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-3xl font-bold tracking-tight text-zinc-900 sm:text-4xl dark:text-zinc-50">
+          <h2 className="text-3xl font-bold tracking-tight text-text sm:text-4xl">
             Everything you need to master your finances
           </h2>
-          <p className="mt-4 text-lg leading-8 text-zinc-600 dark:text-zinc-400">
+          <p className="mt-4 text-lg leading-8 text-text-secondary">
             A simple, powerful toolkit that grows with you — from your first
             budget to your best year yet.
           </p>
@@ -72,15 +72,15 @@ export function Features() {
             return (
               <div
                 key={feature.title}
-                className="group rounded-2xl border border-zinc-200 bg-white p-6 transition-colors hover:border-emerald-200 hover:bg-emerald-50/40 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-emerald-500/30 dark:hover:bg-emerald-500/5"
+                className="group rounded-2xl border border-border bg-surface p-6 transition-colors hover:border-primary/30 hover:bg-primary-light/40"
               >
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-success-subtle text-primary">
                   <Icon className="h-5 w-5" />
                 </div>
-                <h3 className="mt-5 text-lg font-semibold text-zinc-900 dark:text-zinc-50">
+                <h3 className="mt-5 text-lg font-semibold text-text">
                   {feature.title}
                 </h3>
-                <p className="mt-2 text-sm leading-6 text-zinc-600 dark:text-zinc-400">
+                <p className="mt-2 text-sm leading-6 text-text-secondary">
                   {feature.description}
                 </p>
               </div>
