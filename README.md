@@ -74,3 +74,7 @@ npm test
 - Login page: animated `/login` form with pure `validateLogin` logic (unit-tested)
   wired to Supabase Auth, server-error handling, a "Log in" nav link, and
   cross-links between the login and sign-up forms.
+- Session provider & logout: a client-side `SessionProvider` + `useSession` hook
+  (pure, tested reducer in `lib/auth/session.ts`) that restores the session on
+  load and tracks auth state changes from Supabase, with a "Log out" control in
+  the nav for signed-in users.

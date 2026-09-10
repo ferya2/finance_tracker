@@ -45,7 +45,7 @@ whitespace, an interactive drag-to-rotate **3D** hero, and smooth scroll-reveal
 - [x] **Day 10 — Sign up page.** Form + validation wired to Supabase Auth. Animated.
   Tests.
 - [x] **Day 11 — Login page.** Login form + error handling. Animated. Tests.
-- [ ] **Day 12 — Session & logout.** User/session context/provider + logout. Tests
+- [x] **Day 12 — Session & logout.** User/session context/provider + logout. Tests
   for the pure helpers.
 - [ ] **Day 13 — Protected routes.** Middleware/guard: redirect unauthenticated
   users to login; redirect logged-in users away from auth pages.

@@ -1,4 +1,9 @@
-import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import {
+  createClient,
+  type AuthChangeEvent,
+  type Session,
+  type SupabaseClient,
+} from "@supabase/supabase-js";
 
 export type { SupabaseClient };
 
@@ -40,4 +45,14 @@ export async function signInWithPassword({ email, password }: Credentials) {
 
 export async function signOut() {
   return getSupabaseClient().auth.signOut();
+}
+
+export async function getSession() {
+  return getSupabaseClient().auth.getSession();
+}
+
+export function onAuthStateChange(
+  callback: (event: AuthChangeEvent, session: Session | null) => void,
+) {
+  return getSupabaseClient().auth.onAuthStateChange(callback);
 }
