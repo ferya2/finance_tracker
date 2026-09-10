@@ -33,7 +33,7 @@ whitespace, an interactive drag-to-rotate **3D** hero, and smooth scroll-reveal
   anchor scrolling between numbered sections.
 - [x] **Day 07 — Responsive + performance.** Flawless on mobile; respect
   prefers-reduced-motion; lazy-load 3D; Lighthouse-friendly.
-- [ ] **Day 08 — Landing UI refinement (match reference).** Polish the whole
+- [x] **Day 08 — Landing UI refinement (match reference).** Polish the whole
   landing to the quality bar of https://pasin.ryyarf.my.id/ — tighten spacing,
   typography, section rhythm, make the 3D and framer-motion feel clean and
   intentional. This is a dedicated "make it beautiful" pass, no new sections.

@@ -39,20 +39,23 @@ export function HowItWorks() {
   return (
     <section
       id="how-it-works"
-      className="bg-surface-subtle py-20 transition-colors"
+      className="bg-surface-subtle py-28 transition-colors"
     >
       <div className="mx-auto w-full max-w-6xl px-6">
         <Reveal className="mx-auto max-w-2xl text-center">
-          <h2 className="text-3xl font-bold tracking-tight text-text sm:text-4xl">
+          <span className="inline-block text-xs font-semibold tracking-widest text-text-muted">
+            03
+          </span>
+          <h2 className="mt-3 text-3xl font-bold tracking-tight text-text sm:text-4xl">
             How it works
           </h2>
-          <p className="mt-4 text-lg leading-8 text-text-secondary">
+          <p className="mt-5 text-lg leading-8 text-text-secondary">
             Get set up in minutes and see real clarity in your spending within
             the first month.
           </p>
         </Reveal>
         <Stagger
-          className="mt-14 grid gap-6 md:grid-cols-3"
+          className="mt-16 grid gap-5 md:grid-cols-3"
           stagger={0.1}
           delay={0.15}
         >
@@ -63,7 +66,7 @@ export function HowItWorks() {
                 <motion.div
                   whileHover={{ y: -4 }}
                   transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                  className="group relative rounded-2xl border border-border bg-surface p-6 shadow-sm transition-colors duration-300 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5"
+                  className="group relative rounded-2xl border border-border bg-surface p-7 transition-colors duration-300 hover:border-primary/30 hover:shadow-md hover:shadow-primary/5"
                 >
                   <span className="absolute right-6 top-6 text-4xl font-bold text-border transition-colors duration-300 group-hover:text-primary/40">
                     {step.number}

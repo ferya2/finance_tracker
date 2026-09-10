@@ -62,3 +62,6 @@ npm test
 - Responsive + performance pass: mobile-friendly overflow handling, 3D hero only
   on desktop, idle-deferred ambient 3D, full `prefers-reduced-motion` support
   (static content, no 3D), and theme-color viewport metadata.
+- Landing UI refinement pass: added numbered section dividers (02, 03), increased
+  vertical whitespace and section padding, tighter card gaps, softer 3D lighting
+  and reduced decoration count, and subtler card hover effects.
