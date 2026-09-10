@@ -40,7 +40,7 @@ whitespace, an interactive drag-to-rotate **3D** hero, and smooth scroll-reveal
 
 ## Week 2 — Auth (Supabase)
 
-- [ ] **Day 09 — Supabase client + env.** `lib/supabase/client.ts`, `.env.example`,
+- [x] **Day 09 — Supabase client + env.** `lib/supabase/client.ts`, `.env.example`,
   auth helper. Test the module loads with mocked env.
 - [ ] **Day 10 — Sign up page.** Form + validation wired to Supabase Auth. Animated.
   Tests.
