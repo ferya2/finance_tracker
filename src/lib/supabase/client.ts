@@ -43,6 +43,10 @@ export async function signInWithPassword({ email, password }: Credentials) {
   });
 }
 
+export async function resetPassword(email: string) {
+  return getSupabaseClient().auth.resetPasswordForEmail(email);
+}
+
 export async function signOut() {
   return getSupabaseClient().auth.signOut();
 }

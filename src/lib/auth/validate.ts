@@ -60,6 +60,15 @@ export function validateLogin({ email, password }: LoginInput): ValidationErrors
   return errors;
 }
 
+export function validateResetPassword({ email }: { email: string }): ValidationErrors {
+  const errors: ValidationErrors = {};
+  const emailError = validateEmail(email);
+  if (emailError) {
+    errors.email = emailError;
+  }
+  return errors;
+}
+
 export function hasErrors(errors: ValidationErrors): boolean {
   return Object.keys(errors).length > 0;
 }

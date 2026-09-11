@@ -13,9 +13,9 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { type FormEvent, useState } from "react";
+import { usePrefersReducedMotion } from "@/components/use-prefers-reduced-motion";
 import { hasErrors, validateSignUp } from "@/lib/auth/validate";
 import { signUp } from "@/lib/supabase/client";
-import { usePrefersReducedMotion } from "@/components/use-prefers-reduced-motion";
 
 type Status =
   | { type: "idle" }
@@ -34,10 +34,23 @@ export function SignUpForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fieldErrors, setFieldErrors] = useState<{ email?: string; password?: string }>({});
+  const [touched, setTouched] = useState<{ email?: boolean; password?: boolean }>({});
   const [status, setStatus] = useState<Status>({ type: "idle" });
+
+  function validateField(name: "email" | "password") {
+    const errors = validateSignUp({ email, password });
+    setFieldErrors((prev) => ({ ...prev, [name]: errors[name] }));
+  }
+
+  function handleBlur(name: "email" | "password") {
+    setTouched((prev) => ({ ...prev, [name]: true }));
+    const errors = validateSignUp({ email, password });
+    setFieldErrors((prev) => ({ ...prev, [name]: errors[name] }));
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    setTouched({ email: true, password: true });
 
     const errors = validateSignUp({ email, password });
     setFieldErrors(errors);
@@ -111,16 +124,24 @@ export function SignUpForm() {
                   type="email"
                   autoComplete="email"
                   value={email}
-                  onChange={(event) => setEmail(event.target.value)}
+                  onChange={(event) => {
+                    setEmail(event.target.value);
+                    if (touched.email) {
+                      validateField("email");
+                    }
+                  }}
+                  onBlur={() => handleBlur("email")}
                   placeholder="you@example.com"
-                  aria-invalid={Boolean(fieldErrors.email)}
-                  aria-describedby={fieldErrors.email ? "email-error" : undefined}
+                  aria-invalid={Boolean(touched.email && fieldErrors.email)}
+                  aria-describedby={
+                    touched.email && fieldErrors.email ? "email-error" : undefined
+                  }
                   className={`${inputClassName} ${
-                    fieldErrors.email ? errorInputClassName : ""
+                    touched.email && fieldErrors.email ? errorInputClassName : ""
                   }`}
                 />
               </div>
-              {fieldErrors.email && (
+              {touched.email && fieldErrors.email && (
                 <p
                   id="email-error"
                   role="alert"
@@ -142,16 +163,26 @@ export function SignUpForm() {
                   type="password"
                   autoComplete="new-password"
                   value={password}
-                  onChange={(event) => setPassword(event.target.value)}
+                  onChange={(event) => {
+                    setPassword(event.target.value);
+                    if (touched.password) {
+                      validateField("password");
+                    }
+                  }}
+                  onBlur={() => handleBlur("password")}
                   placeholder="At least 6 characters"
-                  aria-invalid={Boolean(fieldErrors.password)}
-                  aria-describedby={fieldErrors.password ? "password-error" : undefined}
+                  aria-invalid={Boolean(touched.password && fieldErrors.password)}
+                  aria-describedby={
+                    touched.password && fieldErrors.password
+                      ? "password-error"
+                      : undefined
+                  }
                   className={`${inputClassName} ${
-                    fieldErrors.password ? errorInputClassName : ""
+                    touched.password && fieldErrors.password ? errorInputClassName : ""
                   }`}
                 />
               </div>
-              {fieldErrors.password && (
+              {touched.password && fieldErrors.password && (
                 <p
                   id="password-error"
                   role="alert"

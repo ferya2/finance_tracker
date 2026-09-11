@@ -82,3 +82,7 @@ npm test
   `lib/auth/routes.ts`, unit-tested) redirects unauthenticated users away from
   `/app` to `/login` and signed-in users away from `/login`/`/sign-up` to `/app`,
   and the auth forms now redirect to `/app` after a successful login/sign-up.
+- Auth UX polish: inline field-level errors appear on blur (and clear as you
+  type) in the login/sign-up/reset forms, and the login page gains a smooth
+  animated "Forgot password?" flow (`PasswordResetForm`, wired to
+  `auth.resetPasswordForEmail`) with loading + success/error states.

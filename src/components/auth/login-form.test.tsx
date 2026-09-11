@@ -3,8 +3,9 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { LoginForm } from "./login-form";
 
-const { mockSignInWithPassword, mockPush } = vi.hoisted(() => ({
+const { mockSignInWithPassword, mockResetPassword, mockPush } = vi.hoisted(() => ({
   mockSignInWithPassword: vi.fn(),
+  mockResetPassword: vi.fn(),
   mockPush: vi.fn(),
 }));
 
@@ -14,11 +15,13 @@ vi.mock("next/navigation", () => ({
 
 vi.mock("@/lib/supabase/client", () => ({
   signInWithPassword: mockSignInWithPassword,
+  resetPassword: mockResetPassword,
 }));
 
 describe("LoginForm", () => {
   beforeEach(() => {
     mockSignInWithPassword.mockReset();
+    mockResetPassword.mockReset();
     mockPush.mockReset();
   });
 
@@ -51,6 +54,30 @@ describe("LoginForm", () => {
 
     expect(await screen.findByText("Enter a valid email address.")).toBeInTheDocument();
     expect(mockSignInWithPassword).not.toHaveBeenCalled();
+  });
+
+  it("shows an inline email error on blur without submitting", async () => {
+    const user = userEvent.setup();
+    render(<LoginForm />);
+
+    await user.click(screen.getByLabelText("Email"));
+    await user.tab();
+
+    expect(await screen.findByText("Email is required.")).toBeInTheDocument();
+    expect(mockSignInWithPassword).not.toHaveBeenCalled();
+  });
+
+  it("clears an inline error when the field is fixed after blur", async () => {
+    const user = userEvent.setup();
+    render(<LoginForm />);
+
+    await user.click(screen.getByLabelText("Email"));
+    await user.tab();
+    expect(await screen.findByText("Email is required.")).toBeInTheDocument();
+
+    await user.type(screen.getByLabelText("Email"), "ada@example.com");
+
+    expect(screen.queryByText("Email is required.")).not.toBeInTheDocument();
   });
 
   it("calls signInWithPassword with trimmed credentials for valid input", async () => {
@@ -130,5 +157,30 @@ describe("LoginForm", () => {
 
     await screen.findByText("Logged in");
     expect(mockPush).toHaveBeenCalledWith("/app");
+  });
+
+  it("offers a forgot-password link", () => {
+    render(<LoginForm />);
+
+    expect(
+      screen.getByRole("button", { name: /forgot password/i }),
+    ).toBeInTheDocument();
+  });
+
+  it("switches to the password reset view and back", async () => {
+    const user = userEvent.setup();
+    render(<LoginForm />);
+
+    await user.click(screen.getByRole("button", { name: /forgot password/i }));
+
+    expect(
+      await screen.findByRole("heading", { name: "Reset your password" }),
+    ).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Back to log in" }));
+
+    expect(
+      await screen.findByRole("heading", { name: "Welcome back" }),
+    ).toBeInTheDocument();
   });
 });

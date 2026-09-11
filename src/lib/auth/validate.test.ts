@@ -3,6 +3,7 @@ import {
   MIN_PASSWORD_LENGTH,
   hasErrors,
   validateLogin,
+  validateResetPassword,
   validateSignUp,
 } from "./validate";
 
@@ -101,6 +102,22 @@ describe("validateLogin", () => {
       email: "Email is required.",
       password: "Password is required.",
     });
+  });
+});
+
+describe("validateResetPassword", () => {
+  it("returns no errors for a valid email", () => {
+    expect(validateResetPassword({ email: "ada@example.com" })).toEqual({});
+  });
+
+  it("requires an email", () => {
+    expect(validateResetPassword({ email: "" }).email).toBe("Email is required.");
+  });
+
+  it("rejects a malformed email", () => {
+    expect(validateResetPassword({ email: "not-an-email" }).email).toBe(
+      "Enter a valid email address.",
+    );
   });
 });
 
