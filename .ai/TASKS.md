@@ -51,7 +51,7 @@ whitespace, an interactive drag-to-rotate **3D** hero, and smooth scroll-reveal
   users to login; redirect logged-in users away from auth pages.
 - [x] **Day 14 — Auth UX polish.** Loading states, inline errors, transitions,
   "forgot password" stub.
-- [ ] **Day 15 — Account basics.** Show current user, basic profile display.
+- [x] **Day 15 — Account basics.** Show current user, basic profile display.
 
 ## Week 3 — Core finance logic (pure, unit-tested)
 

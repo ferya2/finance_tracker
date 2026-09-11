@@ -73,6 +73,10 @@ describe("Nav", () => {
     expect(
       await screen.findByRole("button", { name: "Log out" }),
     ).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Account" })).toHaveAttribute(
+      "href",
+      "/app/account",
+    );
     expect(screen.queryByRole("link", { name: "Sign up" })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Log in" })).not.toBeInTheDocument();
   });
@@ -95,5 +99,6 @@ describe("Nav", () => {
 
     expect(mockSignOut).toHaveBeenCalledOnce();
     expect(await screen.findByRole("link", { name: "Sign up" })).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Account" })).not.toBeInTheDocument();
   });
 });
