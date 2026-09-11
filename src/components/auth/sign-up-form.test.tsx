@@ -53,6 +53,30 @@ describe("SignUpForm", () => {
     expect(mockSignUp).not.toHaveBeenCalled();
   });
 
+  it("shows an inline email error on blur without submitting", async () => {
+    const user = userEvent.setup();
+    render(<SignUpForm />);
+
+    await user.click(screen.getByLabelText("Email"));
+    await user.tab();
+
+    expect(await screen.findByText("Email is required.")).toBeInTheDocument();
+    expect(mockSignUp).not.toHaveBeenCalled();
+  });
+
+  it("clears an inline error when the field is fixed after blur", async () => {
+    const user = userEvent.setup();
+    render(<SignUpForm />);
+
+    await user.click(screen.getByLabelText("Email"));
+    await user.tab();
+    expect(await screen.findByText("Email is required.")).toBeInTheDocument();
+
+    await user.type(screen.getByLabelText("Email"), "ada@example.com");
+
+    expect(screen.queryByText("Email is required.")).not.toBeInTheDocument();
+  });
+
   it("calls signUp with the trimmed email and password for valid input", async () => {
     mockSignUp.mockResolvedValue({
       data: { user: { id: "user-1" }, session: { user: { id: "user-1" } } },

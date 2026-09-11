@@ -4,6 +4,7 @@ import {
   getSession,
   getSupabaseClient,
   onAuthStateChange,
+  resetPassword,
   signInWithPassword,
   signOut,
   signUp,
@@ -16,6 +17,7 @@ const { mockAuth, mockCreateClient } = vi.hoisted(() => ({
     signOut: vi.fn(),
     getSession: vi.fn(),
     onAuthStateChange: vi.fn(),
+    resetPasswordForEmail: vi.fn(),
   },
   mockCreateClient: vi.fn(),
 }));
@@ -31,6 +33,7 @@ beforeEach(() => {
   mockAuth.signOut.mockReset();
   mockAuth.getSession.mockReset();
   mockAuth.onAuthStateChange.mockReset();
+  mockAuth.resetPasswordForEmail.mockReset();
   mockCreateClient.mockReturnValue({ auth: mockAuth });
 });
 
@@ -118,6 +121,15 @@ describe("auth helpers", () => {
       password: "secret",
     });
     expect(result).toEqual({ data: { user: { id: "user-1" } }, error: null });
+  });
+
+  it("sends a password reset email", async () => {
+    mockAuth.resetPasswordForEmail.mockResolvedValue({ error: null });
+
+    const result = await resetPassword("a@b.com");
+
+    expect(mockAuth.resetPasswordForEmail).toHaveBeenCalledWith("a@b.com");
+    expect(result).toEqual({ error: null });
   });
 
   it("signs the current user out", async () => {
