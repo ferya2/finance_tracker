@@ -55,7 +55,7 @@ whitespace, an interactive drag-to-rotate **3D** hero, and smooth scroll-reveal
 
 ## Week 3 — Core finance logic (pure, unit-tested)
 
-- [ ] **Day 16 — Money formatting.** `lib/finance/format.ts`: `formatCurrency`,
+- [x] **Day 16 — Money formatting.** `lib/finance/format.ts`: `formatCurrency`,
   `parseAmount` (cents-based). Full tests.
 - [ ] **Day 17 — Transaction model.** `types/transaction.ts` + `validateTransaction`.
   Tests for valid/invalid.
