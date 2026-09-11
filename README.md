@@ -89,4 +89,7 @@ npm test
 - Account basics: a `/app/account` profile page (pure, tested helpers in
   `lib/auth/account.ts`) shows the current user's avatar initials, email and
   member id, with a loading placeholder and an "Account" nav link for
-  signed-in users.
+signed-in users.
+- Day 16: pure money formatting logic in `lib/finance/format.ts` —
+  `formatCurrency` (Intl-based, locale/currency aware) and cents-based
+  `parseAmount`, both fully unit-tested.
