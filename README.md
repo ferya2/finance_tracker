@@ -78,3 +78,7 @@ npm test
   (pure, tested reducer in `lib/auth/session.ts`) that restores the session on
   load and tracks auth state changes from Supabase, with a "Log out" control in
   the nav for signed-in users.
+- Protected routes: a `src/proxy.ts` guard (`getRouteAction` route logic in
+  `lib/auth/routes.ts`, unit-tested) redirects unauthenticated users away from
+  `/app` to `/login` and signed-in users away from `/login`/`/sign-up` to `/app`,
+  and the auth forms now redirect to `/app` after a successful login/sign-up.

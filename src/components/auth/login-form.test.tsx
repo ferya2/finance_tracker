@@ -3,8 +3,13 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { LoginForm } from "./login-form";
 
-const { mockSignInWithPassword } = vi.hoisted(() => ({
+const { mockSignInWithPassword, mockPush } = vi.hoisted(() => ({
   mockSignInWithPassword: vi.fn(),
+  mockPush: vi.fn(),
+}));
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push: mockPush }),
 }));
 
 vi.mock("@/lib/supabase/client", () => ({
@@ -14,6 +19,7 @@ vi.mock("@/lib/supabase/client", () => ({
 describe("LoginForm", () => {
   beforeEach(() => {
     mockSignInWithPassword.mockReset();
+    mockPush.mockReset();
   });
 
   it("renders email and password fields with a submit button", () => {
@@ -108,5 +114,21 @@ describe("LoginForm", () => {
       "href",
       "/sign-up",
     );
+  });
+
+  it("redirects to /app after successful login", async () => {
+    mockSignInWithPassword.mockResolvedValue({
+      data: { user: { id: "user-1" }, session: { user: { id: "user-1" } } },
+      error: null,
+    });
+    const user = userEvent.setup();
+    render(<LoginForm />);
+
+    await user.type(screen.getByLabelText("Email"), "ada@example.com");
+    await user.type(screen.getByLabelText("Password"), "secret123");
+    await user.click(screen.getByRole("button", { name: "Log in" }));
+
+    await screen.findByText("Logged in");
+    expect(mockPush).toHaveBeenCalledWith("/app");
   });
 });

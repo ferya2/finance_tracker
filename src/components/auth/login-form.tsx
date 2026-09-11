@@ -11,6 +11,7 @@ import {
   Mail,
 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { type FormEvent, useState } from "react";
 import { hasErrors, validateLogin } from "@/lib/auth/validate";
 import { signInWithPassword } from "@/lib/supabase/client";
@@ -29,6 +30,7 @@ const errorInputClassName = "border-danger focus:border-danger focus:ring-danger
 
 export function LoginForm() {
   const reduced = usePrefersReducedMotion();
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fieldErrors, setFieldErrors] = useState<{ email?: string; password?: string }>({});
@@ -53,6 +55,7 @@ export function LoginForm() {
     }
 
     setStatus({ type: "success" });
+    router.push("/app");
   }
 
   const card = (
