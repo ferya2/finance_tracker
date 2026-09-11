@@ -9,7 +9,7 @@ Source of truth for **what** to build. The agent picks daily tasks from
   Days 01-07 done; Day 08 refinement pass remaining.
 
 ## Phase 2 — Auth (Week 2)
-- [ ] Supabase Auth: sign up, login, session, protected routes, account
+- [x] Supabase Auth: sign up, login, session, protected routes, account
 
 ## Phase 3 — Core finance logic (Week 3, pure & tested)
 - [ ] Formatting, model/validation, totals, by-category, monthly, budget, periods

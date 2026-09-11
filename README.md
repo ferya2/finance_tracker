@@ -86,3 +86,7 @@ npm test
   type) in the login/sign-up/reset forms, and the login page gains a smooth
   animated "Forgot password?" flow (`PasswordResetForm`, wired to
   `auth.resetPasswordForEmail`) with loading + success/error states.
+- Account basics: a `/app/account` profile page (pure, tested helpers in
+  `lib/auth/account.ts`) shows the current user's avatar initials, email and
+  member id, with a loading placeholder and an "Account" nav link for
+  signed-in users.

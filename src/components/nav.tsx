@@ -65,14 +65,20 @@ export function Nav() {
     <nav aria-label="Primary" className="hidden items-center gap-1 sm:flex">
       {links.map(renderLink)}
       {signedIn ? (
-        <button
-          type="button"
-          onClick={() => void signOut()}
-          className="group inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium text-text-secondary transition-colors hover:text-text"
-        >
-          <LogOut className="h-4 w-4" />
-          Log out
-        </button>
+        <>
+          <a href="/app/account" className={linkClassName}>
+            Account
+            <Underline />
+          </a>
+          <button
+            type="button"
+            onClick={() => void signOut()}
+            className="group inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium text-text-secondary transition-colors hover:text-text"
+          >
+            <LogOut className="h-4 w-4" />
+            Log out
+          </button>
+        </>
       ) : (
         authLinks.map(renderLink)
       )}
