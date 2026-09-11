@@ -47,7 +47,7 @@ whitespace, an interactive drag-to-rotate **3D** hero, and smooth scroll-reveal
 - [x] **Day 11 — Login page.** Login form + error handling. Animated. Tests.
 - [x] **Day 12 — Session & logout.** User/session context/provider + logout. Tests
   for the pure helpers.
-- [ ] **Day 13 — Protected routes.** Middleware/guard: redirect unauthenticated
+- [x] **Day 13 — Protected routes.** Middleware/guard: redirect unauthenticated
   users to login; redirect logged-in users away from auth pages.
 - [ ] **Day 14 — Auth UX polish.** Loading states, inline errors, transitions,
   "forgot password" stub.

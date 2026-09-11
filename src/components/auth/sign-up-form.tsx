@@ -11,6 +11,7 @@ import {
   Wallet,
 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { type FormEvent, useState } from "react";
 import { hasErrors, validateSignUp } from "@/lib/auth/validate";
 import { signUp } from "@/lib/supabase/client";
@@ -29,6 +30,7 @@ const errorInputClassName = "border-danger focus:border-danger focus:ring-danger
 
 export function SignUpForm() {
   const reduced = usePrefersReducedMotion();
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fieldErrors, setFieldErrors] = useState<{ email?: string; password?: string }>({});
@@ -52,7 +54,11 @@ export function SignUpForm() {
       return;
     }
 
-    setStatus({ type: "success", needsConfirmation: !data.session });
+    const hasSession = Boolean(data.session);
+    setStatus({ type: "success", needsConfirmation: !hasSession });
+    if (hasSession) {
+      router.push("/app");
+    }
   }
 
   const card = (
