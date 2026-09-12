@@ -93,3 +93,8 @@ signed-in users.
 - Day 16: pure money formatting logic in `lib/finance/format.ts` —
   `formatCurrency` (Intl-based, locale/currency aware) and cents-based
   `parseAmount`, both fully unit-tested.
+- Day 17: transaction model in `types/transaction.ts` (`Transaction`,
+  `NewTransaction`, income/expense types) plus a pure, fully unit-tested
+  `validateTransaction` / `isValidTransaction` in `lib/finance/transaction.ts`
+  (positive integer cents, valid type, required category, real `YYYY-MM-DD`
+  date, optional capped note).

@@ -57,7 +57,7 @@ whitespace, an interactive drag-to-rotate **3D** hero, and smooth scroll-reveal
 
 - [x] **Day 16 — Money formatting.** `lib/finance/format.ts`: `formatCurrency`,
   `parseAmount` (cents-based). Full tests.
-- [ ] **Day 17 — Transaction model.** `types/transaction.ts` + `validateTransaction`.
+- [x] **Day 17 — Transaction model.** `types/transaction.ts` + `validateTransaction`.
   Tests for valid/invalid.
 - [ ] **Day 18 — Totals.** `sumIncome`, `sumExpense`, `balance`. Full tests.
 - [ ] **Day 19 — By category.** Group + sum per category, sorted. Full tests.
