@@ -129,7 +129,7 @@ describe("SignUpForm", () => {
     expect(mockSignUp).toHaveBeenCalledTimes(1);
   });
 
-  it("redirects to /app after signup when a session is returned", async () => {
+  it("redirects to /dashboard after signup when a session is returned", async () => {
     mockSignUp.mockResolvedValue({
       data: { user: { id: "user-1" }, session: { user: { id: "user-1" } } },
       error: null,
@@ -142,7 +142,7 @@ describe("SignUpForm", () => {
     await user.click(screen.getByRole("button", { name: "Create account" }));
 
     await screen.findByText("Account created");
-    expect(mockPush).toHaveBeenCalledWith("/app");
+    expect(mockPush).toHaveBeenCalledWith("/dashboard");
   });
 
   it("does not redirect when email confirmation is required", async () => {

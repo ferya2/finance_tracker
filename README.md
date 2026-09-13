@@ -98,3 +98,9 @@ signed-in users.
   `validateTransaction` / `isValidTransaction` in `lib/finance/transaction.ts`
   (positive integer cents, valid type, required category, real `YYYY-MM-DD`
   date, optional capped note).
+- Day 18: authed app moves to `/dashboard` with a full dummy-UI shell — sidebar +
+  mobile drawer linking all planned areas (Transactions, Categories, Budgets,
+  Reports, Insights, Settings placeholders), summary cards with animated
+  counters, a recent-transactions list, a category breakdown and budget progress
+  bars (pure dummy data in `lib/finance/dummy.ts`, unit-tested); login/sign-up
+  now land on `/dashboard` and the landing header hides inside the app shell.

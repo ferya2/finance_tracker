@@ -23,36 +23,36 @@ describe("proxy", () => {
     return proxy(request);
   }
 
-  it("redirects unauthenticated users from /app to /login", async () => {
-    const response = await run("/app", null);
+  it("redirects unauthenticated users from /dashboard to /login", async () => {
+    const response = await run("/dashboard", null);
 
     expect(response.status).toBe(307);
     expect(response.headers.get("location")).toBe("https://example.com/login");
   });
 
-  it("redirects unauthenticated users from nested /app routes to /login", async () => {
-    const response = await run("/app/settings", null);
+  it("redirects unauthenticated users from nested /dashboard routes to /login", async () => {
+    const response = await run("/dashboard/settings", null);
 
     expect(response.status).toBe(307);
     expect(response.headers.get("location")).toBe("https://example.com/login");
   });
 
-  it("redirects authenticated users away from /login to /app", async () => {
+  it("redirects authenticated users away from /login to /dashboard", async () => {
     const response = await run("/login", { id: "user-1" });
 
     expect(response.status).toBe(307);
-    expect(response.headers.get("location")).toBe("https://example.com/app");
+    expect(response.headers.get("location")).toBe("https://example.com/dashboard");
   });
 
-  it("redirects authenticated users away from /sign-up to /app", async () => {
+  it("redirects authenticated users away from /sign-up to /dashboard", async () => {
     const response = await run("/sign-up", { id: "user-1" });
 
     expect(response.status).toBe(307);
-    expect(response.headers.get("location")).toBe("https://example.com/app");
+    expect(response.headers.get("location")).toBe("https://example.com/dashboard");
   });
 
-  it("passes through for authenticated users on /app", async () => {
-    const response = await run("/app", { id: "user-1" });
+  it("passes through for authenticated users on /dashboard", async () => {
+    const response = await run("/dashboard", { id: "user-1" });
 
     expect(response.status).toBe(200);
   });

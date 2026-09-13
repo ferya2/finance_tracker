@@ -71,7 +71,7 @@ export function LoginForm() {
     }
 
     setStatus({ type: "success" });
-    router.push("/app");
+    router.push("/dashboard");
   }
 
   if (reduced) {

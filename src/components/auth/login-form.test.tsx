@@ -143,7 +143,7 @@ describe("LoginForm", () => {
     );
   });
 
-  it("redirects to /app after successful login", async () => {
+  it("redirects to /dashboard after successful login", async () => {
     mockSignInWithPassword.mockResolvedValue({
       data: { user: { id: "user-1" }, session: { user: { id: "user-1" } } },
       error: null,
@@ -156,7 +156,7 @@ describe("LoginForm", () => {
     await user.click(screen.getByRole("button", { name: "Log in" }));
 
     await screen.findByText("Logged in");
-    expect(mockPush).toHaveBeenCalledWith("/app");
+    expect(mockPush).toHaveBeenCalledWith("/dashboard");
   });
 
   it("offers a forgot-password link", () => {

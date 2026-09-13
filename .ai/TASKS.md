@@ -59,7 +59,7 @@ whitespace, an interactive drag-to-rotate **3D** hero, and smooth scroll-reveal
   `parseAmount` (cents-based). Full tests.
 - [x] **Day 17 — Transaction model.** `types/transaction.ts` + `validateTransaction`.
   Tests for valid/invalid.
-- [ ] **Day 18 — Dashboard shell + full dummy UI (many menus).** Build a beautiful
+- [x] **Day 18 — Dashboard shell + full dummy UI (many menus).** Build a beautiful
   authed app shell + dashboard using DUMMY data only (no Supabase queries yet).
   Sidebar/top nav linking ALL planned areas — Dashboard, Transactions, Categories,
   Budgets, Reports, Insights, Settings (each a placeholder page is fine for now).

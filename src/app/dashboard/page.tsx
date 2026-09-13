@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Dashboard } from "@/components/dashboard/dashboard";
 
 export const metadata: Metadata = {
   title: "Dashboard — Finance Tracker",
@@ -6,9 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function DashboardPage() {
-  return (
-    <main className="flex flex-1 items-center justify-center">
-      <p className="text-sm text-text-secondary">Dashboard coming soon.</p>
-    </main>
-  );
+  return <Dashboard />;
 }
