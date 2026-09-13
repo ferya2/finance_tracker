@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import { Tags } from "lucide-react";
-import { PagePlaceholder } from "@/components/dashboard/page-placeholder";
+import { CategoriesView } from "@/components/dashboard/categories-view";
 
 export const metadata: Metadata = {
   title: "Categories — Finance Tracker",
@@ -8,11 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function CategoriesPage() {
-  return (
-    <PagePlaceholder
-      title="Categories"
-      description="Group your spending your way with colors and icons — coming soon."
-      icon={<Tags className="h-5 w-5" />}
-    />
-  );
+  return <CategoriesView />;
 }

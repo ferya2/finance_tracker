@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import { Settings } from "lucide-react";
-import { PagePlaceholder } from "@/components/dashboard/page-placeholder";
+import { SettingsView } from "@/components/dashboard/settings-view";
 
 export const metadata: Metadata = {
   title: "Settings — Finance Tracker",
@@ -8,11 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function SettingsPage() {
-  return (
-    <PagePlaceholder
-      title="Settings"
-      description="Profile, currency, theme and more — coming soon."
-      icon={<Settings className="h-5 w-5" />}
-    />
-  );
+  return <SettingsView />;
 }
