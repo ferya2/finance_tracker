@@ -1,8 +1,8 @@
-import {
-  createClient,
-  type AuthChangeEvent,
-  type Session,
-  type SupabaseClient,
+import { createBrowserClient } from "@supabase/ssr";
+import type {
+  AuthChangeEvent,
+  Session,
+  SupabaseClient,
 } from "@supabase/supabase-js";
 
 export type { SupabaseClient };
@@ -12,12 +12,18 @@ export interface Credentials {
   password: string;
 }
 
+// Cookie-based browser client (from @supabase/ssr) so the auth session is stored
+// in cookies the Next.js proxy (middleware) can read. With the plain
+// supabase-js client the session lives only in localStorage, the proxy sees no
+// user, and a signed-in visitor gets bounced from /dashboard back to /login.
 export function createSupabaseClient(
   supabaseUrl: string,
   supabaseAnonKey: string,
 ): SupabaseClient {
-  return createClient(supabaseUrl, supabaseAnonKey);
+  return createBrowserClient(supabaseUrl, supabaseAnonKey);
 }
+
+let browserClient: SupabaseClient | null = null;
 
 export function getSupabaseClient(): SupabaseClient {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -29,7 +35,10 @@ export function getSupabaseClient(): SupabaseClient {
     );
   }
 
-  return createSupabaseClient(supabaseUrl, supabaseAnonKey);
+  if (!browserClient) {
+    browserClient = createSupabaseClient(supabaseUrl, supabaseAnonKey);
+  }
+  return browserClient;
 }
 
 export async function signUp({ email, password }: Credentials) {

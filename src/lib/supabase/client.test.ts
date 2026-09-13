@@ -22,8 +22,8 @@ const { mockAuth, mockCreateClient } = vi.hoisted(() => ({
   mockCreateClient: vi.fn(),
 }));
 
-vi.mock("@supabase/supabase-js", () => ({
-  createClient: mockCreateClient,
+vi.mock("@supabase/ssr", () => ({
+  createBrowserClient: mockCreateClient,
 }));
 
 beforeEach(() => {
