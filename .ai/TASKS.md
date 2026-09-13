@@ -78,7 +78,7 @@ whitespace, an interactive drag-to-rotate **3D** hero, and smooth scroll-reveal
 
 ## Week 4 — Core finance logic (pure, unit-tested)
 
-- [ ] **Day 20 — Totals.** `sumIncome`, `sumExpense`, `balance`. Full tests.
+- [x] **Day 20 — Totals.** `sumIncome`, `sumExpense`, `balance`. Full tests.
 - [ ] **Day 21 — By category.** Group + sum per category, sorted. Full tests.
 - [ ] **Day 22 — Monthly summary.** Filter by year+month → {income,expense,balance}.
   Full tests.
