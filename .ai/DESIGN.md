@@ -28,6 +28,16 @@ Below is the design DNA extracted from it, adapted to our Finance Tracker.
 - Tasteful lighting/materials. **Lazy-load** it and respect
   `prefers-reduced-motion` (show a static fallback).
 
+## Backgrounds / motifs (corak)
+
+- Pages should not be flat white. Add **subtle decorative background patterns**
+  behind the content: soft gradient-mesh blooms, fine grain/noise, faint
+  geometric shapes/lines, or the existing ambient 3D particle field.
+- Keep them **subtle** — they set atmosphere, never compete with content or hurt
+  readability. Low opacity, behind everything, `pointer-events: none`.
+- **Dark-mode aware** (tune colors/opacity per theme) and respect
+  `prefers-reduced-motion` (freeze or simplify animated backgrounds).
+
 ## Motion (framer-motion)
 - **Scroll-triggered reveals**: sections and items fade/slide up as they enter
   the viewport, with gentle stagger.
