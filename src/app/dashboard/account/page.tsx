@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { AccountProfile } from "@/components/auth/account-profile";
+import { AccountView } from "@/components/dashboard/account-view";
 
 export const metadata: Metadata = {
   title: "Account — Finance Tracker",
@@ -7,9 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function AccountPage() {
-  return (
-    <div className="flex flex-1 flex-col items-center px-6 py-12">
-      <AccountProfile />
-    </div>
-  );
+  return <AccountView />;
 }

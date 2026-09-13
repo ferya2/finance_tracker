@@ -60,7 +60,7 @@ whitespace, an interactive drag-to-rotate **3D** hero, and smooth scroll-reveal
   Tests for valid/invalid.
 - [x] **Day 18 — Dashboard shell + full dummy UI (many menus).** Authed app shell +
   dashboard with dummy data and nav to all planned areas.
-- [ ] **Day 19 — Full dummy UI for ALL menus (animation + 3D).** In one pass, build
+- [x] **Day 19 — Full dummy UI for ALL menus (animation + 3D).** In one pass, build
   complete, polished DUMMY UI for every menu page — **Transactions, Categories,
   Budgets, Reports, Insights, Settings, Account** — using hardcoded/dummy data
   only (NO Supabase queries). Every page should look realistic and premium with:

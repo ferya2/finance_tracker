@@ -104,3 +104,10 @@ signed-in users.
   counters, a recent-transactions list, a category breakdown and budget progress
   bars (pure dummy data in `lib/finance/dummy.ts`, unit-tested); login/sign-up
   now land on `/dashboard` and the landing header hides inside the app shell.
+- Day 19: complete dummy UI for every app area — an animated
+  Transactions page with search/type filters, a Categories grid, Budget cards
+  with over-budget flags, Reports with income-vs-expense bars, a spending-share
+  donut and balance trend, Insights with stat cards/tips, plus Settings and a
+  richer Account page; lazy-loaded 3D chart accent (react-three-fiber) and
+  dark-mode-aware background motifs, with render tests and `prefers-reduced-motion`
+  support throughout.

@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import { Sparkles } from "lucide-react";
-import { PagePlaceholder } from "@/components/dashboard/page-placeholder";
+import { InsightsView } from "@/components/dashboard/insights-view";
 
 export const metadata: Metadata = {
   title: "Insights — Finance Tracker",
@@ -8,11 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function InsightsPage() {
-  return (
-    <PagePlaceholder
-      title="Insights"
-      description="Spot trends, top categories and smarter money habits — coming soon."
-      icon={<Sparkles className="h-5 w-5" />}
-    />
-  );
+  return <InsightsView />;
 }

@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import { ArrowLeftRight } from "lucide-react";
-import { PagePlaceholder } from "@/components/dashboard/page-placeholder";
+import { TransactionsView } from "@/components/dashboard/transactions-view";
 
 export const metadata: Metadata = {
   title: "Transactions — Finance Tracker",
@@ -8,11 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function TransactionsPage() {
-  return (
-    <PagePlaceholder
-      title="Transactions"
-      description="List, add, edit and search every income and expense — coming in the next weeks."
-      icon={<ArrowLeftRight className="h-5 w-5" />}
-    />
-  );
+  return <TransactionsView />;
 }

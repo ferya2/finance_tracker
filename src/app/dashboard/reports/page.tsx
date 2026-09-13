@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import { BarChart3 } from "lucide-react";
-import { PagePlaceholder } from "@/components/dashboard/page-placeholder";
+import { ReportsView } from "@/components/dashboard/reports-view";
 
 export const metadata: Metadata = {
   title: "Reports — Finance Tracker",
@@ -8,11 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function ReportsPage() {
-  return (
-    <PagePlaceholder
-      title="Reports"
-      description="Turn your history into clear charts and monthly reports — coming soon."
-      icon={<BarChart3 className="h-5 w-5" />}
-    />
-  );
+  return <ReportsView />;
 }
