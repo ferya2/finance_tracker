@@ -75,7 +75,7 @@ describe("Nav", () => {
     ).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Account" })).toHaveAttribute(
       "href",
-      "/app/account",
+      "/dashboard/account",
     );
     expect(screen.queryByRole("link", { name: "Sign up" })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Log in" })).not.toBeInTheDocument();

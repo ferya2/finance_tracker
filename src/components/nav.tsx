@@ -66,7 +66,7 @@ export function Nav() {
       {links.map(renderLink)}
       {signedIn ? (
         <>
-          <a href="/app/account" className={linkClassName}>
+          <a href="/dashboard/account" className={linkClassName}>
             Account
             <Underline />
           </a>

@@ -70,7 +70,7 @@ export function SignUpForm() {
     const hasSession = Boolean(data.session);
     setStatus({ type: "success", needsConfirmation: !hasSession });
     if (hasSession) {
-      router.push("/app");
+      router.push("/dashboard");
     }
   }
 

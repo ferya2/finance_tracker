@@ -15,29 +15,29 @@ describe("getRouteAction", () => {
       expect(getRouteAction("/sign-up", false)).toEqual({ type: "next" });
     });
 
-    it("redirects /app to login", () => {
-      expect(getRouteAction("/app", false)).toEqual({
+    it("redirects /dashboard to login", () => {
+      expect(getRouteAction("/dashboard", false)).toEqual({
         type: "redirect",
         destination: "/login",
       });
     });
 
-    it("redirects /app/dashboard to login", () => {
-      expect(getRouteAction("/app/dashboard", false)).toEqual({
+    it("redirects /dashboard/reports to login", () => {
+      expect(getRouteAction("/dashboard/reports", false)).toEqual({
         type: "redirect",
         destination: "/login",
       });
     });
 
-    it("redirects nested /app routes to login", () => {
-      expect(getRouteAction("/app/settings/profile", false)).toEqual({
+    it("redirects nested /dashboard routes to login", () => {
+      expect(getRouteAction("/dashboard/settings/profile", false)).toEqual({
         type: "redirect",
         destination: "/login",
       });
     });
 
-    it("does not redirect /application to login", () => {
-      expect(getRouteAction("/application", false)).toEqual({ type: "next" });
+    it("does not redirect /dashboardboard to login", () => {
+      expect(getRouteAction("/dashboardboard", false)).toEqual({ type: "next" });
     });
   });
 
@@ -46,32 +46,32 @@ describe("getRouteAction", () => {
       expect(getRouteAction("/", true)).toEqual({ type: "next" });
     });
 
-    it("allows access to /app", () => {
-      expect(getRouteAction("/app", true)).toEqual({ type: "next" });
+    it("allows access to /dashboard", () => {
+      expect(getRouteAction("/dashboard", true)).toEqual({ type: "next" });
     });
 
-    it("allows access to /app/dashboard", () => {
-      expect(getRouteAction("/app/dashboard", true)).toEqual({ type: "next" });
+    it("allows access to /dashboard/reports", () => {
+      expect(getRouteAction("/dashboard/reports", true)).toEqual({ type: "next" });
     });
 
-    it("redirects /login to /app", () => {
+    it("redirects /login to /dashboard", () => {
       expect(getRouteAction("/login", true)).toEqual({
         type: "redirect",
-        destination: "/app",
+        destination: "/dashboard",
       });
     });
 
-    it("redirects /sign-up to /app", () => {
+    it("redirects /sign-up to /dashboard", () => {
       expect(getRouteAction("/sign-up", true)).toEqual({
         type: "redirect",
-        destination: "/app",
+        destination: "/dashboard",
       });
     });
 
-    it("redirects nested login routes to /app", () => {
+    it("redirects nested login routes to /dashboard", () => {
       expect(getRouteAction("/login/forgot-password", true)).toEqual({
         type: "redirect",
-        destination: "/app",
+        destination: "/dashboard",
       });
     });
   });
