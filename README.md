@@ -111,3 +111,5 @@ signed-in users.
   richer Account page; lazy-loaded 3D chart accent (react-three-fiber) and
   dark-mode-aware background motifs, with render tests and `prefers-reduced-motion`
   support throughout.
+- Day 20: pure totals in `lib/finance/totals.ts` — `sumIncome`, `sumExpense` and
+  `balance` (income − expense) over transaction lists, fully unit-tested.
