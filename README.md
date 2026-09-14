@@ -113,3 +113,7 @@ signed-in users.
   support throughout.
 - Day 20: pure totals in `lib/finance/totals.ts` — `sumIncome`, `sumExpense` and
   `balance` (income − expense) over transaction lists, fully unit-tested.
+- Day 21: pure per-category aggregation in `lib/finance/by-category.ts` —
+  `sumByCategory` groups transactions by category (optionally filtered by
+  income/expense) and sums amounts as cents, sorted largest-first, fully
+  unit-tested.
