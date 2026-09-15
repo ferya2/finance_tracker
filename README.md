@@ -117,3 +117,7 @@ signed-in users.
   `sumByCategory` groups transactions by category (optionally filtered by
   income/expense) and sums amounts as cents, sorted largest-first, fully
   unit-tested.
+- Day 22: pure monthly summary in `lib/finance/monthly.ts` —
+  `summarizeMonthly` filters transactions by year + month (zero-padded, year
+  boundary safe) and returns per-month `{ income, expense, balance }`,
+  fully unit-tested.
