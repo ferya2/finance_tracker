@@ -80,7 +80,7 @@ whitespace, an interactive drag-to-rotate **3D** hero, and smooth scroll-reveal
 
 - [x] **Day 20 — Totals.** `sumIncome`, `sumExpense`, `balance`. Full tests.
 - [x] **Day 21 — By category.** Group + sum per category, sorted. Full tests.
-- [ ] **Day 22 — Monthly summary.** Filter by year+month → {income,expense,balance}.
+- [x] **Day 22 — Monthly summary.** Filter by year+month → {income,expense,balance}.
   Full tests.
 - [ ] **Day 23 — Budget status.** {spent, remaining, percent, overBudget}. Tests.
 - [ ] **Day 24 — Date/period helpers.** Month ranges, current period (dates passed
