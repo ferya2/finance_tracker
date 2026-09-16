@@ -121,3 +121,7 @@ signed-in users.
   `summarizeMonthly` filters transactions by year + month (zero-padded, year
   boundary safe) and returns per-month `{ income, expense, balance }`,
   fully unit-tested.
+- Day 23: pure budget status in `lib/finance/budget.ts` — `budgetStatus`
+  computes `{ spent, remaining, percent, overBudget }` for a category budget
+  over a month (month-filtered, income ignored, zero/negative-limit safe),
+  fully unit-tested.
