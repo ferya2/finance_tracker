@@ -83,7 +83,7 @@ whitespace, an interactive drag-to-rotate **3D** hero, and smooth scroll-reveal
 - [x] **Day 22 — Monthly summary.** Filter by year+month → {income,expense,balance}.
   Full tests.
 - [x] **Day 23 — Budget status.** {spent, remaining, percent, overBudget}. Tests.
-- [ ] **Day 24 — Date/period helpers.** Month ranges, current period (dates passed
+- [x] **Day 24 — Date/period helpers.** Month ranges, current period (dates passed
   in as args). Tests.
 
 ## Week 5 — Data layer (Supabase, mocked in tests)

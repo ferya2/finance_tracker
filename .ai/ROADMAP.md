@@ -12,7 +12,7 @@ Source of truth for **what** to build. The agent picks daily tasks from
 - [x] Supabase Auth: sign up, login, session, protected routes, account
 
 ## Phase 3 — Core finance logic (Week 3, pure & tested)
-- [ ] Formatting, model/validation, totals, by-category, monthly, budget, periods
+- [x] Formatting, model/validation, totals, by-category, monthly, budget, periods
 
 ## Phase 4 — Data layer (Week 4, Supabase)
 - [ ] Transactions / categories / budgets CRUD, data wiring, defaults
