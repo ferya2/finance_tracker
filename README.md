@@ -125,3 +125,7 @@ signed-in users.
   computes `{ spent, remaining, percent, overBudget }` for a category budget
   over a month (month-filtered, income ignored, zero/negative-limit safe),
   fully unit-tested.
+- Day 24: pure date/period helpers in `lib/finance/period.ts` —
+  `daysInMonth` (leap-aware), `monthRange` (inclusive `YYYY-MM-DD` start/end)
+  and `currentPeriod` (year + 1-based month, dates passed in as args), fully
+  unit-tested.
