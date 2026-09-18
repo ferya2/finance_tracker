@@ -88,7 +88,7 @@ whitespace, an interactive drag-to-rotate **3D** hero, and smooth scroll-reveal
 
 ## Week 5 — Data layer (Supabase, mocked in tests)
 
-- [ ] **Day 25 — Transactions read/create.** `lib/supabase/transactions.ts`. Mocked
+- [x] **Day 25 — Transactions read/create.** `lib/supabase/transactions.ts`. Mocked
   tests.
 - [ ] **Day 26 — Transactions update/delete.** Mocked tests.
 - [ ] **Day 27 — Categories CRUD.** `lib/supabase/categories.ts`. Mocked tests.
