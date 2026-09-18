@@ -129,3 +129,7 @@ signed-in users.
   `daysInMonth` (leap-aware), `monthRange` (inclusive `YYYY-MM-DD` start/end)
   and `currentPeriod` (year + 1-based month, dates passed in as args), fully
   unit-tested.
+- Day 25: transactions data layer in `lib/supabase/transactions.ts` —
+  `listTransactions` (newest-first read) and `createTransaction`, mapping
+  snake_case DB rows to the `Transaction` type, with the Supabase client fully
+  mocked in unit tests.
