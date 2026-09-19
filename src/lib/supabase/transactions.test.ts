@@ -1,6 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { PostgrestError } from "@supabase/supabase-js";
-import { createTransaction, listTransactions } from "./transactions";
+import {
+  createTransaction,
+  deleteTransaction,
+  listTransactions,
+  updateTransaction,
+} from "./transactions";
 import type { Transaction } from "@/types/transaction";
 
 const { mockCreateClient, mockFrom } = vi.hoisted(() => ({
@@ -173,6 +178,95 @@ describe("createTransaction", () => {
     });
 
     expect(result.data).toBeNull();
+    expect(result.error).toBe(dbError);
+  });
+});
+
+describe("updateTransaction", () => {
+  it("updates only the provided fields and returns the saved transaction", async () => {
+    const single = vi.fn().mockResolvedValue({
+      data: { ...ROWS[0], amount: 125000, note: "Updated rent" },
+      error: null,
+    });
+    const update = vi.fn().mockReturnThis();
+    const eq = vi.fn().mockReturnThis();
+    const select = vi.fn().mockReturnThis();
+    mockFrom.mockReturnValue({ update, eq, select, single });
+
+    const result = await updateTransaction("txn-1", {
+      amount: 125000,
+      note: "Updated rent",
+    });
+
+    expect(mockFrom).toHaveBeenCalledWith("transactions");
+    expect(update).toHaveBeenCalledWith({ amount: 125000, note: "Updated rent" });
+    expect(eq).toHaveBeenCalledWith("id", "txn-1");
+    expect(result.error).toBeNull();
+    expect(result.data).toEqual({
+      ...MAPPED[0],
+      amount: 125000,
+      note: "Updated rent",
+    });
+  });
+
+  it("maps camelCase fields to snake_case row keys", async () => {
+    const single = vi
+      .fn()
+      .mockResolvedValue({ data: ROWS[1], error: null });
+    const update = vi.fn().mockReturnThis();
+    const eq = vi.fn().mockReturnThis();
+    const select = vi.fn().mockReturnThis();
+    mockFrom.mockReturnValue({ update, eq, select, single });
+
+    await updateTransaction("txn-2", {
+      categoryId: "cat-other",
+      occurredOn: "2026-09-15",
+    });
+
+    expect(update).toHaveBeenCalledWith({
+      category_id: "cat-other",
+      occurred_on: "2026-09-15",
+    });
+  });
+
+  it("returns null data and the error when the update fails", async () => {
+    const dbError = error("Failed to update transaction");
+    mockFrom.mockReturnValue({
+      update: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis(),
+      select: vi.fn().mockReturnThis(),
+      single: vi.fn().mockResolvedValue({ data: null, error: dbError }),
+    });
+
+    const result = await updateTransaction("txn-1", { amount: 1000 });
+
+    expect(result.data).toBeNull();
+    expect(result.error).toBe(dbError);
+  });
+});
+
+describe("deleteTransaction", () => {
+  it("deletes the transaction by id", async () => {
+    const eq = vi.fn().mockResolvedValue({ data: null, error: null });
+    mockFrom.mockReturnValue({ delete: vi.fn().mockReturnThis(), eq });
+
+    const result = await deleteTransaction("txn-1");
+
+    expect(mockFrom).toHaveBeenCalledWith("transactions");
+    expect(mockFrom().delete).toHaveBeenCalled();
+    expect(eq).toHaveBeenCalledWith("id", "txn-1");
+    expect(result.error).toBeNull();
+  });
+
+  it("returns the error when the delete fails", async () => {
+    const dbError = error("Failed to delete transaction");
+    mockFrom.mockReturnValue({
+      delete: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockResolvedValue({ data: null, error: dbError }),
+    });
+
+    const result = await deleteTransaction("txn-1");
+
     expect(result.error).toBe(dbError);
   });
 });
