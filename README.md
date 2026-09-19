@@ -133,3 +133,7 @@ signed-in users.
   `listTransactions` (newest-first read) and `createTransaction`, mapping
   snake_case DB rows to the `Transaction` type, with the Supabase client fully
   mocked in unit tests.
+- Day 26: transactions data layer gains `updateTransaction` (partial field
+  update by id, camelCase→snake_case mapping, returns saved row) and
+  `deleteTransaction` (by id), both with the Supabase client fully mocked in
+  unit tests.

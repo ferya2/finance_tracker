@@ -21,6 +21,9 @@ interface NewTransactionRow {
   occurred_on: string;
 }
 
+/** Shape accepted when updating a transaction — any subset of its fields. */
+export type TransactionUpdate = Partial<NewTransaction>;
+
 export interface TransactionsResult {
   data: Transaction[] | null;
   error: PostgrestError | null;
@@ -28,6 +31,15 @@ export interface TransactionsResult {
 
 export interface CreateTransactionResult {
   data: Transaction | null;
+  error: PostgrestError | null;
+}
+
+export interface UpdateTransactionResult {
+  data: Transaction | null;
+  error: PostgrestError | null;
+}
+
+export interface DeleteTransactionResult {
   error: PostgrestError | null;
 }
 
@@ -82,4 +94,55 @@ export async function createTransaction(
     data: data ? rowToTransaction(data as TransactionRow) : null,
     error,
   };
+}
+
+/** Map a partial app-level update to the snake_case row fields being changed. */
+function transactionUpdateToRow(input: TransactionUpdate): Partial<TransactionRow> {
+  const row: Partial<TransactionRow> = {};
+  if (input.amount !== undefined) {
+    row.amount = input.amount;
+  }
+  if (input.type !== undefined) {
+    row.type = input.type;
+  }
+  if (input.categoryId !== undefined) {
+    row.category_id = input.categoryId;
+  }
+  if (input.note !== undefined) {
+    row.note = input.note;
+  }
+  if (input.occurredOn !== undefined) {
+    row.occurred_on = input.occurredOn;
+  }
+  return row;
+}
+
+/** Update fields of a single transaction by id and return the saved row. */
+export async function updateTransaction(
+  id: string,
+  input: TransactionUpdate,
+): Promise<UpdateTransactionResult> {
+  const { data, error } = await getSupabaseClient()
+    .from("transactions")
+    .update(transactionUpdateToRow(input))
+    .eq("id", id)
+    .select()
+    .single();
+
+  return {
+    data: data ? rowToTransaction(data as TransactionRow) : null,
+    error,
+  };
+}
+
+/** Delete a single transaction by id. */
+export async function deleteTransaction(
+  id: string,
+): Promise<DeleteTransactionResult> {
+  const { error } = await getSupabaseClient()
+    .from("transactions")
+    .delete()
+    .eq("id", id);
+
+  return { error };
 }
