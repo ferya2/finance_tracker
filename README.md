@@ -137,3 +137,7 @@ signed-in users.
   update by id, camelCase→snake_case mapping, returns saved row) and
   `deleteTransaction` (by id), both with the Supabase client fully mocked in
   unit tests.
+- Day 27: categories data layer in `lib/supabase/categories.ts` with the
+  `Category`/`NewCategory` types in `types/category.ts` — `listCategories`
+  (alphabetical read), `createCategory`, `updateCategory` (partial update by id)
+  and `deleteCategory`, all with the Supabase client fully mocked in unit tests.
