@@ -92,7 +92,7 @@ whitespace, an interactive drag-to-rotate **3D** hero, and smooth scroll-reveal
   tests.
 - [x] **Day 26 — Transactions update/delete.** Mocked tests.
 - [x] **Day 27 — Categories CRUD.** `lib/supabase/categories.ts`. Mocked tests.
-- [ ] **Day 28 — Budgets CRUD.** `lib/supabase/budgets.ts`. Mocked tests.
+- [x] **Day 28 — Budgets CRUD.** `lib/supabase/budgets.ts`. Mocked tests.
 - [ ] **Day 29 — Data wiring.** Server actions/hooks to fetch a user's data.
 - [ ] **Day 30 — Error & loading helpers.** Result/error + loading utilities. Tests.
 - [ ] **Day 31 — Default categories.** Seed starter categories for a new user.

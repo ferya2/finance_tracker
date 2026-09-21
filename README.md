@@ -141,3 +141,8 @@ signed-in users.
   `Category`/`NewCategory` types in `types/category.ts` — `listCategories`
   (alphabetical read), `createCategory`, `updateCategory` (partial update by id)
   and `deleteCategory`, all with the Supabase client fully mocked in unit tests.
+- Day 28: budgets data layer in `lib/supabase/budgets.ts` with the
+  `Budget`/`NewBudget` types in `types/budget.ts` — `listBudgets` (newest
+  month-first read), `createBudget`, `updateBudget` (partial update by id,
+  camelCase→snake_case mapping) and `deleteBudget`, all with the Supabase client
+  fully mocked in unit tests.
