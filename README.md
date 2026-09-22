@@ -151,3 +151,8 @@ signed-in users.
   error when a read fails) plus a `useUserData` client hook (`use-user-data.ts`)
   with loading/ready/error statuses and a `reload`, both fully unit-tested with
   mocked data reads.
+- Day 30: reusable error & loading helpers in `lib/async/` — a generic
+  `Result<T, E>` (`{ data, error }`) with `ok`/`fail`/`isOk`/`isErr` builders
+  and guards, plus a `LoadingState<T, E>` discriminated union
+  (loading/ready/error) with `loading`/`ready`/`failed`/`fromResult` helpers and
+  `isLoading`/`isReady`/`isError` narrowing guards, all fully unit-tested.
