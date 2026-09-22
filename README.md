@@ -146,3 +146,8 @@ signed-in users.
   month-first read), `createBudget`, `updateBudget` (partial update by id,
   camelCase→snake_case mapping) and `deleteBudget`, all with the Supabase client
   fully mocked in unit tests.
+- Day 29: data wiring — `loadUserData` in `lib/supabase/dashboard.ts` fetches a
+  user's transactions, categories and budgets in parallel (returning the first
+  error when a read fails) plus a `useUserData` client hook (`use-user-data.ts`)
+  with loading/ready/error statuses and a `reload`, both fully unit-tested with
+  mocked data reads.
