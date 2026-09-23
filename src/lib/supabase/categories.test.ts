@@ -4,6 +4,7 @@ import {
   createCategory,
   deleteCategory,
   listCategories,
+  seedDefaultCategories,
   updateCategory,
 } from "./categories";
 import type { Category } from "@/types/category";
@@ -174,5 +175,57 @@ describe("deleteCategory", () => {
     const result = await deleteCategory("cat-food");
 
     expect(result.error).toBe(dbError);
+  });
+});
+
+describe("seedDefaultCategories", () => {
+  it("inserts the defaults when the user has no categories yet", async () => {
+    mockFrom
+      .mockImplementationOnce(() => ({
+        select: vi.fn().mockReturnThis(),
+        order: vi.fn().mockResolvedValue({ data: [], error: null }),
+      }))
+      .mockImplementationOnce(() => ({
+        insert: vi.fn().mockReturnThis(),
+        select: vi.fn().mockResolvedValue({ data: ROWS, error: null }),
+      }));
+
+    const result = await seedDefaultCategories();
+
+    expect(mockFrom).toHaveBeenCalledTimes(2);
+    expect(mockFrom).toHaveBeenNthCalledWith(1, "categories");
+    expect(mockFrom).toHaveBeenNthCalledWith(2, "categories");
+    expect(result.data).toEqual(MAPPED);
+    expect(result.error).toBeNull();
+    expect(result.seeded).toBe(2);
+  });
+
+  it("does not seed and reports 0 when the user already has categories", async () => {
+    const order = vi.fn().mockResolvedValue({ data: ROWS, error: null });
+    const query = { select: vi.fn().mockReturnThis(), order };
+    mockFrom.mockReturnValue(query);
+
+    const result = await seedDefaultCategories();
+
+    expect(mockFrom).toHaveBeenCalledTimes(1);
+    expect(query).not.toHaveProperty("insert");
+    expect(result.data).toEqual(MAPPED);
+    expect(result.error).toBeNull();
+    expect(result.seeded).toBe(0);
+  });
+
+  it("returns the read error and does not insert when listing fails", async () => {
+    const dbError = error("Failed to fetch categories");
+    const order = vi.fn().mockResolvedValue({ data: null, error: dbError });
+    const query = { select: vi.fn().mockReturnThis(), order };
+    mockFrom.mockReturnValue(query);
+
+    const result = await seedDefaultCategories();
+
+    expect(mockFrom).toHaveBeenCalledTimes(1);
+    expect(query).not.toHaveProperty("insert");
+    expect(result.data).toBeNull();
+    expect(result.error).toBe(dbError);
+    expect(result.seeded).toBe(0);
   });
 });

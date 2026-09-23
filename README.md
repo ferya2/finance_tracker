@@ -156,3 +156,8 @@ signed-in users.
   and guards, plus a `LoadingState<T, E>` discriminated union
   (loading/ready/error) with `loading`/`ready`/`failed`/`fromResult` helpers and
   `isLoading`/`isReady`/`isError` narrowing guards, all fully unit-tested.
+- Day 31: default categories — a pure `DEFAULT_CATEGORIES` starter set in
+  `lib/finance/default-categories.ts` (tested) plus `seedDefaultCategories` in
+  `lib/supabase/categories.ts`, which inserts the defaults only when a user has
+  no categories yet (with a `seeded` count), fully unit-tested with the Supabase
+  client mocked.

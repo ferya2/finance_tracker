@@ -15,7 +15,7 @@ Source of truth for **what** to build. The agent picks daily tasks from
 - [x] Formatting, model/validation, totals, by-category, monthly, budget, periods
 
 ## Phase 4 — Data layer (Week 4, Supabase)
-- [ ] Transactions / categories / budgets CRUD, data wiring, defaults
+- [x] Transactions / categories / budgets CRUD, data wiring, defaults
 
 ## Phase 5 — App shell & dashboard (Week 5)
 - [ ] Authed layout, dashboard, summary cards, widgets
