@@ -95,7 +95,7 @@ whitespace, an interactive drag-to-rotate **3D** hero, and smooth scroll-reveal
 - [x] **Day 28 — Budgets CRUD.** `lib/supabase/budgets.ts`. Mocked tests.
 - [x] **Day 29 — Data wiring.** Server actions/hooks to fetch a user's data.
 - [x] **Day 30 — Error & loading helpers.** Result/error + loading utilities. Tests.
-- [ ] **Day 31 — Default categories.** Seed starter categories for a new user.
+- [x] **Day 31 — Default categories.** Seed starter categories for a new user.
 
 ## Week 6 — Wire real data into the UI
 
