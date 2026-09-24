@@ -161,3 +161,7 @@ signed-in users.
   `lib/supabase/categories.ts`, which inserts the defaults only when a user has
   no categories yet (with a `seeded` count), fully unit-tested with the Supabase
   client mocked.
+- Day 32: app shell finalized — the header now shows the real signed-in user
+  via a `UserChip` (animated avatar initials + display name, links to the
+  Account page, loading skeleton while the session settles, hidden when signed
+  out), with render tests.

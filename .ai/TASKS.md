@@ -102,7 +102,7 @@ whitespace, an interactive drag-to-rotate **3D** hero, and smooth scroll-reveal
 > Replace the dummy data in the dashboard and every menu page with real
 > Supabase-backed data, keeping the same polished UI.
 
-- [ ] **Day 32 — App layout + session (real).** Finalize shell; show real user.
+- [x] **Day 32 — App layout + session (real).** Finalize shell; show real user.
 - [ ] **Day 33 — Dashboard data.** Wire dashboard widgets to real data.
 - [ ] **Day 34 — Summary cards (real).** Balance / income / expense from real data.
 - [ ] **Day 35 — Recent transactions (real).** Animated list from real data.
