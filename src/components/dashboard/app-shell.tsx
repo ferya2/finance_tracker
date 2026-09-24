@@ -21,6 +21,7 @@ import { usePathname } from "next/navigation";
 import { useState, type ReactNode } from "react";
 import { useSession } from "@/components/auth/session-provider";
 import { DarkModeToggle } from "@/components/dark-mode-toggle";
+import { UserChip } from "@/components/dashboard/user-chip";
 import { usePrefersReducedMotion } from "@/components/use-prefers-reduced-motion";
 
 interface NavItem {
@@ -192,6 +193,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             </span>
           </div>
           <div className="ml-auto flex items-center gap-3 lg:ml-0">
+            <UserChip />
             <DarkModeToggle />
           </div>
         </header>
