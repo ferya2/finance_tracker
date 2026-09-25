@@ -2,10 +2,16 @@
 
 import { motion } from "framer-motion";
 import { usePrefersReducedMotion } from "@/components/use-prefers-reduced-motion";
+import type { DashboardBudgetRow } from "@/lib/finance/dashboard";
 import { formatCurrency } from "@/lib/finance/format";
-import { DUMMY_BUDGETS, getDummyCategory } from "@/lib/finance/dummy";
 
-export function BudgetProgress() {
+interface BudgetProgressProps {
+  rows: readonly DashboardBudgetRow[];
+  /** The month the budgets apply to, e.g. "September". */
+  monthName: string;
+}
+
+export function BudgetProgress({ rows, monthName }: BudgetProgressProps) {
   const reduced = usePrefersReducedMotion();
 
   return (
@@ -13,17 +19,19 @@ export function BudgetProgress() {
       <div className="flex items-center justify-between gap-3">
         <h2 className="text-base font-semibold text-text">Monthly budgets</h2>
         <span className="rounded-full bg-surface-subtle px-2.5 py-1 text-xs font-medium text-text-secondary">
-          September
+          {monthName}
         </span>
       </div>
 
-      <ul className="mt-5 flex flex-col gap-4">
-        {DUMMY_BUDGETS.map((budget, index) => {
-          const category = getDummyCategory(budget.categoryId);
-          const over = budget.percent > 100;
-          return (
+      {rows.length === 0 ? (
+        <p className="mt-6 text-sm text-text-muted">
+          No budgets set for {monthName} yet.
+        </p>
+      ) : (
+        <ul className="mt-5 flex flex-col gap-4">
+          {rows.map((row, index) => (
             <motion.li
-              key={budget.id}
+              key={row.id}
               initial={reduced ? false : { opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{
@@ -36,45 +44,45 @@ export function BudgetProgress() {
                 <span className="flex items-center gap-2 font-medium text-text">
                   <span
                     className="h-2.5 w-2.5 rounded-full"
-                    style={{ backgroundColor: category?.color }}
+                    style={{ backgroundColor: row.categoryColor }}
                   />
-                  {category?.name}
+                  {row.categoryName}
                 </span>
                 <span className="text-xs text-text-secondary">
                   <span className="font-medium text-text tabular-nums">
-                    {formatCurrency(budget.spent)}
+                    {formatCurrency(row.spent)}
                   </span>
                   <span className="text-text-muted">
                     {" / "}
-                    {formatCurrency(budget.limit)}
+                    {formatCurrency(row.limit)}
                   </span>
                 </span>
               </div>
               <div className="mt-2 h-2 overflow-hidden rounded-full bg-surface-subtle">
                 <motion.div
                   initial={reduced ? false : { width: 0 }}
-                  animate={{ width: `${Math.min(budget.percent, 100)}%` }}
+                  animate={{ width: `${Math.min(row.percent, 100)}%` }}
                   transition={{
                     duration: 0.8,
                     delay: 0.2 + index * 0.05,
                     ease: [0.25, 0.1, 0.25, 1],
                   }}
                   className={`h-full rounded-full ${
-                    over ? "bg-danger" : "bg-primary"
+                    row.overBudget ? "bg-danger" : "bg-primary"
                   }`}
                 />
               </div>
               <p
                 className={`mt-1.5 text-xs ${
-                  over ? "font-medium text-danger" : "text-text-muted"
+                  row.overBudget ? "font-medium text-danger" : "text-text-muted"
                 }`}
               >
-                {over ? "Over budget" : `${budget.percent}% used`}
+                {row.overBudget ? "Over budget" : `${row.percent}% used`}
               </p>
             </motion.li>
-          );
-        })}
-      </ul>
+          ))}
+        </ul>
+      )}
     </section>
   );
 }

@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { currentPeriod, daysInMonth, monthRange } from "./period";
+import {
+  currentPeriod,
+  daysInMonth,
+  formatMonthLabel,
+  formatMonthName,
+  monthKey,
+  monthRange,
+} from "./period";
 
 describe("daysInMonth", () => {
   it("returns 31 for months with 31 days", () => {
@@ -87,5 +94,50 @@ describe("currentPeriod", () => {
 
   it("works for an early-year date in a different year", () => {
     expect(currentPeriod(new Date(2030, 2, 3))).toEqual({ year: 2030, month: 3 });
+  });
+});
+
+describe("monthKey", () => {
+  it("renders a double-digit month as YYYY-MM", () => {
+    expect(monthKey(2026, 9)).toBe("2026-09");
+    expect(monthKey(2026, 12)).toBe("2026-12");
+  });
+
+  it("zero-pads single-digit months", () => {
+    expect(monthKey(2026, 1)).toBe("2026-01");
+    expect(monthKey(2025, 11)).toBe("2025-11");
+  });
+
+  it("prefixes month ranges with the same key", () => {
+    expect(monthRange(2026, 9).start.slice(0, 7)).toBe(monthKey(2026, 9));
+  });
+});
+
+describe("formatMonthLabel", () => {
+  it("renders the month name and year", () => {
+    expect(formatMonthLabel(2026, 9)).toBe("September 2026");
+  });
+
+  it("renders single-digit months without padding artefacts", () => {
+    expect(formatMonthLabel(2026, 1)).toBe("January 2026");
+  });
+
+  it("renders December of a previous year correctly", () => {
+    expect(formatMonthLabel(2025, 12)).toBe("December 2025");
+  });
+
+  it("accepts another locale", () => {
+    expect(formatMonthLabel(2026, 9, "fr-FR")).toContain("2026");
+  });
+});
+
+describe("formatMonthName", () => {
+  it("renders the month name on its own", () => {
+    expect(formatMonthName(2026, 9)).toBe("September");
+    expect(formatMonthName(2026, 2)).toBe("February");
+  });
+
+  it("omits the year so labels can sit in compact chips", () => {
+    expect(formatMonthName(2026, 9)).not.toContain("2026");
   });
 });

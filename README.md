@@ -165,3 +165,9 @@ signed-in users.
   via a `UserChip` (animated avatar initials + display name, links to the
   Account page, loading skeleton while the session settles, hidden when signed
   out), with render tests.
+- Day 33: dashboard widgets wired to real data — a pure, unit-tested
+  `buildDashboardData` in `lib/finance/dashboard.ts` derives the summary, recent
+  transactions, category breakdown and budget progress for the current month
+  (plus `formatMonthLabel`/`formatMonthName`/`monthKey` period helpers), rendered
+  from `useUserData` with animated loading skeletons, an error state with retry
+  and per-widget empty states.

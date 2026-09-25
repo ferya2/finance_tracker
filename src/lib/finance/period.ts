@@ -1,3 +1,5 @@
+const DEFAULT_LOCALE = "en-US";
+
 /** Inclusive calendar bounds of one month as `YYYY-MM-DD` strings. */
 export interface MonthRange {
   /** First day of the month, always day 01. */
@@ -41,4 +43,50 @@ export function monthRange(year: number, month: number): MonthRange {
  */
 export function currentPeriod(date: Date): YearMonth {
   return { year: date.getFullYear(), month: date.getMonth() + 1 };
+}
+
+/**
+ * A calendar month as the `YYYY-MM` key used by budget rows, e.g. September
+ * 2026 → `"2026-09"`. `month` is 1-12.
+ */
+export function monthKey(year: number, month: number): string {
+  return `${year}-${String(month).padStart(2, "0")}`;
+}
+
+/** A UTC date on the first of the month, safe for month-name formatting. */
+function monthDate(year: number, month: number): Date {
+  return new Date(Date.UTC(year, month - 1, 1));
+}
+
+/**
+ * A human label for a calendar month including the year, e.g. September 2026
+ * → `"September 2026"`. `month` is 1-12. Formatting is pinned to UTC so the
+ * label never shifts a day across time zones, and no clock is read, so this
+ * function stays pure.
+ */
+export function formatMonthLabel(
+  year: number,
+  month: number,
+  locale: string = DEFAULT_LOCALE,
+): string {
+  return new Intl.DateTimeFormat(locale, {
+    month: "long",
+    year: "numeric",
+    timeZone: "UTC",
+  }).format(monthDate(year, month));
+}
+
+/**
+ * A human label for a calendar month without the year, e.g. September 2026
+ * → `"September"`. `month` is 1-12.
+ */
+export function formatMonthName(
+  year: number,
+  month: number,
+  locale: string = DEFAULT_LOCALE,
+): string {
+  return new Intl.DateTimeFormat(locale, {
+    month: "long",
+    timeZone: "UTC",
+  }).format(monthDate(year, month));
 }
