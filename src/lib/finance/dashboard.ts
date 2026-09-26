@@ -10,7 +10,7 @@ import {
   monthKey,
   type YearMonth,
 } from "./period";
-import { balance } from "./totals";
+import { buildSummaryCards, type SummaryCardData } from "./summary";
 
 /** How many transactions the dashboard "recent" widget shows. */
 export const RECENT_TRANSACTION_LIMIT = 6;
@@ -20,16 +20,6 @@ const FALLBACK_NOTE = "No note";
 
 /** Shown when a category id has no matching category row. */
 const FALLBACK_CATEGORY = { name: "Uncategorized", color: "#94a3b8" } as const;
-
-/** Balance, income and expense amounts for the dashboard summary cards. */
-export interface DashboardSummary {
-  /** Income minus expense across every transaction, in cents. */
-  totalBalance: number;
-  /** Income during the selected month, in cents. */
-  monthlyIncome: number;
-  /** Expenses during the selected month, in cents. */
-  monthlyExpense: number;
-}
 
 /** A transaction enriched with its resolved category, ready to render. */
 export interface DashboardTransactionRow {
@@ -78,7 +68,8 @@ export interface DashboardData {
   monthLabel: string;
   /** The month name on its own, e.g. "September". */
   monthName: string;
-  summary: DashboardSummary;
+  /** The headline balance / income / expense cards, built from the same fetch. */
+  summaryCards: SummaryCardData[];
   /** Newest transactions first, capped at {@link RECENT_TRANSACTION_LIMIT}. */
   recent: DashboardTransactionRow[];
   /** Month spending per category, biggest first. */
@@ -202,11 +193,7 @@ export function buildDashboardData(
     period,
     monthLabel: formatMonthLabel(period.year, period.month),
     monthName: formatMonthName(period.year, period.month),
-    summary: {
-      totalBalance: balance(source.transactions),
-      monthlyIncome: month.income,
-      monthlyExpense: month.expense,
-    },
+    summaryCards: buildSummaryCards(source.transactions, period),
     recent,
     breakdown,
     budgets,

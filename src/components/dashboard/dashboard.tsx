@@ -1,12 +1,12 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { AlertTriangle, RefreshCw, TrendingDown, TrendingUp, Wallet } from "lucide-react";
+import { AlertTriangle, RefreshCw } from "lucide-react";
 import { useMemo } from "react";
 import { BudgetProgress } from "@/components/dashboard/budget-progress";
 import { CategoryBreakdown } from "@/components/dashboard/category-breakdown";
 import { RecentTransactions } from "@/components/dashboard/recent-transactions";
-import { SummaryCard } from "@/components/dashboard/summary-card";
+import { SummaryCards } from "@/components/dashboard/summary-cards";
 import { usePrefersReducedMotion } from "@/components/use-prefers-reduced-motion";
 import { useUserData } from "@/components/use-user-data";
 import { buildDashboardData } from "@/lib/finance/dashboard";
@@ -124,31 +124,7 @@ export function Dashboard() {
         <DashboardSkeleton />
       ) : (
         <>
-          <div className="grid gap-4 sm:grid-cols-3">
-            <SummaryCard
-              label="Balance"
-              value={view.summary.totalBalance}
-              caption="All time"
-              icon={Wallet}
-              tone="primary"
-            />
-            <SummaryCard
-              label="Income"
-              value={view.summary.monthlyIncome}
-              caption={view.monthName}
-              icon={TrendingUp}
-              tone="success"
-              delay={0.05}
-            />
-            <SummaryCard
-              label="Expense"
-              value={view.summary.monthlyExpense}
-              caption={view.monthName}
-              icon={TrendingDown}
-              tone="danger"
-              delay={0.1}
-            />
-          </div>
+          <SummaryCards cards={view.summaryCards} />
 
           <div className="mt-6 grid gap-4 lg:grid-cols-5">
             <div className="lg:col-span-3">

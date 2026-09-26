@@ -46,6 +46,16 @@ export function currentPeriod(date: Date): YearMonth {
 }
 
 /**
+ * The calendar month immediately before the given one, rolling over the year
+ * boundary (e.g. January 2026 → December 2025, September 2026 → August 2026).
+ */
+export function previousPeriod(period: YearMonth): YearMonth {
+  return period.month > 1
+    ? { year: period.year, month: period.month - 1 }
+    : { year: period.year - 1, month: 12 };
+}
+
+/**
  * A calendar month as the `YYYY-MM` key used by budget rows, e.g. September
  * 2026 → `"2026-09"`. `month` is 1-12.
  */

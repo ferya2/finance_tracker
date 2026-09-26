@@ -104,7 +104,7 @@ whitespace, an interactive drag-to-rotate **3D** hero, and smooth scroll-reveal
 
 - [x] **Day 32 — App layout + session (real).** Finalize shell; show real user.
 - [x] **Day 33 — Dashboard data.** Wire dashboard widgets to real data.
-- [ ] **Day 34 — Summary cards (real).** Balance / income / expense from real data.
+- [x] **Day 34 — Summary cards (real).** Balance / income / expense from real data.
 - [ ] **Day 35 — Recent transactions (real).** Animated list from real data.
 - [ ] **Day 36 — Category breakdown (real).** Animated bar/donut.
 - [ ] **Day 37 — Budget widget (real).** Animated progress from budget status.

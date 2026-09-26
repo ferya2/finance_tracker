@@ -4,6 +4,7 @@ import userEvent from "@testing-library/user-event";
 import type { PostgrestError } from "@supabase/supabase-js";
 import { Dashboard } from "./dashboard";
 import type { UserData } from "@/lib/supabase/dashboard";
+import { currentPeriod, formatMonthName, previousPeriod } from "@/lib/finance/period";
 
 const { mockUseUserData } = vi.hoisted(() => ({
   mockUseUserData: vi.fn(),
@@ -95,6 +96,16 @@ function thisMonth(day: number): string {
   return `${thisMonthKey()}-${String(day).padStart(2, "0")}`;
 }
 
+function lastMonthKey(): string {
+  const now = new Date();
+  const last = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  return `${last.getFullYear()}-${String(last.getMonth() + 1).padStart(2, "0")}`;
+}
+
+function lastMonth(day: number): string {
+  return `${lastMonthKey()}-${String(day).padStart(2, "0")}`;
+}
+
 function readyState(data: UserData) {
   return { status: "ready" as const, data, error: null, reload: vi.fn() };
 }
@@ -119,6 +130,34 @@ describe("Dashboard", () => {
     expect(screen.getByText("$2,400.00")).toBeInTheDocument();
     expect(screen.getByText("Expense")).toBeInTheDocument();
     expect(screen.getByText("$1,236.35")).toBeInTheDocument();
+  });
+
+  it("compares the income and expense cards with the previous month", () => {
+    const period = currentPeriod(new Date());
+    const previous = previousPeriod(period);
+    const previousMonthName = formatMonthName(previous.year, previous.month);
+
+    mockUseUserData.mockReturnValue(
+      readyState({
+        ...DATA,
+        transactions: [
+          ...DATA.transactions,
+          {
+            id: "txn-5",
+            amount: 100000,
+            type: "income",
+            categoryId: "cat-salary",
+            note: "Last month's salary",
+            occurredOn: lastMonth(1),
+          },
+        ],
+      }),
+    );
+
+    render(<Dashboard />);
+
+    expect(screen.getByText(`140% vs ${previousMonthName}`)).toBeInTheDocument();
+    expect(screen.getAllByText(new RegExp(`vs ${previousMonthName}$`))).toHaveLength(1);
   });
 
   it("renders the user's transactions newest first with signed amounts", () => {
