@@ -95,11 +95,37 @@ describe("buildDashboardData", () => {
   it("balances every transaction but scopes income and expense to the month", () => {
     const data = build();
 
-    expect(data.summary).toEqual({
-      totalBalance: 250000 - 128635,
-      monthlyIncome: 240000,
-      monthlyExpense: 123635,
-    });
+    expect(data.summaryCards).toEqual([
+      {
+        key: "balance",
+        label: "Balance",
+        amount: 250000 - 128635,
+        caption: "All time",
+        trend: null,
+      },
+      {
+        key: "income",
+        label: "Income",
+        amount: 240000,
+        caption: "September",
+        trend: {
+          direction: "up",
+          percent: 2300,
+          previousMonthName: "August",
+        },
+      },
+      {
+        key: "expense",
+        label: "Expense",
+        amount: 123635,
+        caption: "September",
+        trend: {
+          direction: "up",
+          percent: 2373,
+          previousMonthName: "August",
+        },
+      },
+    ]);
   });
 
   it("lists the newest transactions first", () => {
@@ -242,11 +268,11 @@ describe("buildDashboardData", () => {
       PERIOD,
     );
 
-    expect(data.summary).toEqual({
-      totalBalance: 0,
-      monthlyIncome: 0,
-      monthlyExpense: 0,
-    });
+    expect(data.summaryCards).toEqual([
+      { key: "balance", label: "Balance", amount: 0, caption: "All time", trend: null },
+      { key: "income", label: "Income", amount: 0, caption: "September", trend: null },
+      { key: "expense", label: "Expense", amount: 0, caption: "September", trend: null },
+    ]);
     expect(data.recent).toEqual([]);
     expect(data.breakdown).toEqual([]);
     expect(data.budgets).toEqual([]);

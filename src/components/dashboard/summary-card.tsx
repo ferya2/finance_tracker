@@ -1,11 +1,12 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { type LucideIcon } from "lucide-react";
+import { ArrowDownRight, ArrowUpRight, Minus, type LucideIcon } from "lucide-react";
 import { AnimatedNumber } from "@/components/dashboard/animated-number";
 import { usePrefersReducedMotion } from "@/components/use-prefers-reduced-motion";
+import type { SummaryTrend, SummaryTrendDirection } from "@/lib/finance/summary";
 
-type SummaryTone = "primary" | "success" | "danger";
+export type SummaryTone = "primary" | "success" | "danger";
 
 interface SummaryCardProps {
   label: string;
@@ -13,6 +14,8 @@ interface SummaryCardProps {
   caption: string;
   icon: LucideIcon;
   tone: SummaryTone;
+  /** Month-over-month change; omitted when there is nothing to compare. */
+  trend?: SummaryTrend | null;
   delay?: number;
 }
 
@@ -22,12 +25,44 @@ const toneClassName: Record<SummaryTone, string> = {
   danger: "bg-danger-light text-danger",
 };
 
+const trendIcon: Record<SummaryTrendDirection, LucideIcon> = {
+  up: ArrowUpRight,
+  down: ArrowDownRight,
+  flat: Minus,
+};
+
+/** Colors a trend by whether moving in that direction is good news. */
+function trendClassName(trend: SummaryTrend, tone: SummaryTone): string {
+  if (trend.direction === "flat") return "text-text-muted";
+  const rising = trend.direction === "up";
+  const good = tone === "danger" ? !rising : rising;
+  return good ? "text-success" : "text-danger";
+}
+
+function TrendBadge({ trend, tone }: { trend: SummaryTrend; tone: SummaryTone }) {
+  const reduced = usePrefersReducedMotion();
+  const Icon = trendIcon[trend.direction];
+
+  return (
+    <motion.p
+      initial={reduced ? false : { opacity: 0, y: -4 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
+      className={`mt-3 flex items-center gap-1 text-xs font-medium ${trendClassName(trend, tone)}`}
+    >
+      <Icon className="h-3.5 w-3.5 shrink-0" aria-hidden />
+      {Math.abs(trend.percent)}% vs {trend.previousMonthName}
+    </motion.p>
+  );
+}
+
 export function SummaryCard({
   label,
   value,
   caption,
   icon: Icon,
   tone,
+  trend,
   delay = 0,
 }: SummaryCardProps) {
   const reduced = usePrefersReducedMotion();
@@ -52,6 +87,7 @@ export function SummaryCard({
         className="mt-5 block text-2xl font-semibold tracking-tight text-text sm:text-3xl"
       />
       <p className="mt-1 text-xs text-text-muted">{caption}</p>
+      {trend && <TrendBadge trend={trend} tone={tone} />}
     </motion.div>
   );
 }

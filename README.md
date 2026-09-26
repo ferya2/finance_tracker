@@ -171,3 +171,4 @@ signed-in users.
   (plus `formatMonthLabel`/`formatMonthName`/`monthKey` period helpers), rendered
   from `useUserData` with animated loading skeletons, an error state with retry
   and per-widget empty states.
+- Day 34: summary cards built from real data — a pure, unit-tested `buildSummaryCards`/`percentChange` in `lib/finance/summary.ts` (plus a `previousPeriod` helper) derives the balance, income and expense cards for the current month, with a month-over-month trend badge on income/expense, rendered through a reusable animated `SummaryCards` component.

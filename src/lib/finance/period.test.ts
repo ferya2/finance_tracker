@@ -6,6 +6,7 @@ import {
   formatMonthName,
   monthKey,
   monthRange,
+  previousPeriod,
 } from "./period";
 
 describe("daysInMonth", () => {
@@ -94,6 +95,35 @@ describe("currentPeriod", () => {
 
   it("works for an early-year date in a different year", () => {
     expect(currentPeriod(new Date(2030, 2, 3))).toEqual({ year: 2030, month: 3 });
+  });
+});
+
+describe("previousPeriod", () => {
+  it("steps back one month inside the same year", () => {
+    expect(previousPeriod({ year: 2026, month: 9 })).toEqual({
+      year: 2026,
+      month: 8,
+    });
+  });
+
+  it("steps back from the second month into the first", () => {
+    expect(previousPeriod({ year: 2026, month: 2 })).toEqual({
+      year: 2026,
+      month: 1,
+    });
+  });
+
+  it("rolls over to December of the previous year in January", () => {
+    expect(previousPeriod({ year: 2026, month: 1 })).toEqual({
+      year: 2025,
+      month: 12,
+    });
+  });
+
+  it("does not mutate the period it was given", () => {
+    const period = { year: 2026, month: 1 };
+    previousPeriod(period);
+    expect(period).toEqual({ year: 2026, month: 1 });
   });
 });
 
