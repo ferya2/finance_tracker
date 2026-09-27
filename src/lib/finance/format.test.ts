@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatCurrency, parseAmount } from "./format";
+import { formatCurrency, formatDateLabel, parseAmount } from "./format";
 
 describe("formatCurrency", () => {
   it("formats zero as an integer dollar amount", () => {
@@ -94,5 +94,48 @@ describe("parseAmount", () => {
 
   it("rejects a non-string input", () => {
     expect(parseAmount(null as unknown as string)).toBeNull();
+  });
+});
+
+describe("formatDateLabel", () => {
+  const TODAY = "2026-09-15";
+
+  it("labels the reference day as today", () => {
+    expect(formatDateLabel(TODAY, TODAY)).toBe("Today");
+  });
+
+  it("labels the day before the reference day as yesterday", () => {
+    expect(formatDateLabel("2026-09-14", TODAY)).toBe("Yesterday");
+  });
+
+  it("labels older days with the weekday and date", () => {
+    expect(formatDateLabel("2026-09-11", TODAY)).toBe("Fri, Sep 11");
+  });
+
+  it("includes the year when it differs from the reference year", () => {
+    expect(formatDateLabel("2025-12-25", TODAY)).toBe("Thu, Dec 25, 2025");
+  });
+
+  it("labels a day in the future as an absolute date", () => {
+    expect(formatDateLabel("2026-09-20", TODAY)).toBe("Sun, Sep 20");
+  });
+
+  it("crosses month and year boundaries", () => {
+    expect(formatDateLabel("2026-08-31", "2026-09-01")).toBe("Yesterday");
+    expect(formatDateLabel("2025-12-31", "2026-01-01")).toBe("Yesterday");
+  });
+
+  it("supports a custom locale", () => {
+    expect(formatDateLabel("2026-09-11", TODAY, "en-GB")).toBe("Fri 11 Sept");
+  });
+
+  it("returns unparseable dates untouched instead of throwing", () => {
+    expect(formatDateLabel("not-a-date", TODAY)).toBe("not-a-date");
+    expect(formatDateLabel("2026-13-40", TODAY)).toBe("2026-13-40");
+  });
+
+  it("falls back to an absolute label when the reference date is unusable", () => {
+    expect(formatDateLabel("2026-09-11", "whenever")).toBe("Fri, Sep 11, 2026");
+    expect(formatDateLabel(TODAY, "whenever")).toBe("Tue, Sep 15, 2026");
   });
 });

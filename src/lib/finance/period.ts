@@ -46,6 +46,17 @@ export function currentPeriod(date: Date): YearMonth {
 }
 
 /**
+ * The local calendar date as an ISO `YYYY-MM-DD` string, the same format
+ * `Transaction.occurredOn` uses, e.g. 2026-09-15 09:30 → `"2026-09-15"`. The
+ * date is passed in as an argument so this function stays pure.
+ */
+export function isoDate(date: Date): string {
+  return `${monthKey(date.getFullYear(), date.getMonth() + 1)}-${String(
+    date.getDate(),
+  ).padStart(2, "0")}`;
+}
+
+/**
  * The calendar month immediately before the given one, rolling over the year
  * boundary (e.g. January 2026 → December 2025, September 2026 → August 2026).
  */
