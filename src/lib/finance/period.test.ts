@@ -4,6 +4,7 @@ import {
   daysInMonth,
   formatMonthLabel,
   formatMonthName,
+  isoDate,
   monthKey,
   monthRange,
   previousPeriod,
@@ -95,6 +96,34 @@ describe("currentPeriod", () => {
 
   it("works for an early-year date in a different year", () => {
     expect(currentPeriod(new Date(2030, 2, 3))).toEqual({ year: 2030, month: 3 });
+  });
+});
+
+describe("isoDate", () => {
+  it("returns the local calendar date as YYYY-MM-DD", () => {
+    expect(isoDate(new Date(2026, 8, 15))).toBe("2026-09-15");
+  });
+
+  it("pads single-digit months and days", () => {
+    expect(isoDate(new Date(2026, 0, 1))).toBe("2026-01-01");
+  });
+
+  it("keeps December and January on the right side of the year boundary", () => {
+    expect(isoDate(new Date(2025, 11, 31))).toBe("2025-12-31");
+    expect(isoDate(new Date(2026, 0, 1))).toBe("2026-01-01");
+  });
+
+  it("ignores the time of day", () => {
+    expect(isoDate(new Date(2026, 8, 15, 23, 59, 59))).toBe("2026-09-15");
+  });
+
+  it("agrees with currentPeriod for the same date", () => {
+    const date = new Date(2030, 2, 3);
+    const period = currentPeriod(date);
+
+    expect(isoDate(date).startsWith(monthKey(period.year, period.month))).toBe(
+      true,
+    );
   });
 });
 

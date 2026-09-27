@@ -172,3 +172,8 @@ signed-in users.
   from `useUserData` with animated loading skeletons, an error state with retry
   and per-widget empty states.
 - Day 34: summary cards built from real data — a pure, unit-tested `buildSummaryCards`/`percentChange` in `lib/finance/summary.ts` (plus a `previousPeriod` helper) derives the balance, income and expense cards for the current month, with a month-over-month trend badge on income/expense, rendered through a reusable animated `SummaryCards` component.
+- Day 35: recent transactions from real data — a pure, unit-tested `formatDateLabel`
+  (plus an `isoDate` helper) labels each row "Today" / "Yesterday" / a short absolute
+  date from a caller-supplied reference day, `buildDashboardData` now carries that
+  label and the true `recentTotal`, and the animated list shows "6 of 24" with a
+  "View all" link to the transactions page.

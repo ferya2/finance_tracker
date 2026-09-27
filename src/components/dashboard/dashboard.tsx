@@ -10,7 +10,7 @@ import { SummaryCards } from "@/components/dashboard/summary-cards";
 import { usePrefersReducedMotion } from "@/components/use-prefers-reduced-motion";
 import { useUserData } from "@/components/use-user-data";
 import { buildDashboardData } from "@/lib/finance/dashboard";
-import { currentPeriod } from "@/lib/finance/period";
+import { currentPeriod, isoDate } from "@/lib/finance/period";
 
 function Skeleton({ className }: { className: string }) {
   const reduced = usePrefersReducedMotion();
@@ -95,10 +95,11 @@ function DashboardError({ message, onRetry }: { message: string; onRetry: () => 
 
 export function Dashboard() {
   const { status, data, error, reload } = useUserData();
+  const referenceDate = useMemo(() => isoDate(new Date()), []);
   const period = useMemo(() => currentPeriod(new Date()), []);
   const view = useMemo(
-    () => (data ? buildDashboardData(data, period) : null),
-    [data, period],
+    () => (data ? buildDashboardData(data, period, referenceDate) : null),
+    [data, period, referenceDate],
   );
 
   return (
@@ -128,7 +129,10 @@ export function Dashboard() {
 
           <div className="mt-6 grid gap-4 lg:grid-cols-5">
             <div className="lg:col-span-3">
-              <RecentTransactions transactions={view.recent} />
+              <RecentTransactions
+                transactions={view.recent}
+                total={view.recentTotal}
+              />
             </div>
             <div className="flex flex-col gap-4 lg:col-span-2">
               <BudgetProgress rows={view.budgets} monthName={view.monthName} />

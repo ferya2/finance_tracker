@@ -160,6 +160,48 @@ describe("Dashboard", () => {
     expect(screen.getAllByText(new RegExp(`vs ${previousMonthName}$`))).toHaveLength(1);
   });
 
+  it("renders the user's transactions newest first with signed amounts and dates", () => {
+    const today = new Date();
+    const yesterday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
+    const iso = (date: Date) =>
+      `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(
+        date.getDate(),
+      ).padStart(2, "0")}`;
+
+    mockUseUserData.mockReturnValue(
+      readyState({
+        ...DATA,
+        transactions: [
+          {
+            id: "txn-today",
+            amount: 4500,
+            type: "expense" as const,
+            categoryId: "cat-food",
+            note: "Coffee",
+            occurredOn: iso(today),
+          },
+          {
+            id: "txn-yesterday",
+            amount: 7000,
+            type: "expense" as const,
+            categoryId: "cat-food",
+            note: "Bakery",
+            occurredOn: iso(yesterday),
+          },
+        ],
+      }),
+    );
+
+    render(<Dashboard />);
+
+    const rows = within(
+      screen.getByText("Recent transactions").closest("section") as HTMLElement,
+    ).getAllByRole("listitem");
+
+    expect(within(rows[0] as HTMLElement).getByText("Food & dining · Today")).toBeInTheDocument();
+    expect(within(rows[1] as HTMLElement).getByText("Food & dining · Yesterday")).toBeInTheDocument();
+  });
+
   it("renders the user's transactions newest first with signed amounts", () => {
     render(<Dashboard />);
 
@@ -168,7 +210,7 @@ describe("Dashboard", () => {
 
     expect(within(rows[0] as HTMLElement).getByText("Weekly groceries")).toBeInTheDocument();
     expect(within(rows[0] as HTMLElement).getByText("−$86.35")).toBeInTheDocument();
-    expect(within(rows[0] as HTMLElement).getByText("Food & dining")).toBeInTheDocument();
+    expect(within(rows[0] as HTMLElement).getByText(/^Food & dining · /)).toBeInTheDocument();
     expect(within(rows[1] as HTMLElement).getByText("Rent")).toBeInTheDocument();
     expect(within(rows[1] as HTMLElement).getByText("−$1,150.00")).toBeInTheDocument();
     expect(within(rows[2] as HTMLElement).getByText("Monthly salary")).toBeInTheDocument();

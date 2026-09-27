@@ -6,6 +6,9 @@ import type { Transaction } from "@/types/transaction";
 
 const PERIOD = { year: 2026, month: 9 };
 
+/** The day the dashboard is considered to be "as of". */
+const REFERENCE_DATE = "2026-09-15";
+
 const CATEGORIES: Category[] = [
   { id: "cat-salary", name: "Salary", color: "#059669", kind: "income" },
   { id: "cat-housing", name: "Housing", color: "#d97706", kind: "expense" },
@@ -80,6 +83,7 @@ function build() {
   return buildDashboardData(
     { transactions: TRANSACTIONS, categories: CATEGORIES, budgets: BUDGETS },
     PERIOD,
+    REFERENCE_DATE,
   );
 }
 
@@ -153,6 +157,7 @@ describe("buildDashboardData", () => {
     const data = buildDashboardData(
       { transactions: many, categories: CATEGORIES, budgets: [] },
       PERIOD,
+      REFERENCE_DATE,
     );
 
     expect(data.recent).toHaveLength(RECENT_TRANSACTION_LIMIT);
@@ -172,6 +177,67 @@ describe("buildDashboardData", () => {
     });
   });
 
+  it("labels each recent row relative to the reference day", () => {
+    const data = build();
+
+    expect(data.recent[0]?.dateLabel).toBe("Thu, Sep 10");
+    expect(data.recent[1]?.dateLabel).toBe("Fri, Sep 4");
+  });
+
+  it("labels rows from the reference day and the day before", () => {
+    const data = buildDashboardData(
+      {
+        transactions: [
+          {
+            id: "txn-today",
+            amount: 1200,
+            type: "expense",
+            categoryId: "cat-food",
+            occurredOn: REFERENCE_DATE,
+          },
+          {
+            id: "txn-yesterday",
+            amount: 900,
+            type: "expense",
+            categoryId: "cat-food",
+            occurredOn: "2026-09-14",
+          },
+        ],
+        categories: CATEGORIES,
+        budgets: [],
+      },
+      PERIOD,
+      REFERENCE_DATE,
+    );
+
+    expect(data.recent[0]?.dateLabel).toBe("Today");
+    expect(data.recent[1]?.dateLabel).toBe("Yesterday");
+  });
+
+  it("reports the total number of transactions behind the capped list", () => {
+    expect(build().recentTotal).toBe(TRANSACTIONS.length);
+  });
+
+  it("keeps the real total when the recent list overflows its cap", () => {
+    const many: Transaction[] = Array.from({ length: 10 }, (_, index) => ({
+      id: `txn-${index}`,
+      amount: 100,
+      type: "expense" as const,
+      categoryId: "cat-food",
+      note: `Spend ${index}`,
+      occurredOn: `2026-09-${String(index + 1).padStart(2, "0")}`,
+    }));
+
+    const data = buildDashboardData(
+      { transactions: many, categories: CATEGORIES, budgets: [] },
+      PERIOD,
+      REFERENCE_DATE,
+    );
+
+    expect(data.recent).toHaveLength(RECENT_TRANSACTION_LIMIT);
+    expect(data.recentTotal).toBe(10);
+  });
+
   it("falls back to a placeholder note and category for unknown rows", () => {
     const data = buildDashboardData(
       {
@@ -189,6 +255,7 @@ describe("buildDashboardData", () => {
         budgets: [],
       },
       PERIOD,
+      REFERENCE_DATE,
     );
 
     expect(data.recent[0]).toMatchObject({
@@ -266,6 +333,7 @@ describe("buildDashboardData", () => {
     const data = buildDashboardData(
       { transactions: [], categories: [], budgets: [] },
       PERIOD,
+      REFERENCE_DATE,
     );
 
     expect(data.summaryCards).toEqual([
@@ -274,6 +342,7 @@ describe("buildDashboardData", () => {
       { key: "expense", label: "Expense", amount: 0, caption: "September", trend: null },
     ]);
     expect(data.recent).toEqual([]);
+    expect(data.recentTotal).toBe(0);
     expect(data.breakdown).toEqual([]);
     expect(data.budgets).toEqual([]);
   });
@@ -288,6 +357,7 @@ describe("buildDashboardData", () => {
         ],
       },
       PERIOD,
+      REFERENCE_DATE,
     );
 
     expect(data.breakdown).toEqual([]);

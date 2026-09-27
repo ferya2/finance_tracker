@@ -1,7 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowDownLeft, ArrowUpRight } from "lucide-react";
+import { ArrowDownLeft, ArrowRight, ArrowUpRight } from "lucide-react";
+import Link from "next/link";
 import { usePrefersReducedMotion } from "@/components/use-prefers-reduced-motion";
 import type { DashboardTransactionRow } from "@/lib/finance/dashboard";
 import { formatCurrency } from "@/lib/finance/format";
@@ -10,18 +11,40 @@ const cardClassName = "rounded-2xl border border-border bg-surface p-6 shadow-sm
 
 interface RecentTransactionsProps {
   transactions: readonly DashboardTransactionRow[];
+  /** How many transactions the user has in total, before the list was capped. */
+  total?: number;
 }
 
-export function RecentTransactions({ transactions }: RecentTransactionsProps) {
+/** "6 of 24" once the list is capped, otherwise "6 latest". */
+function countLabel(shown: number, total: number): string {
+  return total > shown ? `${shown} of ${total}` : `${shown} latest`;
+}
+
+export function RecentTransactions({
+  transactions,
+  total = transactions.length,
+}: RecentTransactionsProps) {
   const reduced = usePrefersReducedMotion();
+  const hasMore = total > transactions.length;
 
   return (
     <section className={cardClassName}>
       <div className="flex items-center justify-between gap-3">
         <h2 className="text-base font-semibold text-text">Recent transactions</h2>
-        <span className="rounded-full bg-surface-subtle px-2.5 py-1 text-xs font-medium text-text-secondary">
-          {transactions.length} latest
-        </span>
+        <div className="flex items-center gap-2">
+          <span className="rounded-full bg-surface-subtle px-2.5 py-1 text-xs font-medium text-text-secondary tabular-nums">
+            {countLabel(transactions.length, total)}
+          </span>
+          {hasMore && (
+            <Link
+              href="/dashboard/transactions"
+              className="inline-flex items-center gap-1 text-xs font-medium text-primary transition-colors hover:text-primary/80"
+            >
+              View all
+              <ArrowRight className="h-3.5 w-3.5" aria-hidden />
+            </Link>
+          )}
+        </div>
       </div>
 
       {transactions.length === 0 ? (
@@ -61,8 +84,8 @@ export function RecentTransactions({ transactions }: RecentTransactionsProps) {
                   <p className="truncate text-sm font-medium text-text">
                     {transaction.note}
                   </p>
-                  <p className="text-xs text-text-muted">
-                    {transaction.categoryName}
+                  <p className="truncate text-xs text-text-muted">
+                    {transaction.categoryName} · {transaction.dateLabel}
                   </p>
                 </div>
                 <p

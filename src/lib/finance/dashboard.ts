@@ -3,6 +3,7 @@ import type { Category } from "@/types/category";
 import type { Transaction, TransactionType } from "@/types/transaction";
 import { budgetStatus } from "./budget";
 import { sumByCategory } from "./by-category";
+import { formatDateLabel } from "./format";
 import { summarizeMonthly } from "./monthly";
 import {
   formatMonthLabel,
@@ -29,6 +30,8 @@ export interface DashboardTransactionRow {
   amount: number;
   type: TransactionType;
   occurredOn: string;
+  /** The day it happened on, relative to the reference day, e.g. "Yesterday". */
+  dateLabel: string;
   categoryName: string;
   categoryColor: string;
 }
@@ -72,6 +75,8 @@ export interface DashboardData {
   summaryCards: SummaryCardData[];
   /** Newest transactions first, capped at {@link RECENT_TRANSACTION_LIMIT}. */
   recent: DashboardTransactionRow[];
+  /** How many transactions the user has in total, before the cap is applied. */
+  recentTotal: number;
   /** Month spending per category, biggest first. */
   breakdown: DashboardBreakdownRow[];
   /** The month's budgets, in the order they were fetched. */
@@ -106,6 +111,7 @@ function describeCategory(
 function toTransactionRow(
   transaction: Transaction,
   categories: ReadonlyMap<string, Category>,
+  referenceDate: string,
 ): DashboardTransactionRow {
   const { name, color } = describeCategory(categories, transaction.categoryId);
   return {
@@ -114,6 +120,7 @@ function toTransactionRow(
     amount: transaction.amount,
     type: transaction.type,
     occurredOn: transaction.occurredOn,
+    dateLabel: formatDateLabel(transaction.occurredOn, referenceDate),
     categoryName: name,
     categoryColor: color,
   };
@@ -128,13 +135,16 @@ function sharePercent(amount: number, total: number): number {
  * Derive the dashboard's view model from the user's transactions, categories
  * and budgets for one calendar month. The balance card covers every
  * transaction ever recorded; the income/expense cards, the category breakdown
- * and the budget widget cover `period` only. All money math delegates to the
- * other pure helpers in this folder, and nothing is read from a clock — the
- * month is passed in, which keeps the whole function unit-testable.
+ * and the budget widget cover `period` only. The recent list is the newest
+ * transactions regardless of month, labelled relative to `referenceDate`. All
+ * money math delegates to the other pure helpers in this folder, and nothing is
+ * read from a clock — both the month and the reference day are passed in, which
+ * keeps the whole function unit-testable.
  */
 export function buildDashboardData(
   source: DashboardSource,
   period: YearMonth,
+  referenceDate: string,
 ): DashboardData {
   const categories = categoryLookup(source.categories);
   const month = summarizeMonthly(
@@ -147,7 +157,9 @@ export function buildDashboardData(
   const recent = [...source.transactions]
     .sort((a, b) => b.occurredOn.localeCompare(a.occurredOn))
     .slice(0, RECENT_TRANSACTION_LIMIT)
-    .map((transaction) => toTransactionRow(transaction, categories));
+    .map((transaction) =>
+      toTransactionRow(transaction, categories, referenceDate),
+    );
 
   const breakdown = sumByCategory(
     source.transactions.filter((transaction) =>
@@ -195,6 +207,7 @@ export function buildDashboardData(
     monthName: formatMonthName(period.year, period.month),
     summaryCards: buildSummaryCards(source.transactions, period),
     recent,
+    recentTotal: source.transactions.length,
     breakdown,
     budgets,
   };
