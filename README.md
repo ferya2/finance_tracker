@@ -177,3 +177,9 @@ signed-in users.
   date from a caller-supplied reference day, `buildDashboardData` now carries that
   label and the true `recentTotal`, and the animated list shows "6 of 24" with a
   "View all" link to the transactions page.
+- Day 36: category breakdown from real data — a pure, unit-tested
+  `buildDonutBreakdown` in `lib/finance/donut.ts` shapes the month's spending into
+  donut slices (biggest first, long tail merged into "Other"), and the widget now
+  offers animated **bars** or an animated **donut** (SVG ring that sweeps into
+  place, total in the middle, legend with amounts and shares) via a segmented
+  switch.
