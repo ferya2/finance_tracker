@@ -124,12 +124,14 @@ describe("Dashboard", () => {
   it("shows summary cards computed from the user's data", () => {
     render(<Dashboard />);
 
+    // Scoped to the cards: the month's expense can match a widget total.
+    const cards = screen.getByText("Balance").closest("div.grid") as HTMLElement;
     expect(screen.getByText("Balance")).toBeInTheDocument();
-    expect(screen.getByText("$663.65")).toBeInTheDocument();
+    expect(within(cards).getByText("$663.65")).toBeInTheDocument();
     expect(screen.getByText("Income")).toBeInTheDocument();
-    expect(screen.getByText("$2,400.00")).toBeInTheDocument();
+    expect(within(cards).getByText("$2,400.00")).toBeInTheDocument();
     expect(screen.getByText("Expense")).toBeInTheDocument();
-    expect(screen.getByText("$1,236.35")).toBeInTheDocument();
+    expect(within(cards).getByText("$1,236.35")).toBeInTheDocument();
   });
 
   it("compares the income and expense cards with the previous month", () => {

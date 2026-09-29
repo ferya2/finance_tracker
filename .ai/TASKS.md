@@ -107,7 +107,7 @@ whitespace, an interactive drag-to-rotate **3D** hero, and smooth scroll-reveal
 - [x] **Day 34 — Summary cards (real).** Balance / income / expense from real data.
 - [x] **Day 35 — Recent transactions (real).** Animated list from real data.
 - [x] **Day 36 — Category breakdown (real).** Animated bar/donut.
-- [ ] **Day 37 — Budget widget (real).** Animated progress from budget status.
+- [x] **Day 37 — Budget widget (real).** Animated progress from budget status.
 - [ ] **Day 38 — Dashboard polish.** Responsive + motion refinement.
 
 ## Week 7 — Transactions (functional)
