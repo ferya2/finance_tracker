@@ -183,3 +183,9 @@ signed-in users.
   offers animated **bars** or an animated **donut** (SVG ring that sweeps into
   place, total in the middle, legend with amounts and shares) via a segmented
   switch.
+- Day 37: budget widget from real data — pure, unit-tested `summarizeBudgets`
+  and `budgetPressure` in `lib/finance/budget.ts` roll the month's budgets into
+  one headline (spent vs. limits, headroom, count over) and colour each row
+  on-track / warning (80%) / over; the widget leads with an animated budget
+  gauge (SVG ring, percentage in the middle) and each row now shows its
+  remaining headroom or how far over it is.

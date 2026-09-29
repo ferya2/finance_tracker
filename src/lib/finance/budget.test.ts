@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 import type { Transaction } from "@/types/transaction";
-import { budgetStatus } from "./budget";
+import {
+  BUDGET_WARNING_PERCENT,
+  budgetPressure,
+  budgetStatus,
+  summarizeBudgets,
+  type BudgetProgressRow,
+} from "./budget";
 
 function makeTransaction(
   amount: number,
@@ -117,5 +123,97 @@ describe("budgetStatus", () => {
       percent: 0,
       overBudget: false,
     });
+  });
+});
+
+function makeBudgetRow(
+  limit: number,
+  spent: number,
+): BudgetProgressRow {
+  return {
+    limit,
+    spent,
+    remaining: limit - spent,
+    percent: limit > 0 ? Math.round((spent / limit) * 100) : 0,
+    overBudget: spent > 0 && spent > limit,
+  };
+}
+
+describe("budgetPressure", () => {
+  it("keeps a comfortably funded budget on track", () => {
+    expect(budgetPressure(makeBudgetRow(35000, 20685))).toBe("onTrack");
+  });
+
+  it("warns once the budget reaches the warning percent", () => {
+    const row = makeBudgetRow(10000, 8000);
+
+    expect(BUDGET_WARNING_PERCENT).toBe(80);
+    expect(budgetPressure(row)).toBe("warning");
+  });
+
+  it("stays on track just below the warning percent", () => {
+    expect(budgetPressure(makeBudgetRow(10000, 7900))).toBe("onTrack");
+  });
+
+  it("reports over budget ahead of the warning percent", () => {
+    expect(budgetPressure(makeBudgetRow(10000, 12000))).toBe("over");
+  });
+
+  it("reports over budget for a zero limit that has been spent from", () => {
+    expect(budgetPressure(makeBudgetRow(0, 500))).toBe("over");
+  });
+});
+
+describe("summarizeBudgets", () => {
+  it("adds up the limits, spending and headroom of every tracked budget", () => {
+    expect(
+      summarizeBudgets([makeBudgetRow(130000, 115000), makeBudgetRow(50000, 8635)]),
+    ).toEqual({
+      limit: 180000,
+      spent: 123635,
+      remaining: 56365,
+      percent: 69,
+      tracked: 2,
+      overBudgetCount: 0,
+      pressure: "onTrack",
+    });
+  });
+
+  it("counts how many budgets have been exceeded", () => {
+    const totals = summarizeBudgets([
+      makeBudgetRow(130000, 115000),
+      makeBudgetRow(5000, 8635),
+    ]);
+
+    expect(totals.overBudgetCount).toBe(1);
+    expect(totals.remaining).toBe(11365);
+    expect(totals.pressure).toBe("over");
+  });
+
+  it("colours the month by the share of its limits that is spent", () => {
+    const rows = [makeBudgetRow(100000, 10000), makeBudgetRow(50000, 40000)];
+    expect(summarizeBudgets(rows).pressure).toBe("onTrack");
+    expect(summarizeBudgets([makeBudgetRow(100000, 90000)]).pressure).toBe("warning");
+    expect(summarizeBudgets([makeBudgetRow(100000, 120000)]).pressure).toBe("over");
+  });
+
+  it("totals to zero for a month without any budgets", () => {
+    expect(summarizeBudgets([])).toEqual({
+      limit: 0,
+      spent: 0,
+      remaining: 0,
+      percent: 0,
+      tracked: 0,
+      overBudgetCount: 0,
+      pressure: "onTrack",
+    });
+  });
+
+  it("does not mutate the rows it is given", () => {
+    const rows = [makeBudgetRow(130000, 115000)];
+
+    summarizeBudgets(rows);
+
+    expect(rows[0]).toEqual(makeBudgetRow(130000, 115000));
   });
 });
