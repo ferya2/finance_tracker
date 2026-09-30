@@ -290,4 +290,28 @@ describe("Dashboard", () => {
     await userEvent.click(screen.getByRole("button", { name: /try again/i }));
     expect(reload).toHaveBeenCalledOnce();
   });
+
+  it("swaps the failure for the widgets once a retry succeeds", () => {
+    const failure = {
+      status: "error" as const,
+      data: null,
+      error: { message: "Failed to fetch transactions" } as unknown as PostgrestError,
+      reload: vi.fn(),
+    };
+    mockUseUserData.mockReturnValue(failure);
+
+    const { rerender } = render(<Dashboard />);
+    expect(screen.getByText("Could not load your dashboard")).toBeInTheDocument();
+
+    mockUseUserData.mockReturnValue(readyState(DATA));
+    rerender(<Dashboard />);
+
+    // Reduced motion is stubbed on, so the swap lands without a transition.
+    expect(
+      screen.queryByText("Could not load your dashboard"),
+    ).not.toBeInTheDocument();
+    expect(screen.getByText("Recent transactions")).toBeInTheDocument();
+    expect(screen.getByText("Monthly budgets")).toBeInTheDocument();
+    expect(screen.getByText("Spending by category")).toBeInTheDocument();
+  });
 });

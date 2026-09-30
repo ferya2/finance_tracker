@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { useMemo } from "react";
 import { BudgetGauge } from "@/components/dashboard/budget-gauge";
+import { EASE, WIDGET_CARD_CLASS, staggerDelay } from "@/components/dashboard/motion";
 import { usePrefersReducedMotion } from "@/components/use-prefers-reduced-motion";
 import {
   budgetPressure,
@@ -11,9 +12,6 @@ import {
 } from "@/lib/finance/budget";
 import type { DashboardBudgetRow } from "@/lib/finance/dashboard";
 import { formatCurrency } from "@/lib/finance/format";
-
-/** The house easing curve, matching the rest of the dashboard motion. */
-const EASE: [number, number, number, number] = [0.25, 0.1, 0.25, 1];
 
 const barClassName: Record<BudgetPressure, string> = {
   onTrack: "bg-primary",
@@ -33,10 +31,10 @@ export function BudgetProgress({ rows, monthName }: BudgetProgressProps) {
   const totals = useMemo(() => summarizeBudgets(rows), [rows]);
 
   return (
-    <section className="rounded-2xl border border-border bg-surface p-6 shadow-sm">
-      <div className="flex items-center justify-between gap-3">
+    <section className={WIDGET_CARD_CLASS}>
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 className="text-base font-semibold text-text">Monthly budgets</h2>
-        <span className="rounded-full bg-surface-subtle px-2.5 py-1 text-xs font-medium text-text-secondary">
+        <span className="shrink-0 rounded-full bg-surface-subtle px-2.5 py-1 text-xs font-medium text-text-secondary">
           {monthName}
         </span>
       </div>
@@ -84,7 +82,7 @@ export function BudgetProgress({ rows, monthName }: BudgetProgressProps) {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{
                     duration: 0.4,
-                    delay: 0.1 + index * 0.05,
+                    delay: staggerDelay(index, 0.05, 0.1),
                     ease: EASE,
                   }}
                 >
@@ -113,7 +111,7 @@ export function BudgetProgress({ rows, monthName }: BudgetProgressProps) {
                       animate={{ width: `${Math.min(row.percent, 100)}%` }}
                       transition={{
                         duration: 0.8,
-                        delay: 0.25 + index * 0.05,
+                        delay: staggerDelay(index, 0.05, 0.25),
                         ease: EASE,
                       }}
                       className={`h-full rounded-full ${barClassName[pressure]}`}

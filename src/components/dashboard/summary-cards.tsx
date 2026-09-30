@@ -1,17 +1,15 @@
 "use client";
 
 import { TrendingDown, TrendingUp, Wallet, type LucideIcon } from "lucide-react";
+import { staggerDelay } from "@/components/dashboard/motion";
 import { SummaryCard, type SummaryTone } from "@/components/dashboard/summary-card";
 import type { SummaryCardData, SummaryCardKey } from "@/lib/finance/summary";
 
 /** Icon, tone and entrance order for each card, in render order. */
-const presentation: Record<
-  SummaryCardKey,
-  { icon: LucideIcon; tone: SummaryTone; delay: number }
-> = {
-  balance: { icon: Wallet, tone: "primary", delay: 0 },
-  income: { icon: TrendingUp, tone: "success", delay: 0.05 },
-  expense: { icon: TrendingDown, tone: "danger", delay: 0.1 },
+const presentation: Record<SummaryCardKey, { icon: LucideIcon; tone: SummaryTone }> = {
+  balance: { icon: Wallet, tone: "primary" },
+  income: { icon: TrendingUp, tone: "success" },
+  expense: { icon: TrendingDown, tone: "danger" },
 };
 
 interface SummaryCardsProps {
@@ -22,8 +20,8 @@ interface SummaryCardsProps {
 export function SummaryCards({ cards }: SummaryCardsProps) {
   return (
     <div className="grid gap-4 sm:grid-cols-3">
-      {cards.map((card) => {
-        const { icon, tone, delay } = presentation[card.key];
+      {cards.map((card, index) => {
+        const { icon, tone } = presentation[card.key];
 
         return (
           <SummaryCard
@@ -34,7 +32,7 @@ export function SummaryCards({ cards }: SummaryCardsProps) {
             trend={card.trend}
             icon={icon}
             tone={tone}
-            delay={delay}
+            delay={staggerDelay(index, 0.05, 0)}
           />
         );
       })}

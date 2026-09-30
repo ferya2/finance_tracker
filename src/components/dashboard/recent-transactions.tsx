@@ -3,11 +3,10 @@
 import { motion } from "framer-motion";
 import { ArrowDownLeft, ArrowRight, ArrowUpRight } from "lucide-react";
 import Link from "next/link";
+import { EASE, WIDGET_CARD_CLASS, staggerDelay } from "@/components/dashboard/motion";
 import { usePrefersReducedMotion } from "@/components/use-prefers-reduced-motion";
 import type { DashboardTransactionRow } from "@/lib/finance/dashboard";
 import { formatCurrency } from "@/lib/finance/format";
-
-const cardClassName = "rounded-2xl border border-border bg-surface p-6 shadow-sm";
 
 interface RecentTransactionsProps {
   transactions: readonly DashboardTransactionRow[];
@@ -28,10 +27,10 @@ export function RecentTransactions({
   const hasMore = total > transactions.length;
 
   return (
-    <section className={cardClassName}>
-      <div className="flex items-center justify-between gap-3">
+    <section className={WIDGET_CARD_CLASS}>
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 className="text-base font-semibold text-text">Recent transactions</h2>
-        <div className="flex items-center gap-2">
+        <div className="flex shrink-0 items-center gap-2">
           <span className="rounded-full bg-surface-subtle px-2.5 py-1 text-xs font-medium text-text-secondary tabular-nums">
             {countLabel(transactions.length, total)}
           </span>
@@ -62,8 +61,8 @@ export function RecentTransactions({
                 animate={{ opacity: 1, y: 0 }}
                 transition={{
                   duration: 0.4,
-                  delay: 0.05 + index * 0.05,
-                  ease: [0.25, 0.1, 0.25, 1],
+                  delay: staggerDelay(index),
+                  ease: EASE,
                 }}
                 className="flex items-center gap-3 py-3"
               >

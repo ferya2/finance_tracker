@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { ArrowDownRight, ArrowUpRight, Minus, type LucideIcon } from "lucide-react";
 import { AnimatedNumber } from "@/components/dashboard/animated-number";
+import { EASE, WIDGET_CARD_CLASS } from "@/components/dashboard/motion";
 import { usePrefersReducedMotion } from "@/components/use-prefers-reduced-motion";
 import type { SummaryTrend, SummaryTrendDirection } from "@/lib/finance/summary";
 
@@ -47,7 +48,7 @@ function TrendBadge({ trend, tone }: { trend: SummaryTrend; tone: SummaryTone })
     <motion.p
       initial={reduced ? false : { opacity: 0, y: -4 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
+      transition={{ duration: 0.4, ease: EASE }}
       className={`mt-3 flex items-center gap-1 text-xs font-medium ${trendClassName(trend, tone)}`}
     >
       <Icon className="h-3.5 w-3.5 shrink-0" aria-hidden />
@@ -71,8 +72,8 @@ export function SummaryCard({
     <motion.div
       initial={reduced ? false : { opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.45, delay, ease: [0.25, 0.1, 0.25, 1] }}
-      className="rounded-2xl border border-border bg-surface p-6 shadow-sm"
+      transition={{ duration: 0.45, delay, ease: EASE }}
+      className={WIDGET_CARD_CLASS}
     >
       <div className="flex items-center justify-between gap-3">
         <p className="text-sm font-medium text-text-secondary">{label}</p>
@@ -84,7 +85,7 @@ export function SummaryCard({
       </div>
       <AnimatedNumber
         value={value}
-        className="mt-5 block text-2xl font-semibold tracking-tight text-text sm:text-3xl"
+        className="mt-5 block text-2xl font-semibold tracking-tight text-text tabular-nums sm:text-3xl"
       />
       <p className="mt-1 text-xs text-text-muted">{caption}</p>
       {trend && <TrendBadge trend={trend} tone={tone} />}
