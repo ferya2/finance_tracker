@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { EASE, staggerDelay } from "@/components/dashboard/motion";
 import { usePrefersReducedMotion } from "@/components/use-prefers-reduced-motion";
 import type { DonutBreakdown, DonutSlice } from "@/lib/finance/donut";
 import { formatCurrency } from "@/lib/finance/format";
@@ -13,9 +14,6 @@ const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
 /** Share of the ring left as a gap between two neighbouring slices, in percent. */
 const SLICE_GAP_PERCENT = 1.5;
-
-/** The house easing curve, matching the rest of the dashboard motion. */
-const EASE: [number, number, number, number] = [0.25, 0.1, 0.25, 1];
 
 interface DonutArc {
   slice: DonutSlice;
@@ -100,7 +98,7 @@ export function CategoryDonut({ breakdown }: CategoryDonutProps) {
               animate={{ strokeDashoffset: toUnits(offset) }}
               transition={{
                 duration: 0.7,
-                delay: 0.1 + index * 0.08,
+                delay: staggerDelay(index, 0.08, 0.1),
                 ease: EASE,
               }}
             />
@@ -122,7 +120,7 @@ export function CategoryDonut({ breakdown }: CategoryDonutProps) {
             key={slice.key}
             initial={reduced ? false : { opacity: 0, x: -8 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.35, delay: 0.15 + index * 0.05, ease: EASE }}
+            transition={{ duration: 0.35, delay: staggerDelay(index, 0.05, 0.15), ease: EASE }}
             className="flex items-center justify-between gap-3 text-sm"
           >
             <span className="flex min-w-0 items-center gap-2 font-medium text-text">

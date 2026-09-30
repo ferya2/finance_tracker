@@ -1,10 +1,11 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { AlertTriangle, RefreshCw } from "lucide-react";
 import { useMemo } from "react";
 import { BudgetProgress } from "@/components/dashboard/budget-progress";
 import { CategoryBreakdown } from "@/components/dashboard/category-breakdown";
+import { EASE, WIDGET_CARD_CLASS } from "@/components/dashboard/motion";
 import { RecentTransactions } from "@/components/dashboard/recent-transactions";
 import { SummaryCards } from "@/components/dashboard/summary-cards";
 import { usePrefersReducedMotion } from "@/components/use-prefers-reduced-motion";
@@ -23,7 +24,7 @@ function Skeleton({ className }: { className: string }) {
       transition={
         reduced
           ? { duration: 0 }
-          : { duration: 1.4, repeat: Infinity, ease: "easeInOut" }
+          : { duration: 1.4, repeat: Infinity, ease: EASE }
       }
       className={`rounded-xl bg-surface-subtle ${className}`}
     />
@@ -37,21 +38,21 @@ function DashboardSkeleton() {
         {["h-32", "h-32", "h-32"].map((height) => (
           <div
             key={height}
-            className="rounded-2xl border border-border bg-surface p-6 shadow-sm"
+            className={WIDGET_CARD_CLASS}
           >
             <Skeleton className={`w-full ${height}`} />
           </div>
         ))}
       </div>
       <div className="mt-6 grid gap-4 lg:grid-cols-5">
-        <div className="rounded-2xl border border-border bg-surface p-6 shadow-sm lg:col-span-3">
+        <div className={WIDGET_CARD_CLASS + " lg:col-span-3"}>
           <Skeleton className="h-64 w-full" />
         </div>
         <div className="flex flex-col gap-4 lg:col-span-2">
-          <div className="rounded-2xl border border-border bg-surface p-6 shadow-sm">
+          <div className={WIDGET_CARD_CLASS}>
             <Skeleton className="h-40 w-full" />
           </div>
-          <div className="rounded-2xl border border-border bg-surface p-6 shadow-sm">
+          <div className={WIDGET_CARD_CLASS}>
             <Skeleton className="h-40 w-full" />
           </div>
         </div>
@@ -67,8 +68,8 @@ function DashboardError({ message, onRetry }: { message: string; onRetry: () => 
     <motion.div
       initial={reduced ? false : { opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
-      className="flex flex-col items-start gap-4 rounded-2xl border border-border bg-surface p-6 shadow-sm"
+      transition={{ duration: 0.4, ease: EASE }}
+      className={`${WIDGET_CARD_CLASS} flex flex-col items-start gap-4`}
     >
       <div className="flex items-center gap-3">
         <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-danger-light text-danger">
@@ -84,7 +85,7 @@ function DashboardError({ message, onRetry }: { message: string; onRetry: () => 
       <button
         type="button"
         onClick={onRetry}
-        className="inline-flex h-10 items-center gap-2 rounded-full bg-primary px-5 text-sm font-medium text-primary-foreground shadow-lg shadow-primary/25 transition-transform hover:-translate-y-0.5"
+        className="inline-flex h-10 items-center gap-2 rounded-full bg-primary px-5 text-sm font-medium text-primary-foreground shadow-lg shadow-primary/25 transition-transform hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary motion-reduce:transform-none"
       >
         <RefreshCw className="h-4 w-4" />
         Try again
@@ -101,30 +102,69 @@ export function Dashboard() {
     () => (data ? buildDashboardData(data, period, referenceDate) : null),
     [data, period, referenceDate],
   );
+  const reduced = usePrefersReducedMotion();
 
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 lg:py-10">
-      <header className="mb-8">
-        <p className="text-xs font-semibold uppercase tracking-widest text-text-muted">
+      <header className="mb-8 space-y-2 sm:space-y-3">
+        <motion.p
+          initial={reduced ? false : { opacity: 0, y: -4 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0, ease: EASE }}
+          className="text-xs font-semibold uppercase tracking-widest text-text-muted"
+        >
           {view ? view.monthLabel : "This month"}
-        </p>
-        <h1 className="mt-2 text-2xl font-semibold tracking-tight text-text sm:text-3xl">
+        </motion.p>
+        <motion.h1
+          initial={reduced ? false : { opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.45, delay: 0.05, ease: EASE }}
+          className="text-2xl font-semibold tracking-tight text-text sm:text-3xl"
+        >
           Overview
-        </h1>
-        <p className="mt-2 text-sm leading-6 text-text-secondary">
+        </motion.h1>
+        <motion.p
+          initial={reduced ? false : { opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.45, delay: 0.1, ease: EASE }}
+          className="max-w-2xl text-sm leading-6 text-text-secondary"
+        >
           A snapshot of your money this month — updated as you go.
-        </p>
+        </motion.p>
       </header>
 
-      {status === "error" ? (
-        <DashboardError
-          message={error?.message ?? "Something went wrong while loading your data."}
-          onRetry={reload}
-        />
+      <AnimatePresence mode="wait">
+        {status === "error" ? (
+        <motion.div
+          key="error"
+          initial={reduced ? false : { opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={reduced ? undefined : { opacity: 0, y: -6 }}
+          transition={{ duration: 0.35, ease: EASE }}
+        >
+          <DashboardError
+            message={error?.message ?? "Something went wrong while loading your data."}
+            onRetry={reload}
+          />
+        </motion.div>
       ) : !view ? (
-        <DashboardSkeleton />
+        <motion.div
+          key="loading"
+          initial={reduced ? false : { opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={reduced ? undefined : { opacity: 0, y: -6 }}
+          transition={{ duration: 0.35, ease: EASE }}
+        >
+          <DashboardSkeleton />
+        </motion.div>
       ) : (
-        <>
+        <motion.div
+          key="ready"
+          initial={reduced ? false : { opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={reduced ? undefined : { opacity: 0, y: -6 }}
+          transition={{ duration: 0.4, ease: EASE }}
+        >
           <SummaryCards cards={view.summaryCards} />
 
           <div className="mt-6 grid gap-4 lg:grid-cols-5">
@@ -139,8 +179,9 @@ export function Dashboard() {
               <CategoryBreakdown rows={view.breakdown} />
             </div>
           </div>
-        </>
-      )}
+        </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

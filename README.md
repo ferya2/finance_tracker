@@ -187,5 +187,11 @@ signed-in users.
   and `budgetPressure` in `lib/finance/budget.ts` roll the month's budgets into
   one headline (spent vs. limits, headroom, count over) and colour each row
   on-track / warning (80%) / over; the widget leads with an animated budget
-  gauge (SVG ring, percentage in the middle) and each row now shows its
-  remaining headroom or how far over it is.
+gauge (SVG ring, percentage in the middle) and each row now shows its
+   remaining headroom or how far over it is.
+- Day 38: dashboard polish — shared dashboard motion tokens in
+  `components/dashboard/motion.ts` (house easing curve, a capped `staggerDelay`
+  so long lists stop waiting to enter, one widget-card class), a staggered header
+   entrance, animated cross-fades between the loading / error / ready states, and
+   responsive tweaks (wrapping widget headers, smaller mobile padding, tabular
+   numbers so values stop jittering as they count up).

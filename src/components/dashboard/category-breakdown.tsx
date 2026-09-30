@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { useMemo, useState } from "react";
 import { CategoryDonut } from "@/components/dashboard/category-donut";
+import { EASE, WIDGET_CARD_CLASS, staggerDelay } from "@/components/dashboard/motion";
 import {
   SegmentedControl,
   type SegmentOption,
@@ -31,17 +32,19 @@ export function CategoryBreakdown({ rows }: CategoryBreakdownProps) {
   const donut = useMemo(() => buildDonutBreakdown(rows), [rows]);
 
   return (
-    <section className="rounded-2xl border border-border bg-surface p-6 shadow-sm">
-      <div className="flex items-center justify-between gap-3">
+    <section className={WIDGET_CARD_CLASS}>
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 className="text-base font-semibold text-text">Spending by category</h2>
         {rows.length > 0 && (
-          <SegmentedControl
-            name="breakdown"
-            options={VIEWS}
-            value={view}
-            onChange={setView}
-            ariaLabel="Spending by category chart"
-          />
+          <div className="shrink-0">
+            <SegmentedControl
+              name="breakdown"
+              options={VIEWS}
+              value={view}
+              onChange={setView}
+              ariaLabel="Spending by category chart"
+            />
+          </div>
         )}
       </div>
 
@@ -54,7 +57,7 @@ export function CategoryBreakdown({ rows }: CategoryBreakdownProps) {
           key={view}
           initial={reduced ? false : { opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
+          transition={{ duration: 0.25, ease: EASE }}
         >
           {view === "donut" ? (
             <CategoryDonut breakdown={donut} />
@@ -67,8 +70,8 @@ export function CategoryBreakdown({ rows }: CategoryBreakdownProps) {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{
                     duration: 0.4,
-                    delay: 0.05 + index * 0.05,
-                    ease: [0.25, 0.1, 0.25, 1],
+                    delay: staggerDelay(index),
+                    ease: EASE,
                   }}
                 >
                   <div className="flex items-center justify-between gap-3 text-sm">
@@ -94,8 +97,8 @@ export function CategoryBreakdown({ rows }: CategoryBreakdownProps) {
                       animate={{ width: `${row.sharePercent}%` }}
                       transition={{
                         duration: 0.8,
-                        delay: 0.2 + index * 0.05,
-                        ease: [0.25, 0.1, 0.25, 1],
+                        delay: staggerDelay(index, 0.05, 0.2),
+                        ease: EASE,
                       }}
                       className="h-full rounded-full"
                       style={{ backgroundColor: row.categoryColor }}

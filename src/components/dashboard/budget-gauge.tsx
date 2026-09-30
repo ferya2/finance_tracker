@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { EASE } from "@/components/dashboard/motion";
 import { usePrefersReducedMotion } from "@/components/use-prefers-reduced-motion";
 import type { BudgetPressure, BudgetTotals } from "@/lib/finance/budget";
 
@@ -9,9 +10,6 @@ const STROKE_WIDTH = 7;
 const CENTER = VIEW_SIZE / 2;
 const RADIUS = (VIEW_SIZE - STROKE_WIDTH) / 2;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
-
-/** The house easing curve, matching the rest of the dashboard motion. */
-const EASE: [number, number, number, number] = [0.25, 0.1, 0.25, 1];
 
 const strokeClassName: Record<BudgetPressure, string> = {
   onTrack: "stroke-primary",
