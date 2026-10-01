@@ -195,3 +195,9 @@ gauge (SVG ring, percentage in the middle) and each row now shows its
    entrance, animated cross-fades between the loading / error / ready states, and
    responsive tweaks (wrapping widget headers, smaller mobile padding, tabular
    numbers so values stop jittering as they count up).
+- Day 39: transactions list from real data — pure, unit-tested `buildTransactionList`
+  in `lib/finance/transaction-list.ts` resolves every transaction against the
+  user's categories (placeholder note / "Uncategorized" fallbacks) and orders them
+  newest first with dates labelled "Today" / "Yesterday" / "Fri, 12 Sep"; the page
+  now reads the user's own rows through `useUserData` with a shimmering skeleton,
+  an error card with retry, and a first-run empty state, instead of dummy data.
