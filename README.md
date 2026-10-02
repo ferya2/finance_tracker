@@ -201,3 +201,10 @@ gauge (SVG ring, percentage in the middle) and each row now shows its
   newest first with dates labelled "Today" / "Yesterday" / "Fri, 12 Sep"; the page
   now reads the user's own rows through `useUserData` with a shimmering skeleton,
   an error card with retry, and a first-run empty state, instead of dummy data.
+- Day 40: add transaction — the page header button now opens an animated modal
+  form (type, amount, category, date, optional note) that writes through
+  `createTransaction` and reloads the list; validation comes from pure, unit-tested
+  `transaction-form.ts` (`toNewTransaction`, `validateTransactionForm`,
+  `categoriesForType`, `emptyTransactionForm`) on top of the shared
+  `validateTransaction`, with per-field messages, an inline save error, Escape /
+  backdrop close and a scroll lock.

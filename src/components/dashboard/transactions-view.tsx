@@ -10,6 +10,7 @@ import {
   RefreshCw,
   Search,
 } from "lucide-react";
+import { AddTransactionModal } from "@/components/dashboard/add-transaction-modal";
 import { EASE, WIDGET_CARD_CLASS } from "@/components/dashboard/motion";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { PageShell } from "@/components/dashboard/page-shell";
@@ -123,6 +124,7 @@ export function TransactionsView() {
   const reduced = usePrefersReducedMotion();
   const [filter, setFilter] = useState<Filter>("all");
   const [query, setQuery] = useState("");
+  const [adding, setAdding] = useState(false);
   const referenceDate = useMemo(() => isoDate(new Date()), []);
 
   const list = useMemo(
@@ -151,7 +153,9 @@ export function TransactionsView() {
           action={
             <button
               type="button"
-              className="inline-flex h-10 items-center gap-2 rounded-full bg-primary px-5 text-sm font-medium text-primary-foreground shadow-lg shadow-primary/25 transition-transform hover:-translate-y-0.5"
+              onClick={() => setAdding(true)}
+              disabled={data === null}
+              className="inline-flex h-10 items-center gap-2 rounded-full bg-primary px-5 text-sm font-medium text-primary-foreground shadow-lg shadow-primary/25 transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0 motion-reduce:transform-none"
             >
               <Plus className="h-4 w-4" />
               Add transaction
@@ -285,6 +289,20 @@ export function TransactionsView() {
           )}
         </AnimatePresence>
       </div>
+
+      <AnimatePresence>
+        {adding && (
+          <AddTransactionModal
+            categories={data?.categories ?? []}
+            referenceDate={referenceDate}
+            onClose={() => setAdding(false)}
+            onCreated={() => {
+              setAdding(false);
+              reload();
+            }}
+          />
+        )}
+      </AnimatePresence>
     </PageShell>
   );
 }

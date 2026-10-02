@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   render,
   screen,
+  waitFor,
   waitForElementToBeRemoved,
   within,
 } from "@testing-library/react";
@@ -10,11 +11,15 @@ import type { PostgrestError } from "@supabase/supabase-js";
 import { TransactionsView } from "./transactions-view";
 import type { UserData } from "@/lib/supabase/dashboard";
 
-const { mockUseUserData } = vi.hoisted(() => ({
+const { mockUseUserData, mockCreateTransaction } = vi.hoisted(() => ({
   mockUseUserData: vi.fn(),
+  mockCreateTransaction: vi.fn(),
 }));
 
 vi.mock("@/components/use-user-data", () => ({ useUserData: mockUseUserData }));
+vi.mock("@/lib/supabase/transactions", () => ({
+  createTransaction: mockCreateTransaction,
+}));
 
 function stubMatchMedia(matches: boolean) {
   const mediaQueryList = {
@@ -86,14 +91,16 @@ function isoDaysAgo(days: number): string {
   ).padStart(2, "0")}`;
 }
 
-function readyState(data: UserData) {
-  return { status: "ready" as const, data, error: null, reload: vi.fn() };
+function readyState(data: UserData, reload = vi.fn()) {
+  return { status: "ready" as const, data, error: null, reload };
 }
 
 beforeEach(() => {
   stubMatchMedia(true);
   mockUseUserData.mockReset();
   mockUseUserData.mockReturnValue(readyState(DATA));
+  mockCreateTransaction.mockReset();
+  mockCreateTransaction.mockResolvedValue({ data: null, error: null });
 });
 
 afterEach(() => {
@@ -273,5 +280,91 @@ describe("TransactionsView", () => {
       screen.queryByText("Could not load your transactions"),
     ).not.toBeInTheDocument();
     expect(screen.getByText("Monthly salary")).toBeInTheDocument();
+  });
+
+  it("opens the add-transaction form from the page header", async () => {
+    const user = userEvent.setup();
+    render(<TransactionsView />);
+
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: /add transaction/i }));
+
+    expect(screen.getByRole("dialog", { name: "Add transaction" })).toBeInTheDocument();
+    // Only the user's own categories are offered.
+    expect(
+      Array.from(
+        screen.getByLabelText("Category").querySelectorAll("option"),
+      ).map((option) => option.textContent),
+    ).toEqual(["Choose a category", "Housing", "Food & dining"]);
+  });
+
+  it("saves a new transaction and reloads the list", async () => {
+    const user = userEvent.setup();
+    const reload = vi.fn();
+    mockUseUserData.mockReturnValue(readyState(DATA, reload));
+    mockCreateTransaction.mockResolvedValue({
+      data: {
+        id: "txn-new",
+        amount: 4500,
+        type: "expense",
+        categoryId: "cat-food",
+        note: "Coffee",
+        occurredOn: isoDaysAgo(0),
+      },
+      error: null,
+    });
+    render(<TransactionsView />);
+
+    await user.click(screen.getByRole("button", { name: /add transaction/i }));
+    await user.type(screen.getByLabelText("Amount"), "45");
+    await user.selectOptions(screen.getByLabelText("Category"), "cat-food");
+    await user.type(screen.getByLabelText("Note"), "Coffee");
+    await user.click(screen.getByRole("button", { name: "Save transaction" }));
+
+    await waitFor(() => expect(reload).toHaveBeenCalledOnce());
+    expect(mockCreateTransaction).toHaveBeenCalledWith({
+      amount: 4500,
+      type: "expense",
+      categoryId: "cat-food",
+      note: "Coffee",
+      occurredOn: isoDaysAgo(0),
+    });
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+
+  it("keeps the form open and explains the failure when the save fails", async () => {
+    const user = userEvent.setup();
+    const reload = vi.fn();
+    mockUseUserData.mockReturnValue(readyState(DATA, reload));
+    mockCreateTransaction.mockResolvedValue({
+      data: null,
+      error: { message: "Failed to insert transaction" } as unknown as PostgrestError,
+    });
+    render(<TransactionsView />);
+
+    await user.click(screen.getByRole("button", { name: /add transaction/i }));
+    await user.type(screen.getByLabelText("Amount"), "45");
+    await user.selectOptions(screen.getByLabelText("Category"), "cat-food");
+    await user.click(screen.getByRole("button", { name: "Save transaction" }));
+
+    expect(
+      await screen.findByText("Failed to insert transaction"),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("dialog", { name: "Add transaction" })).toBeInTheDocument();
+    expect(reload).not.toHaveBeenCalled();
+  });
+
+  it("cannot open the form before the user's categories have loaded", () => {
+    mockUseUserData.mockReturnValue({
+      status: "loading",
+      data: null,
+      error: null,
+      reload: vi.fn(),
+    });
+
+    render(<TransactionsView />);
+
+    expect(screen.getByRole("button", { name: /add transaction/i })).toBeDisabled();
   });
 });
