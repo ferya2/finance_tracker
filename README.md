@@ -208,3 +208,10 @@ gauge (SVG ring, percentage in the middle) and each row now shows its
   `categoriesForType`, `emptyTransactionForm`) on top of the shared
   `validateTransaction`, with per-field messages, an inline save error, Escape /
   backdrop close and a scroll lock.
+- Day 41: edit transaction — each row now has an animated pencil button that
+  opens the same modal form prefilled with that transaction and writes the
+  correction through `updateTransaction`; the dialog became one shared
+  `TransactionFormModal` used for both adding and editing, and the new pure,
+  unit-tested `formatAmountInput` (cents → editable decimal) plus
+  `transactionToFormValues` and `toTransactionUpdate` do the prefilling and
+  parsing — including clearing a note the user empties.

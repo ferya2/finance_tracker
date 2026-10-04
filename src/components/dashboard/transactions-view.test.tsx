@@ -11,14 +11,18 @@ import type { PostgrestError } from "@supabase/supabase-js";
 import { TransactionsView } from "./transactions-view";
 import type { UserData } from "@/lib/supabase/dashboard";
 
-const { mockUseUserData, mockCreateTransaction } = vi.hoisted(() => ({
-  mockUseUserData: vi.fn(),
-  mockCreateTransaction: vi.fn(),
-}));
+const { mockUseUserData, mockCreateTransaction, mockUpdateTransaction } = vi.hoisted(
+  () => ({
+    mockUseUserData: vi.fn(),
+    mockCreateTransaction: vi.fn(),
+    mockUpdateTransaction: vi.fn(),
+  }),
+);
 
 vi.mock("@/components/use-user-data", () => ({ useUserData: mockUseUserData }));
 vi.mock("@/lib/supabase/transactions", () => ({
   createTransaction: mockCreateTransaction,
+  updateTransaction: mockUpdateTransaction,
 }));
 
 function stubMatchMedia(matches: boolean) {
@@ -101,6 +105,8 @@ beforeEach(() => {
   mockUseUserData.mockReturnValue(readyState(DATA));
   mockCreateTransaction.mockReset();
   mockCreateTransaction.mockResolvedValue({ data: null, error: null });
+  mockUpdateTransaction.mockReset();
+  mockUpdateTransaction.mockResolvedValue({ data: null, error: null });
 });
 
 afterEach(() => {
@@ -366,5 +372,90 @@ describe("TransactionsView", () => {
     render(<TransactionsView />);
 
     expect(screen.getByRole("button", { name: /add transaction/i })).toBeDisabled();
+  });
+
+  it("opens an edit form prefilled from the row that was clicked", async () => {
+    const user = userEvent.setup();
+    render(<TransactionsView />);
+
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Edit Rent" }));
+
+    expect(
+      screen.getByRole("dialog", { name: "Edit transaction" }),
+    ).toBeInTheDocument();
+    expect(screen.getByLabelText("Amount")).toHaveValue("1150");
+    expect(screen.getByLabelText("Category")).toHaveValue("cat-housing");
+    expect(screen.getByLabelText("Note")).toHaveValue("Rent");
+    expect(screen.getByLabelText("Date")).toHaveValue(isoDaysAgo(1));
+  });
+
+  it("saves a correction to the edited transaction and reloads the list", async () => {
+    const user = userEvent.setup();
+    const reload = vi.fn();
+    mockUseUserData.mockReturnValue(readyState(DATA, reload));
+    mockUpdateTransaction.mockResolvedValue({
+      data: {
+        id: "txn-3",
+        amount: 125000,
+        type: "expense",
+        categoryId: "cat-housing",
+        note: "Rent and utilities",
+        occurredOn: isoDaysAgo(1),
+      },
+      error: null,
+    });
+    render(<TransactionsView />);
+
+    await user.click(screen.getByRole("button", { name: "Edit Rent" }));
+    await user.clear(screen.getByLabelText("Amount"));
+    await user.type(screen.getByLabelText("Amount"), "1250");
+    await user.clear(screen.getByLabelText("Note"));
+    await user.type(screen.getByLabelText("Note"), "Rent and utilities");
+    await user.click(screen.getByRole("button", { name: "Save changes" }));
+
+    await waitFor(() => expect(reload).toHaveBeenCalledOnce());
+    expect(mockUpdateTransaction).toHaveBeenCalledWith("txn-3", {
+      amount: 125000,
+      type: "expense",
+      categoryId: "cat-housing",
+      note: "Rent and utilities",
+      occurredOn: isoDaysAgo(1),
+    });
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+
+  it("keeps the edit form open and explains the failure when the update fails", async () => {
+    const user = userEvent.setup();
+    const reload = vi.fn();
+    mockUseUserData.mockReturnValue(readyState(DATA, reload));
+    mockUpdateTransaction.mockResolvedValue({
+      data: null,
+      error: { message: "Failed to update transaction" } as unknown as PostgrestError,
+    });
+    render(<TransactionsView />);
+
+    await user.click(screen.getByRole("button", { name: "Edit Rent" }));
+    await user.click(screen.getByRole("button", { name: "Save changes" }));
+
+    expect(
+      await screen.findByText("Failed to update transaction"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("dialog", { name: "Edit transaction" }),
+    ).toBeInTheDocument();
+    expect(reload).not.toHaveBeenCalled();
+  });
+
+  it("closes the edit form without saving", async () => {
+    const user = userEvent.setup();
+    render(<TransactionsView />);
+
+    await user.click(screen.getByRole("button", { name: "Edit Rent" }));
+    await user.click(screen.getByRole("button", { name: "Cancel" }));
+
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(mockUpdateTransaction).not.toHaveBeenCalled();
   });
 });
