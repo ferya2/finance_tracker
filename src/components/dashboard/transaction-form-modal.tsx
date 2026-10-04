@@ -25,10 +25,12 @@ import {
   categoriesForType,
   emptyTransactionForm,
   toNewTransaction,
+  toTransactionUpdate,
+  transactionToFormValues,
   validateTransactionForm,
   type TransactionFormValues,
 } from "@/lib/finance/transaction-form";
-import { createTransaction } from "@/lib/supabase/transactions";
+import { createTransaction, updateTransaction } from "@/lib/supabase/transactions";
 import type { Category } from "@/types/category";
 import type { Transaction, TransactionType } from "@/types/transaction";
 
@@ -47,20 +49,20 @@ const typeOptions: ReadonlyArray<{
   { value: "income", label: "Income" },
 ];
 
-const TITLE_ID = "add-transaction-title";
-
 const inputClassName =
   "w-full rounded-xl border border-border bg-surface-muted py-3 pl-11 pr-4 text-sm text-text placeholder:text-text-muted transition-colors focus:border-primary focus:bg-surface focus:outline-none focus:ring-2 focus:ring-primary/20";
 
 const errorInputClassName =
   "border-danger focus:border-danger focus:ring-danger/20";
 
-interface AddTransactionModalProps {
+interface TransactionFormModalProps {
   categories: readonly Category[];
-  /** Today, as an ISO `YYYY-MM-DD` string — the form's default date. */
+  /** Today, as an ISO `YYYY-MM-DD` string — the date a new transaction starts on. */
   referenceDate: string;
+  /** The transaction being corrected. Omit it to record a new one instead. */
+  transaction?: Transaction;
   onClose: () => void;
-  onCreated: (transaction: Transaction) => void;
+  onSaved: (transaction: Transaction) => void;
 }
 
 function FieldError({ id, message }: { id: string; message?: string }) {
@@ -91,21 +93,29 @@ function useIsClient(): boolean {
 }
 
 /**
- * A modal form for recording one income or expense: amount, category, day and
- * an optional note. Everything is checked by the pure `lib/finance`
+ * A modal form for one income or expense: amount, category, day and an optional
+ * note. Pass a `transaction` to correct one that is already saved — the form
+ * opens prefilled and the change is written back over it — or omit it to record
+ * a new one. Either way the values are checked by the pure `lib/finance`
  * {@link validateTransactionForm} before the row is written, and the saved
  * transaction is handed back so the caller can refresh its list.
  */
-export function AddTransactionModal({
+export function TransactionFormModal({
   categories,
   referenceDate,
+  transaction,
   onClose,
-  onCreated,
-}: AddTransactionModalProps) {
+  onSaved,
+}: TransactionFormModalProps) {
   const reduced = usePrefersReducedMotion();
   const isClient = useIsClient();
+  const editing = transaction !== undefined;
+  /** Element ids are namespaced per mode so the two forms never collide. */
+  const id = editing ? "edit-transaction" : "add-transaction";
   const [values, setValues] = useState<TransactionFormValues>(() =>
-    emptyTransactionForm(referenceDate),
+    transaction
+      ? transactionToFormValues(transaction, categories)
+      : emptyTransactionForm(referenceDate),
   );
   const [fieldErrors, setFieldErrors] = useState<
     Partial<Record<FieldName, string>>
@@ -179,7 +189,9 @@ export function AddTransactionModal({
     }
 
     setStatus({ type: "loading" });
-    const { data, error } = await createTransaction(toNewTransaction(values));
+    const { data, error } = transaction
+      ? await updateTransaction(transaction.id, toTransactionUpdate(values))
+      : await createTransaction(toNewTransaction(values));
 
     if (error || !data) {
       setStatus({
@@ -189,7 +201,7 @@ export function AddTransactionModal({
       return;
     }
 
-    onCreated(data);
+    onSaved(data);
   }
 
   if (!isClient) return null;
@@ -210,7 +222,7 @@ export function AddTransactionModal({
         <motion.div
           role="dialog"
           aria-modal="true"
-          aria-labelledby={TITLE_ID}
+          aria-labelledby={`${id}-title`}
           initial={reduced ? false : { opacity: 0, y: 24, scale: 0.97 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={reduced ? undefined : { opacity: 0, y: 16, scale: 0.98 }}
@@ -220,13 +232,15 @@ export function AddTransactionModal({
           <div className="mb-6 flex items-start justify-between gap-4">
             <div>
               <h2
-                id={TITLE_ID}
+                id={`${id}-title`}
                 className="text-lg font-semibold tracking-tight text-text"
               >
-                Add transaction
+                {editing ? "Edit transaction" : "Add transaction"}
               </h2>
               <p className="mt-1 text-sm text-text-secondary">
-                Record an income or an expense.
+                {editing
+                  ? "Correct the saved transaction."
+                  : "Record an income or an expense."}
               </p>
             </div>
             <button
@@ -243,7 +257,7 @@ export function AddTransactionModal({
             <div className="flex flex-col gap-1.5">
               <span className="text-sm font-medium text-text">Type</span>
               <SegmentedControl
-                name="add-transaction-type"
+                name={`${id}-type`}
                 ariaLabel="Transaction type"
                 options={typeOptions}
                 value={values.type}
@@ -252,7 +266,7 @@ export function AddTransactionModal({
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label htmlFor="add-transaction-amount" className="text-sm font-medium text-text">
+              <label htmlFor={`${id}-amount`} className="text-sm font-medium text-text">
                 Amount
               </label>
               <div className="relative">
@@ -260,7 +274,7 @@ export function AddTransactionModal({
                   $
                 </span>
                 <input
-                  id="add-transaction-amount"
+                  id={`${id}-amount`}
                   ref={amountRef}
                   value={values.amount}
                   onChange={(event) => update({ amount: event.target.value })}
@@ -270,7 +284,7 @@ export function AddTransactionModal({
                   autoComplete="off"
                   aria-invalid={Boolean(fieldErrors.amount)}
                   aria-describedby={
-                    fieldErrors.amount ? "add-transaction-amount-error" : undefined
+                    fieldErrors.amount ? `${id}-amount-error` : undefined
                   }
                   className={`${inputClassName} ${
                     fieldErrors.amount ? errorInputClassName : ""
@@ -278,26 +292,26 @@ export function AddTransactionModal({
                 />
               </div>
               <FieldError
-                id="add-transaction-amount-error"
+                id={`${id}-amount-error`}
                 message={fieldErrors.amount}
               />
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label htmlFor="add-transaction-category" className="text-sm font-medium text-text">
+              <label htmlFor={`${id}-category`} className="text-sm font-medium text-text">
                 Category
               </label>
               <div className="relative">
                 <Tag className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted" />
                 <select
-                  id="add-transaction-category"
+                  id={`${id}-category`}
                   value={values.categoryId}
                   onChange={(event) => update({ categoryId: event.target.value })}
                   onBlur={handleBlur}
                   aria-invalid={Boolean(fieldErrors.categoryId)}
                   aria-describedby={
                     fieldErrors.categoryId
-                      ? "add-transaction-category-error"
+                      ? `${id}-category-error`
                       : undefined
                   }
                   className={`${inputClassName} appearance-none ${
@@ -313,7 +327,7 @@ export function AddTransactionModal({
                 </select>
               </div>
               <FieldError
-                id="add-transaction-category-error"
+                id={`${id}-category-error`}
                 message={fieldErrors.categoryId}
               />
               {options.length === 0 && (
@@ -324,20 +338,20 @@ export function AddTransactionModal({
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label htmlFor="add-transaction-date" className="text-sm font-medium text-text">
+              <label htmlFor={`${id}-date`} className="text-sm font-medium text-text">
                 Date
               </label>
               <div className="relative">
                 <CalendarDays className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted" />
                 <input
-                  id="add-transaction-date"
+                  id={`${id}-date`}
                   type="date"
                   value={values.occurredOn}
                   onChange={(event) => update({ occurredOn: event.target.value })}
                   onBlur={handleBlur}
                   aria-invalid={Boolean(fieldErrors.occurredOn)}
                   aria-describedby={
-                    fieldErrors.occurredOn ? "add-transaction-date-error" : undefined
+                    fieldErrors.occurredOn ? `${id}-date-error` : undefined
                   }
                   className={`${inputClassName} ${
                     fieldErrors.occurredOn ? errorInputClassName : ""
@@ -345,7 +359,7 @@ export function AddTransactionModal({
                 />
               </div>
               <FieldError
-                id="add-transaction-date-error"
+                id={`${id}-date-error`}
                 message={fieldErrors.occurredOn}
               />
             </div>
@@ -353,7 +367,7 @@ export function AddTransactionModal({
             <div className="flex flex-col gap-1.5">
               <div className="flex items-baseline justify-between gap-2">
                 <label
-                  htmlFor="add-transaction-note"
+                  htmlFor={`${id}-note`}
                   className="text-sm font-medium text-text"
                 >
                   Note
@@ -361,7 +375,7 @@ export function AddTransactionModal({
                 <span className="text-xs text-text-muted">optional</span>
               </div>
               <input
-                id="add-transaction-note"
+                id={`${id}-note`}
                 value={values.note}
                 onChange={(event) => update({ note: event.target.value })}
                 onBlur={handleBlur}
@@ -369,14 +383,14 @@ export function AddTransactionModal({
                 autoComplete="off"
                 aria-invalid={Boolean(fieldErrors.note)}
                 aria-describedby={
-                  fieldErrors.note ? "add-transaction-note-error" : undefined
+                  fieldErrors.note ? `${id}-note-error` : undefined
                 }
                 className={`${inputClassName} ${
                   fieldErrors.note ? errorInputClassName : ""
                 }`}
               />
               <FieldError
-                id="add-transaction-note-error"
+                id={`${id}-note-error`}
                 message={fieldErrors.note}
               />
               <p className="text-right text-xs text-text-muted tabular-nums">
@@ -422,6 +436,8 @@ export function AddTransactionModal({
                     <Loader2 className="h-4 w-4 animate-spin" />
                     Saving…
                   </>
+                ) : editing ? (
+                  "Save changes"
                 ) : (
                   "Save transaction"
                 )}

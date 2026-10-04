@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { formatCurrency, formatDateLabel, parseAmount } from "./format";
+import {
+  formatAmountInput,
+  formatCurrency,
+  formatDateLabel,
+  parseAmount,
+} from "./format";
 
 describe("formatCurrency", () => {
   it("formats zero as an integer dollar amount", () => {
@@ -32,6 +37,37 @@ describe("formatCurrency", () => {
 
   it("supports a custom locale", () => {
     expect(formatCurrency(1234, "USD", "en-GB")).toBe("US$12.34");
+  });
+});
+
+describe("formatAmountInput", () => {
+  it("renders dollars and cents without a currency symbol or separators", () => {
+    expect(formatAmountInput(123456)).toBe("1234.56");
+  });
+
+  it("drops redundant decimals from a whole amount", () => {
+    expect(formatAmountInput(240000)).toBe("2400");
+    expect(formatAmountInput(0)).toBe("0");
+  });
+
+  it("keeps both digits when only cents are left", () => {
+    expect(formatAmountInput(5)).toBe("0.05");
+    expect(formatAmountInput(50)).toBe("0.50");
+  });
+
+  it("keeps a negative amount negative", () => {
+    expect(formatAmountInput(-1234)).toBe("-12.34");
+    expect(formatAmountInput(-240000)).toBe("-2400");
+  });
+
+  it("rounds a fractional number of cents so the result stays an amount", () => {
+    expect(formatAmountInput(12.7)).toBe("0.13");
+  });
+
+  it("round-trips back to the same cents through parseAmount", () => {
+    for (const cents of [1, 5, 99, 100, 8635, 123456, 240000, -1234]) {
+      expect(parseAmount(formatAmountInput(cents))).toBe(cents);
+    }
   });
 });
 

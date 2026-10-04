@@ -6,15 +6,16 @@ import {
   AlertTriangle,
   ArrowDownLeft,
   ArrowUpRight,
+  Pencil,
   Plus,
   RefreshCw,
   Search,
 } from "lucide-react";
-import { AddTransactionModal } from "@/components/dashboard/add-transaction-modal";
 import { EASE, WIDGET_CARD_CLASS } from "@/components/dashboard/motion";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { PageShell } from "@/components/dashboard/page-shell";
 import { SegmentedControl } from "@/components/dashboard/segmented-control";
+import { TransactionFormModal } from "@/components/dashboard/transaction-form-modal";
 import { usePrefersReducedMotion } from "@/components/use-prefers-reduced-motion";
 import { useUserData } from "@/components/use-user-data";
 import { formatCurrency } from "@/lib/finance/format";
@@ -23,6 +24,7 @@ import {
   buildTransactionList,
   type TransactionListRow,
 } from "@/lib/finance/transaction-list";
+import type { Transaction } from "@/types/transaction";
 
 type Filter = "all" | "income" | "expense";
 
@@ -125,6 +127,7 @@ export function TransactionsView() {
   const [filter, setFilter] = useState<Filter>("all");
   const [query, setQuery] = useState("");
   const [adding, setAdding] = useState(false);
+  const [editing, setEditing] = useState<Transaction | null>(null);
   const referenceDate = useMemo(() => isoDate(new Date()), []);
 
   const list = useMemo(
@@ -133,6 +136,12 @@ export function TransactionsView() {
         ? buildTransactionList(data.transactions, data.categories, referenceDate)
         : null,
     [data, referenceDate],
+  );
+
+  /** The editable transaction behind each row, so editing uses the real row. */
+  const byId = useMemo(
+    () => new Map((data?.transactions ?? []).map((row) => [row.id, row])),
+    [data],
   );
 
   const visible = useMemo(
@@ -268,6 +277,22 @@ export function TransactionsView() {
                         {income ? "+" : "−"}
                         {formatCurrency(row.amount)}
                       </p>
+                      <motion.button
+                        type="button"
+                        onClick={() => {
+                          const target = byId.get(row.id);
+                          if (target) setEditing(target);
+                        }}
+                        disabled={!byId.has(row.id)}
+                        aria-label={`Edit ${row.note}`}
+                        title="Edit transaction"
+                        whileHover={reduced ? undefined : { scale: 1.08 }}
+                        whileTap={reduced ? undefined : { scale: 0.94 }}
+                        transition={{ type: "spring", stiffness: 400, damping: 22 }}
+                        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-text-muted transition-colors hover:bg-surface-subtle hover:text-text focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-40"
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </motion.button>
                     </motion.li>
                   );
                 })}
@@ -292,12 +317,28 @@ export function TransactionsView() {
 
       <AnimatePresence>
         {adding && (
-          <AddTransactionModal
+          <TransactionFormModal
             categories={data?.categories ?? []}
             referenceDate={referenceDate}
             onClose={() => setAdding(false)}
-            onCreated={() => {
+            onSaved={() => {
               setAdding(false);
+              reload();
+            }}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {editing !== null && (
+          <TransactionFormModal
+            key={editing.id}
+            categories={data?.categories ?? []}
+            referenceDate={referenceDate}
+            transaction={editing}
+            onClose={() => setEditing(null)}
+            onSaved={() => {
+              setEditing(null);
               reload();
             }}
           />

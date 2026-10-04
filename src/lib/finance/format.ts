@@ -19,6 +19,24 @@ export function formatCurrency(
 }
 
 /**
+ * Render an amount in cents as the plain decimal string an amount input holds
+ * (e.g. 123456 → "1234.56"). A whole amount loses its redundant decimals
+ * (240000 → "2400") so editing an unchanged field never looks like a change,
+ * while cents that matter keep both digits (5 → "0.05").
+ */
+export function formatAmountInput(cents: number): string {
+  const negative = cents < 0;
+  const absolute = Math.abs(Math.round(cents));
+  const whole = Math.floor(absolute / 100);
+  const fraction = absolute % 100;
+  const sign = negative ? "-" : "";
+
+  return fraction === 0
+    ? `${sign}${whole}`
+    : `${sign}${whole}.${String(fraction).padStart(2, "0")}`;
+}
+
+/**
  * Parse a user-entered amount string into an integer number of cents.
  *
  * Accepts an optional "$" prefix, thousand separators, surrounding whitespace

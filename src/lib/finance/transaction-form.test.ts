@@ -3,17 +3,38 @@ import {
   categoriesForType,
   emptyTransactionForm,
   toNewTransaction,
+  toTransactionUpdate,
+  transactionToFormValues,
   validateTransactionForm,
   type TransactionFormValues,
 } from "./transaction-form";
-import { MAX_NOTE_LENGTH } from "./transaction";
+import { MAX_NOTE_LENGTH, validateTransaction } from "./transaction";
 import type { Category } from "@/types/category";
+import type { Transaction } from "@/types/transaction";
 
 const VALUES: TransactionFormValues = {
   type: "expense",
   amount: "1234.56",
   categoryId: "cat-food",
   note: "Weekly groceries",
+  occurredOn: "2026-10-02",
+};
+
+const TRANSACTION: Transaction = {
+  id: "txn-1",
+  amount: 123456,
+  type: "expense",
+  categoryId: "cat-food",
+  note: "Weekly groceries",
+  occurredOn: "2026-10-02",
+};
+
+/** The same transaction, saved without a note at all. */
+const BARE: Transaction = {
+  id: "txn-1",
+  amount: 123456,
+  type: "expense",
+  categoryId: "cat-food",
   occurredOn: "2026-10-02",
 };
 
@@ -84,6 +105,107 @@ describe("toNewTransaction", () => {
 
   it("keeps a negative amount negative so validation can reject it", () => {
     expect(toNewTransaction({ ...VALUES, amount: "-12.34" }).amount).toBe(-1234);
+  });
+});
+
+describe("transactionToFormValues", () => {
+  it("prefills every field from a saved transaction", () => {
+    expect(transactionToFormValues(TRANSACTION, CATEGORIES)).toEqual({
+      type: "expense",
+      amount: "1234.56",
+      categoryId: "cat-food",
+      note: "Weekly groceries",
+      occurredOn: "2026-10-02",
+    });
+  });
+
+  it("prefills an amount as a plain editable decimal", () => {
+    expect(
+      transactionToFormValues({ ...TRANSACTION, amount: 240000 }, CATEGORIES).amount,
+    ).toBe("2400");
+    expect(
+      transactionToFormValues({ ...TRANSACTION, amount: 8635 }, CATEGORIES).amount,
+    ).toBe("86.35");
+  });
+
+  it("starts with an empty note when the transaction has none", () => {
+    expect(transactionToFormValues(BARE, CATEGORIES).note).toBe("");
+  });
+
+  it("prefills an income transaction with the income categories on offer", () => {
+    const income: Transaction = {
+      ...TRANSACTION,
+      type: "income",
+      categoryId: "cat-salary",
+    };
+
+    expect(transactionToFormValues(income, CATEGORIES)).toEqual({
+      type: "income",
+      amount: "1234.56",
+      categoryId: "cat-salary",
+      note: "Weekly groceries",
+      occurredOn: "2026-10-02",
+    });
+  });
+
+  it("empties a category that is no longer on offer for the type", () => {
+    expect(
+      transactionToFormValues(TRANSACTION, CATEGORIES.filter((c) => c.id !== "cat-food"))
+        .categoryId,
+    ).toBe("");
+  });
+
+  it("empties a category whose kind no longer matches the type", () => {
+    const recategorised: Category[] = [
+      { ...CATEGORIES[2], kind: "income" },
+      ...CATEGORIES.filter((c) => c.id !== "cat-food"),
+    ];
+
+    expect(transactionToFormValues(TRANSACTION, recategorised).categoryId).toBe("");
+  });
+
+  it("does not mutate the transaction it was given", () => {
+    const source = { ...TRANSACTION };
+
+    transactionToFormValues(source, CATEGORIES);
+
+    expect(source).toEqual(TRANSACTION);
+  });
+});
+
+describe("toTransactionUpdate", () => {
+  it("writes every editable field over the saved transaction", () => {
+    expect(toTransactionUpdate({ ...VALUES, amount: "99.99" })).toEqual({
+      amount: 9999,
+      type: "expense",
+      categoryId: "cat-food",
+      note: "Weekly groceries",
+      occurredOn: "2026-10-02",
+    });
+  });
+
+  it("sends an emptied note so the saved note is cleared", () => {
+    expect(toTransactionUpdate({ ...VALUES, note: "" }).note).toBe("");
+    expect(toTransactionUpdate({ ...VALUES, note: "   " }).note).toBe("");
+  });
+
+  it("trims the note it sends", () => {
+    expect(toTransactionUpdate({ ...VALUES, note: "  Lunch  " }).note).toBe("Lunch");
+  });
+
+  it("passes through a type change", () => {
+    expect(toTransactionUpdate({ ...VALUES, type: "income" }).type).toBe("income");
+  });
+
+  it("falls back to zero cents for an amount that cannot be parsed", () => {
+    expect(toTransactionUpdate({ ...VALUES, amount: "" }).amount).toBe(0);
+  });
+
+  it("produces something the shared transaction validator accepts", () => {
+    expect(validateTransaction(toTransactionUpdate(VALUES))).toEqual({});
+    expect(
+      validateTransaction(toTransactionUpdate({ ...VALUES, amount: "0" })).amount,
+    ).toBe("Amount must be a positive whole number of cents.");
   });
 });
 
