@@ -16,6 +16,8 @@ export interface TransactionListRow {
   /** The amount, in cents. */
   amount: number;
   type: TransactionType;
+  /** The category this row belongs to, kept as an id so it can be filtered. */
+  categoryId: string;
   occurredOn: string;
   /** The day it happened on, relative to the reference day, e.g. "Yesterday". */
   dateLabel: string;
@@ -55,6 +57,7 @@ export function buildTransactionList(
         note: transaction.note?.trim() || FALLBACK_NOTE,
         amount: transaction.amount,
         type: transaction.type,
+        categoryId: transaction.categoryId,
         occurredOn: transaction.occurredOn,
         dateLabel: formatDateLabel(transaction.occurredOn, referenceDate),
         categoryName: category?.name ?? FALLBACK_CATEGORY.name,

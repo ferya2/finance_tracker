@@ -222,3 +222,9 @@ gauge (SVG ring, percentage in the middle) and each row now shows its
   unit-tested `lib/finance/transaction-delete.ts` (`toRestorableTransaction`,
   `restorableToNewTransaction`, `describeTransaction`,
   `describeDeletedTransaction`) holds the snapshot and the copy.
+- Day 43: filter transactions by type and category — a pure, unit-tested
+  `filterTransactions` / `isDefaultFilter` in `lib/finance/transaction-filter.ts`
+  combines type and category criteria with AND (rows now carry their
+  `categoryId` from `buildTransactionList`), and the transactions page gains an
+  animated category select beside the type pills plus a "Clear filters" chip
+  that resets type, category and search together.

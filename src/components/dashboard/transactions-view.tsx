@@ -6,11 +6,14 @@ import {
   AlertTriangle,
   ArrowDownLeft,
   ArrowUpRight,
+  ChevronDown,
   Pencil,
   Plus,
   RefreshCw,
   Search,
+  Tag,
   Trash2,
+  X,
 } from "lucide-react";
 import { ConfirmDialog } from "@/components/dashboard/confirm-dialog";
 import { EASE, WIDGET_CARD_CLASS } from "@/components/dashboard/motion";
@@ -23,6 +26,12 @@ import { usePrefersReducedMotion } from "@/components/use-prefers-reduced-motion
 import { useUserData } from "@/components/use-user-data";
 import { formatCurrency } from "@/lib/finance/format";
 import { isoDate } from "@/lib/finance/period";
+import {
+  ALL_CATEGORIES,
+  filterTransactions,
+  isDefaultFilter,
+  type TypeFilter,
+} from "@/lib/finance/transaction-filter";
 import {
   describeDeletedTransaction,
   describeTransaction,
@@ -41,8 +50,6 @@ import {
 } from "@/lib/supabase/transactions";
 import type { Transaction } from "@/types/transaction";
 
-type Filter = "all" | "income" | "expense";
-
 /** What the snackbar at the foot of the page is currently saying. */
 interface Notice {
   message: string;
@@ -51,7 +58,7 @@ interface Notice {
   undo?: { snapshot: RestorableTransaction; restoring: boolean };
 }
 
-const filterOptions: ReadonlyArray<{ value: Filter; label: string }> = [
+const filterOptions: ReadonlyArray<{ value: TypeFilter; label: string }> = [
   { value: "all", label: "All" },
   { value: "income", label: "Income" },
   { value: "expense", label: "Expense" },
@@ -63,14 +70,12 @@ const NOTICE_DURATION_MS = 6_000;
 /** How many shimmering placeholder rows stand in for the list while loading. */
 const SKELETON_ROWS = 6;
 
-function matches(row: TransactionListRow, filter: Filter, query: string) {
-  const typeMatch = filter === "all" || row.type === filter;
+function matchesQuery(row: TransactionListRow, query: string) {
   const q = query.trim().toLowerCase();
-  if (!q) return typeMatch;
+  if (!q) return true;
   return (
-    typeMatch &&
-    (row.note.toLowerCase().includes(q) ||
-      row.categoryName.toLowerCase().includes(q))
+    row.note.toLowerCase().includes(q) ||
+    row.categoryName.toLowerCase().includes(q)
   );
 }
 
@@ -150,7 +155,8 @@ function TransactionsError({
 export function TransactionsView() {
   const { status, data, error, reload } = useUserData();
   const reduced = usePrefersReducedMotion();
-  const [filter, setFilter] = useState<Filter>("all");
+  const [typeFilter, setTypeFilter] = useState<TypeFilter>("all");
+  const [categoryId, setCategoryId] = useState(ALL_CATEGORIES);
   const [query, setQuery] = useState("");
   const [adding, setAdding] = useState(false);
   const [editing, setEditing] = useState<Transaction | null>(null);
@@ -189,9 +195,28 @@ export function TransactionsView() {
   const total = rows.length;
 
   const visible = useMemo(
-    () => rows.filter((row) => matches(row, filter, query)),
-    [rows, filter, query],
+    () =>
+      filterTransactions(rows, { type: typeFilter, categoryId }).filter((row) =>
+        matchesQuery(row, query),
+      ),
+    [rows, typeFilter, categoryId, query],
   );
+
+  /** True once any of the three criteria narrows the list down. */
+  const filtersActive = useMemo(
+    () =>
+      !isDefaultFilter({ type: typeFilter, categoryId }) ||
+      query.trim() !== "",
+    [typeFilter, categoryId, query],
+  );
+
+  const categories = data?.categories ?? [];
+
+  function clearFilters() {
+    setTypeFilter("all");
+    setCategoryId(ALL_CATEGORIES);
+    setQuery("");
+  }
 
   async function handleConfirmDelete() {
     if (!deleting) return;
@@ -271,9 +296,26 @@ export function TransactionsView() {
               name="transactions-type"
               ariaLabel="Filter by type"
               options={filterOptions}
-              value={filter}
-              onChange={setFilter}
+              value={typeFilter}
+              onChange={setTypeFilter}
             />
+            <div className="relative">
+              <Tag className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted" />
+              <select
+                value={categoryId}
+                onChange={(event) => setCategoryId(event.target.value)}
+                aria-label="Filter by category"
+                className="h-10 appearance-none rounded-full border border-border bg-surface pl-9 pr-8 text-sm text-text focus:border-primary focus:outline-none"
+              >
+                <option value={ALL_CATEGORIES}>All categories</option>
+                {categories.map((category) => (
+                  <option key={category.id} value={category.id}>
+                    {category.name}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-text-muted" />
+            </div>
             <div className="relative min-w-0 flex-1 sm:max-w-xs">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted" />
               <input
@@ -285,9 +327,31 @@ export function TransactionsView() {
                 className="h-10 w-full rounded-full border border-border bg-surface pl-9 pr-4 text-sm text-text placeholder:text-text-muted focus:border-primary focus:outline-none"
               />
             </div>
-            <span className="ml-auto rounded-full bg-surface-subtle px-3 py-1.5 text-xs font-medium text-text-secondary">
+            <AnimatePresence initial={false}>
+              {filtersActive && (
+                <motion.button
+                  type="button"
+                  onClick={clearFilters}
+                  initial={reduced ? false : { opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={reduced ? undefined : { opacity: 0, scale: 0.9 }}
+                  transition={{ duration: 0.2, ease: EASE }}
+                  className="inline-flex h-8 items-center gap-1.5 rounded-full border border-border bg-surface px-3 text-xs font-medium text-text-secondary transition-colors hover:border-primary/40 hover:text-text focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                >
+                  <X className="h-3.5 w-3.5" />
+                  Clear filters
+                </motion.button>
+              )}
+            </AnimatePresence>
+            <motion.span
+              key={visible.length}
+              initial={reduced ? false : { opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.25, ease: EASE }}
+              className="ml-auto rounded-full bg-surface-subtle px-3 py-1.5 text-xs font-medium text-text-secondary"
+            >
               {visible.length} of {total} shown
-            </span>
+            </motion.span>
           </div>
         )}
 
