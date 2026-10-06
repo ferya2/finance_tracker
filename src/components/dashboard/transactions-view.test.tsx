@@ -11,18 +11,23 @@ import type { PostgrestError } from "@supabase/supabase-js";
 import { TransactionsView } from "./transactions-view";
 import type { UserData } from "@/lib/supabase/dashboard";
 
-const { mockUseUserData, mockCreateTransaction, mockUpdateTransaction } = vi.hoisted(
-  () => ({
-    mockUseUserData: vi.fn(),
-    mockCreateTransaction: vi.fn(),
-    mockUpdateTransaction: vi.fn(),
-  }),
-);
+const {
+  mockUseUserData,
+  mockCreateTransaction,
+  mockUpdateTransaction,
+  mockDeleteTransaction,
+} = vi.hoisted(() => ({
+  mockUseUserData: vi.fn(),
+  mockCreateTransaction: vi.fn(),
+  mockUpdateTransaction: vi.fn(),
+  mockDeleteTransaction: vi.fn(),
+}));
 
 vi.mock("@/components/use-user-data", () => ({ useUserData: mockUseUserData }));
 vi.mock("@/lib/supabase/transactions", () => ({
   createTransaction: mockCreateTransaction,
   updateTransaction: mockUpdateTransaction,
+  deleteTransaction: mockDeleteTransaction,
 }));
 
 function stubMatchMedia(matches: boolean) {
@@ -107,6 +112,8 @@ beforeEach(() => {
   mockCreateTransaction.mockResolvedValue({ data: null, error: null });
   mockUpdateTransaction.mockReset();
   mockUpdateTransaction.mockResolvedValue({ data: null, error: null });
+  mockDeleteTransaction.mockReset();
+  mockDeleteTransaction.mockResolvedValue({ error: null });
 });
 
 afterEach(() => {
@@ -457,5 +464,118 @@ describe("TransactionsView", () => {
 
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     expect(mockUpdateTransaction).not.toHaveBeenCalled();
+  });
+
+  it("asks before deleting a transaction", async () => {
+    const user = userEvent.setup();
+    render(<TransactionsView />);
+
+    await user.click(screen.getByRole("button", { name: "Delete Rent" }));
+
+    expect(
+      screen.getByRole("dialog", { name: "Delete this transaction?" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        'This removes "Rent" · −$1,150.00 from your history. You can undo it from the message that follows.',
+      ),
+    ).toBeInTheDocument();
+    expect(mockDeleteTransaction).not.toHaveBeenCalled();
+    expect(screen.getByText("Rent")).toBeInTheDocument();
+  });
+
+  it("keeps the transaction when the confirmation is backed out of", async () => {
+    const user = userEvent.setup();
+    render(<TransactionsView />);
+
+    await user.click(screen.getByRole("button", { name: "Delete Rent" }));
+    await user.click(screen.getByRole("button", { name: "Keep it" }));
+
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(mockDeleteTransaction).not.toHaveBeenCalled();
+    expect(screen.getByText("Rent")).toBeInTheDocument();
+  });
+
+  it("deletes the confirmed transaction and offers an undo snackbar", async () => {
+    const user = userEvent.setup();
+    render(<TransactionsView />);
+
+    await user.click(screen.getByRole("button", { name: "Delete Rent" }));
+    await user.click(screen.getByRole("button", { name: "Delete" }));
+
+    await waitFor(() =>
+      expect(mockDeleteTransaction).toHaveBeenCalledWith("txn-3"),
+    );
+    expect(mockDeleteTransaction).toHaveBeenCalledOnce();
+    await waitForElementToBeRemoved(screen.queryByText("Rent"));
+    expect(screen.queryByText("Rent")).not.toBeInTheDocument();
+    expect(screen.getByText("3 of 3 shown")).toBeInTheDocument();
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(screen.getByRole("status")).toHaveTextContent(
+      'Deleted "Rent" · −$1,150.00',
+    );
+    expect(
+      screen.getByRole("button", { name: "Undo" }),
+    ).toBeInTheDocument();
+  });
+
+  it("puts the transaction back when the undo is used", async () => {
+    const user = userEvent.setup();
+    const reload = vi.fn();
+    mockUseUserData.mockReturnValue(readyState(DATA, reload));
+    mockCreateTransaction.mockResolvedValue({
+      data: { ...DATA.transactions[2], id: "txn-restored" },
+      error: null,
+    });
+    render(<TransactionsView />);
+
+    await user.click(screen.getByRole("button", { name: "Delete Rent" }));
+    await user.click(screen.getByRole("button", { name: "Delete" }));
+    await user.click(await screen.findByRole("button", { name: "Undo" }));
+
+    await waitFor(() => expect(reload).toHaveBeenCalledOnce());
+    expect(mockCreateTransaction).toHaveBeenCalledWith({
+      amount: 115000,
+      type: "expense",
+      categoryId: "cat-housing",
+      note: "Rent",
+      occurredOn: isoDaysAgo(1),
+    });
+    expect(screen.queryByRole("status")).not.toBeInTheDocument();
+  });
+
+  it("says so when the delete fails and keeps the transaction listed", async () => {
+    const user = userEvent.setup();
+    mockDeleteTransaction.mockResolvedValue({
+      error: { message: "Failed to delete transaction" } as unknown as PostgrestError,
+    });
+    render(<TransactionsView />);
+
+    await user.click(screen.getByRole("button", { name: "Delete Rent" }));
+    await user.click(screen.getByRole("button", { name: "Delete" }));
+
+    expect(await screen.findByText("Failed to delete transaction")).toBeInTheDocument();
+    expect(
+      screen.getByRole("dialog", { name: "Delete this transaction?" }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Rent")).toBeInTheDocument();
+    expect(screen.queryByRole("status")).not.toBeInTheDocument();
+  });
+
+  it("says so when the undo cannot be put back", async () => {
+    const user = userEvent.setup();
+    mockCreateTransaction.mockResolvedValue({
+      data: null,
+      error: { message: "Failed to insert transaction" } as unknown as PostgrestError,
+    });
+    render(<TransactionsView />);
+
+    await user.click(screen.getByRole("button", { name: "Delete Rent" }));
+    await user.click(screen.getByRole("button", { name: "Delete" }));
+    await user.click(await screen.findByRole("button", { name: "Undo" }));
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "Failed to insert transaction",
+    );
   });
 });

@@ -215,3 +215,10 @@ gauge (SVG ring, percentage in the middle) and each row now shows its
   unit-tested `formatAmountInput` (cents → editable decimal) plus
   `transactionToFormValues` and `toTransactionUpdate` do the prefilling and
   parsing — including clearing a note the user empties.
+- Day 42: delete transaction — a trash button per row asks for confirmation in a
+  new animated `ConfirmDialog` (danger tone, in-place failure, busy spinner) and
+  then drops the row immediately; a new `Snackbar` says what was removed and
+  offers an 8-second undo that re-inserts the row from a snapshot. Pure,
+  unit-tested `lib/finance/transaction-delete.ts` (`toRestorableTransaction`,
+  `restorableToNewTransaction`, `describeTransaction`,
+  `describeDeletedTransaction`) holds the snapshot and the copy.
