@@ -10,29 +10,55 @@ import {
   Plus,
   RefreshCw,
   Search,
+  Trash2,
 } from "lucide-react";
+import { ConfirmDialog } from "@/components/dashboard/confirm-dialog";
 import { EASE, WIDGET_CARD_CLASS } from "@/components/dashboard/motion";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { PageShell } from "@/components/dashboard/page-shell";
 import { SegmentedControl } from "@/components/dashboard/segmented-control";
+import { Snackbar } from "@/components/dashboard/snackbar";
 import { TransactionFormModal } from "@/components/dashboard/transaction-form-modal";
 import { usePrefersReducedMotion } from "@/components/use-prefers-reduced-motion";
 import { useUserData } from "@/components/use-user-data";
 import { formatCurrency } from "@/lib/finance/format";
 import { isoDate } from "@/lib/finance/period";
 import {
+  describeDeletedTransaction,
+  describeTransaction,
+  restorableToNewTransaction,
+  toRestorableTransaction,
+  UNDO_WINDOW_MS,
+  type RestorableTransaction,
+} from "@/lib/finance/transaction-delete";
+import {
   buildTransactionList,
   type TransactionListRow,
 } from "@/lib/finance/transaction-list";
+import {
+  createTransaction,
+  deleteTransaction,
+} from "@/lib/supabase/transactions";
 import type { Transaction } from "@/types/transaction";
 
 type Filter = "all" | "income" | "expense";
+
+/** What the snackbar at the foot of the page is currently saying. */
+interface Notice {
+  message: string;
+  tone: "neutral" | "danger";
+  /** Set while a delete can still be undone. */
+  undo?: { snapshot: RestorableTransaction; restoring: boolean };
+}
 
 const filterOptions: ReadonlyArray<{ value: Filter; label: string }> = [
   { value: "all", label: "All" },
   { value: "income", label: "Income" },
   { value: "expense", label: "Expense" },
 ];
+
+/** How long a failure message stays up, with no action to offer. */
+const NOTICE_DURATION_MS = 6_000;
 
 /** How many shimmering placeholder rows stand in for the list while loading. */
 const SKELETON_ROWS = 6;
@@ -128,6 +154,13 @@ export function TransactionsView() {
   const [query, setQuery] = useState("");
   const [adding, setAdding] = useState(false);
   const [editing, setEditing] = useState<Transaction | null>(null);
+  /** The transaction waiting to be confirmed, then deleted. */
+  const [deleting, setDeleting] = useState<Transaction | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [deleteBusy, setDeleteBusy] = useState(false);
+  /** Ids dropped from the list the moment their delete succeeds. */
+  const [removedIds, setRemovedIds] = useState<readonly string[]>([]);
+  const [notice, setNotice] = useState<Notice | null>(null);
   const referenceDate = useMemo(() => isoDate(new Date()), []);
 
   const list = useMemo(
@@ -144,13 +177,73 @@ export function TransactionsView() {
     [data],
   );
 
+  /** The list minus anything just deleted, which the data still holds until it refetches. */
+  const rows = useMemo(() => {
+    if (list === null) return [];
+    const removed = new Set(removedIds);
+    return removed.size === 0
+      ? list.rows
+      : list.rows.filter((row) => !removed.has(row.id));
+  }, [list, removedIds]);
+
+  const total = rows.length;
+
   const visible = useMemo(
-    () =>
-      list === null
-        ? []
-        : list.rows.filter((row) => matches(row, filter, query)),
-    [list, filter, query],
+    () => rows.filter((row) => matches(row, filter, query)),
+    [rows, filter, query],
   );
+
+  async function handleConfirmDelete() {
+    if (!deleting) return;
+
+    const target = deleting;
+    const snapshot = toRestorableTransaction(target);
+    setDeleteBusy(true);
+
+    const { error } = await deleteTransaction(target.id);
+
+    setDeleteBusy(false);
+
+    if (error) {
+      setDeleteError(error.message);
+      return;
+    }
+
+    setDeleteError(null);
+    setDeleting(null);
+    setRemovedIds((ids) => [...ids, target.id]);
+    setNotice({
+      message: describeDeletedTransaction(snapshot),
+      tone: "neutral",
+      undo: { snapshot, restoring: false },
+    });
+  }
+
+  async function handleUndo() {
+    if (!notice?.undo) return;
+
+    const { snapshot } = notice.undo;
+    setNotice((current) =>
+      current?.undo
+        ? { ...current, undo: { ...current.undo, restoring: true } }
+        : current,
+    );
+
+    const { data: restored, error } = await createTransaction(
+      restorableToNewTransaction(snapshot),
+    );
+
+    if (error || !restored) {
+      setNotice({
+        message: error?.message ?? "Could not put that transaction back.",
+        tone: "danger",
+      });
+      return;
+    }
+
+    setNotice(null);
+    reload();
+  }
 
   return (
     <PageShell>
@@ -172,7 +265,7 @@ export function TransactionsView() {
           }
         />
 
-        {list !== null && list.total > 0 && (
+        {list !== null && total > 0 && (
           <div className="mb-6 flex flex-wrap items-center gap-3">
             <SegmentedControl
               name="transactions-type"
@@ -193,7 +286,7 @@ export function TransactionsView() {
               />
             </div>
             <span className="ml-auto rounded-full bg-surface-subtle px-3 py-1.5 text-xs font-medium text-text-secondary">
-              {visible.length} of {list.total} shown
+              {visible.length} of {total} shown
             </span>
           </div>
         )}
@@ -293,6 +386,25 @@ export function TransactionsView() {
                       >
                         <Pencil className="h-4 w-4" />
                       </motion.button>
+                      <motion.button
+                        type="button"
+                        onClick={() => {
+                          const target = byId.get(row.id);
+                          if (target) {
+                            setDeleteError(null);
+                            setDeleting(target);
+                          }
+                        }}
+                        disabled={!byId.has(row.id)}
+                        aria-label={`Delete ${row.note}`}
+                        title="Delete transaction"
+                        whileHover={reduced ? undefined : { scale: 1.08 }}
+                        whileTap={reduced ? undefined : { scale: 0.94 }}
+                        transition={{ type: "spring", stiffness: 400, damping: 22 }}
+                        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-text-muted transition-colors hover:bg-danger-subtle hover:text-danger focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-danger disabled:cursor-not-allowed disabled:opacity-40"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </motion.button>
                     </motion.li>
                   );
                 })}
@@ -301,10 +413,10 @@ export function TransactionsView() {
               {visible.length === 0 && (
                 <li className="flex flex-col items-center gap-2 px-6 py-14 text-center">
                   <p className="text-sm font-medium text-text">
-                    {list.total === 0 ? "No transactions yet" : "No matches"}
+                    {total === 0 ? "No transactions yet" : "No matches"}
                   </p>
                   <p className="text-sm text-text-muted">
-                    {list.total === 0
+                    {total === 0
                       ? "Add your first transaction to start tracking."
                       : "Try a different search or filter."}
                   </p>
@@ -341,6 +453,52 @@ export function TransactionsView() {
               setEditing(null);
               reload();
             }}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {deleting !== null && (
+          <ConfirmDialog
+            title="Delete this transaction?"
+            description={`This removes ${describeTransaction(toRestorableTransaction(deleting))} from your history. You can undo it from the message that follows.`}
+            confirmLabel="Delete"
+            cancelLabel="Keep it"
+            tone="danger"
+            busy={deleteBusy}
+            busyLabel="Deleting…"
+            error={deleteError}
+            onConfirm={() => {
+              void handleConfirmDelete();
+            }}
+            onCancel={() => {
+              setDeleting(null);
+              setDeleteError(null);
+            }}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {notice !== null && (
+          <Snackbar
+            key={notice.message}
+            message={notice.message}
+            tone={notice.tone}
+            duration={notice.undo ? UNDO_WINDOW_MS : NOTICE_DURATION_MS}
+            action={
+              notice.undo
+                ? {
+                    label: "Undo",
+                    busyLabel: "Restoring…",
+                    busy: notice.undo.restoring,
+                    onClick: () => {
+                      void handleUndo();
+                    },
+                  }
+                : undefined
+            }
+            onDismiss={() => setNotice(null)}
           />
         )}
       </AnimatePresence>

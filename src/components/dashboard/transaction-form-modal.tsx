@@ -5,7 +5,6 @@ import {
   useMemo,
   useRef,
   useState,
-  useSyncExternalStore,
   type FormEvent,
 } from "react";
 import { createPortal } from "react-dom";
@@ -19,6 +18,7 @@ import {
 } from "lucide-react";
 import { EASE } from "@/components/dashboard/motion";
 import { SegmentedControl } from "@/components/dashboard/segmented-control";
+import { useIsClient } from "@/components/use-is-client";
 import { usePrefersReducedMotion } from "@/components/use-prefers-reduced-motion";
 import { MAX_NOTE_LENGTH } from "@/lib/finance/transaction";
 import {
@@ -72,23 +72,6 @@ function FieldError({ id, message }: { id: string; message?: string }) {
     <p id={id} role="alert" className="text-xs font-medium text-danger">
       {message}
     </p>
-  );
-}
-
-function noopSubscribe() {
-  return () => {};
-}
-
-/**
- * `true` once the client has hydrated. The dialog renders into a portal on
- * `document.body`, which only exists in the browser, so the first server-rendered
- * pass has to stand the markup down.
- */
-function useIsClient(): boolean {
-  return useSyncExternalStore(
-    noopSubscribe,
-    () => true,
-    () => false,
   );
 }
 
