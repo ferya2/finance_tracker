@@ -9,6 +9,7 @@ import {
 import userEvent from "@testing-library/user-event";
 import type { PostgrestError } from "@supabase/supabase-js";
 import { TransactionsView } from "./transactions-view";
+import { ALL_CATEGORIES } from "@/lib/finance/transaction-filter";
 import type { UserData } from "@/lib/supabase/dashboard";
 
 const {
@@ -181,6 +182,73 @@ describe("TransactionsView", () => {
     await waitForElementToBeRemoved(screen.queryByText("Rent"));
     expect(screen.queryByText("Rent")).not.toBeInTheDocument();
     expect(screen.getByText("+$1,450.00")).toBeInTheDocument();
+  });
+
+  it("filters by category via the category select", async () => {
+    const user = userEvent.setup();
+    render(<TransactionsView />);
+
+    await user.selectOptions(
+      screen.getByLabelText("Filter by category"),
+      "cat-housing",
+    );
+
+    expect(screen.getByText("1 of 4 shown")).toBeInTheDocument();
+    await waitForElementToBeRemoved(screen.queryByText("Monthly salary"));
+    expect(screen.getByText("Rent")).toBeInTheDocument();
+    expect(screen.queryByText("Weekly groceries")).not.toBeInTheDocument();
+  });
+
+  it("combines the type and category filters", async () => {
+    const user = userEvent.setup();
+    render(<TransactionsView />);
+
+    await user.click(screen.getByRole("button", { name: "Income" }));
+    await user.selectOptions(
+      screen.getByLabelText("Filter by category"),
+      "cat-housing",
+    );
+
+    expect(screen.getByText("0 of 4 shown")).toBeInTheDocument();
+    expect(screen.getByText("No matches")).toBeInTheDocument();
+    await waitForElementToBeRemoved(screen.queryByText("Rent"));
+    expect(screen.queryByText("Rent")).not.toBeInTheDocument();
+  });
+
+  it("clears every filter at once", async () => {
+    const user = userEvent.setup();
+    render(<TransactionsView />);
+
+    expect(
+      screen.queryByRole("button", { name: "Clear filters" }),
+    ).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Income" }));
+    await user.selectOptions(
+      screen.getByLabelText("Filter by category"),
+      "cat-food",
+    );
+    await user.type(
+      screen.getByRole("searchbox", { name: "Search transactions" }),
+      "groceries",
+    );
+
+    expect(screen.getByText("0 of 4 shown")).toBeInTheDocument();
+    expect(screen.getByText("No matches")).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Clear filters" }));
+
+    expect(screen.getByText("4 of 4 shown")).toBeInTheDocument();
+    expect(screen.getByText("Rent")).toBeInTheDocument();
+    expect(
+      screen.getByRole("searchbox", { name: "Search transactions" }),
+    ).toHaveValue("");
+    expect(
+      screen.getByLabelText("Filter by category"),
+    ).toHaveValue(ALL_CATEGORIES);
+    expect(
+      screen.queryByRole("button", { name: "Clear filters" }),
+    ).not.toBeInTheDocument();
   });
 
   it("searches the user's transactions by note", async () => {

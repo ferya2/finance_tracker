@@ -116,7 +116,7 @@ whitespace, an interactive drag-to-rotate **3D** hero, and smooth scroll-reveal
 - [x] **Day 40 — Add transaction.** Animated modal/form, validated via lib/finance.
 - [x] **Day 41 — Edit transaction.** Prefilled animated form.
 - [x] **Day 42 — Delete transaction.** Confirm + undo snackbar.
-- [ ] **Day 43 — Filter transactions.** By type/category (pure filter + UI).
+- [x] **Day 43 — Filter transactions.** By type/category (pure filter + UI).
 - [ ] **Day 44 — Search transactions.** Text search (pure logic + input).
 - [ ] **Day 45 — Month selector + pagination.** Filter by month, paginate.
 

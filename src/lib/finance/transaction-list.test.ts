@@ -69,6 +69,7 @@ describe("buildTransactionList", () => {
       note: "Weekly groceries",
       amount: 8635,
       type: "expense",
+      categoryId: "cat-food",
       occurredOn: "2026-09-15",
       dateLabel: "Today",
       categoryName: "Food & dining",
