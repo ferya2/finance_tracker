@@ -228,3 +228,8 @@ gauge (SVG ring, percentage in the middle) and each row now shows its
   `categoryId` from `buildTransactionList`), and the transactions page gains an
   animated category select beside the type pills plus a "Clear filters" chip
   that resets type, category and search together.
+- Day 44: search transactions — the text search logic moved out of the view into
+  pure, unit-tested `lib/finance/transaction-search.ts` (`normalizeSearchQuery`,
+  `matchesTransactionQuery`, `searchTransactions`): case-insensitive substring
+  match over note or category name, blank query keeps everything, chained after
+  `filterTransactions` so text narrows the same list as the type/category pills.

@@ -40,10 +40,8 @@ import {
   UNDO_WINDOW_MS,
   type RestorableTransaction,
 } from "@/lib/finance/transaction-delete";
-import {
-  buildTransactionList,
-  type TransactionListRow,
-} from "@/lib/finance/transaction-list";
+import { buildTransactionList } from "@/lib/finance/transaction-list";
+import { searchTransactions } from "@/lib/finance/transaction-search";
 import {
   createTransaction,
   deleteTransaction,
@@ -69,15 +67,6 @@ const NOTICE_DURATION_MS = 6_000;
 
 /** How many shimmering placeholder rows stand in for the list while loading. */
 const SKELETON_ROWS = 6;
-
-function matchesQuery(row: TransactionListRow, query: string) {
-  const q = query.trim().toLowerCase();
-  if (!q) return true;
-  return (
-    row.note.toLowerCase().includes(q) ||
-    row.categoryName.toLowerCase().includes(q)
-  );
-}
 
 function Skeleton({ className, delay = 0 }: { className: string; delay?: number }) {
   const reduced = usePrefersReducedMotion();
@@ -196,8 +185,9 @@ export function TransactionsView() {
 
   const visible = useMemo(
     () =>
-      filterTransactions(rows, { type: typeFilter, categoryId }).filter((row) =>
-        matchesQuery(row, query),
+      searchTransactions(
+        filterTransactions(rows, { type: typeFilter, categoryId }),
+        query,
       ),
     [rows, typeFilter, categoryId, query],
   );
