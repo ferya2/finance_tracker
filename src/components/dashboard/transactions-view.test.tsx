@@ -10,6 +10,8 @@ import userEvent from "@testing-library/user-event";
 import type { PostgrestError } from "@supabase/supabase-js";
 import { TransactionsView } from "./transactions-view";
 import { ALL_CATEGORIES } from "@/lib/finance/transaction-filter";
+import { ALL_MONTHS } from "@/lib/finance/transaction-month";
+import { formatMonthLabel } from "@/lib/finance/period";
 import type { UserData } from "@/lib/supabase/dashboard";
 
 const {
@@ -103,6 +105,31 @@ function isoDaysAgo(days: number): string {
 
 function readyState(data: UserData, reload = vi.fn()) {
   return { status: "ready" as const, data, error: null, reload };
+}
+
+/**
+ * A `YYYY-MM-DD` date in a month offset from today (0 = this month, -1 = last
+ * month), pinned to the 15th so it never drifts across a boundary. Deriving the
+ * date from the clock keeps the month filter correct whenever the suite runs.
+ */
+function isoInMonth(monthOffset: number): string {
+  const now = new Date();
+  const date = new Date(now.getFullYear(), now.getMonth() + monthOffset, 15);
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(
+    date.getDate(),
+  ).padStart(2, "0")}`;
+}
+
+/** The `YYYY-MM` key for a month offset from today, matching the select value. */
+function monthKeyIn(monthOffset: number): string {
+  return isoInMonth(monthOffset).slice(0, 7);
+}
+
+/** The label the month select shows for a month offset from today. */
+function monthLabel(monthOffset: number): string {
+  const now = new Date();
+  const date = new Date(now.getFullYear(), now.getMonth() + monthOffset, 1);
+  return formatMonthLabel(date.getFullYear(), date.getMonth() + 1);
 }
 
 beforeEach(() => {
@@ -645,5 +672,186 @@ describe("TransactionsView", () => {
     expect(await screen.findByRole("alert")).toHaveTextContent(
       "Failed to insert transaction",
     );
+  });
+
+  it("filters transactions by month via the month select", async () => {
+    const user = userEvent.setup();
+    mockUseUserData.mockReturnValue(
+      readyState({
+        transactions: [
+          {
+            id: "txn-last",
+            amount: 5000,
+            type: "expense",
+            categoryId: "cat-food",
+            note: "Last month groceries",
+            occurredOn: isoInMonth(-1),
+          },
+          {
+            id: "txn-now-a",
+            amount: 8635,
+            type: "expense",
+            categoryId: "cat-food",
+            note: "This month groceries",
+            occurredOn: isoInMonth(0),
+          },
+          {
+            id: "txn-now-b",
+            amount: 240000,
+            type: "income",
+            categoryId: "cat-salary",
+            note: "Monthly salary",
+            occurredOn: isoInMonth(0),
+          },
+        ],
+        categories: DATA.categories,
+        budgets: [],
+      }),
+    );
+
+    render(<TransactionsView />);
+
+    expect(screen.getByText("3 of 3 shown")).toBeInTheDocument();
+    // The month choices are labelled with their month and year.
+    expect(
+      within(screen.getByLabelText("Filter by month")).getByRole("option", {
+        name: monthLabel(0),
+      }),
+    ).toBeInTheDocument();
+
+    await user.selectOptions(
+      screen.getByLabelText("Filter by month"),
+      monthKeyIn(0),
+    );
+
+    expect(screen.getByText("2 of 3 shown")).toBeInTheDocument();
+    await waitForElementToBeRemoved(
+      screen.queryByText("Last month groceries"),
+    );
+    expect(screen.getByText("This month groceries")).toBeInTheDocument();
+    expect(
+      screen.queryByText("Last month groceries"),
+    ).not.toBeInTheDocument();
+
+    await user.selectOptions(
+      screen.getByLabelText("Filter by month"),
+      monthKeyIn(-1),
+    );
+
+    expect(screen.getByText("1 of 3 shown")).toBeInTheDocument();
+    expect(screen.getByText("Last month groceries")).toBeInTheDocument();
+    await waitForElementToBeRemoved(
+      screen.queryByText("This month groceries"),
+    );
+    expect(
+      screen.queryByText("This month groceries"),
+    ).not.toBeInTheDocument();
+  });
+
+  it("clears the month filter along with the rest", async () => {
+    const user = userEvent.setup();
+    mockUseUserData.mockReturnValue(
+      readyState({
+        transactions: [
+          {
+            id: "txn-last",
+            amount: 5000,
+            type: "expense",
+            categoryId: "cat-food",
+            note: "Last month groceries",
+            occurredOn: isoInMonth(-1),
+          },
+          {
+            id: "txn-now",
+            amount: 8635,
+            type: "expense",
+            categoryId: "cat-food",
+            note: "This month groceries",
+            occurredOn: isoInMonth(0),
+          },
+        ],
+        categories: DATA.categories,
+        budgets: [],
+      }),
+    );
+
+    render(<TransactionsView />);
+
+    await user.selectOptions(
+      screen.getByLabelText("Filter by month"),
+      monthKeyIn(0),
+    );
+    expect(screen.getByText("1 of 2 shown")).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Clear filters" }));
+
+    expect(screen.getByText("2 of 2 shown")).toBeInTheDocument();
+    expect(screen.getByLabelText("Filter by month")).toHaveValue(ALL_MONTHS);
+  });
+
+  it("paginates long lists and pages through them", async () => {
+    const user = userEvent.setup();
+    const transactions = Array.from({ length: 12 }, (_, index) => ({
+      id: `txn-page-${index}`,
+      amount: 1000 + index,
+      type: "expense" as const,
+      categoryId: "cat-food",
+      note: `Page item ${index}`,
+      occurredOn: isoInMonth(0),
+    }));
+    mockUseUserData.mockReturnValue(readyState({ ...DATA, transactions }));
+
+    render(<TransactionsView />);
+
+    expect(screen.getAllByRole("listitem")).toHaveLength(10);
+    expect(screen.getByText("12 of 12 shown")).toBeInTheDocument();
+    expect(screen.getByText("Page 1 of 2")).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Previous page" }),
+    ).toBeDisabled();
+
+    await user.click(screen.getByRole("button", { name: "Next page" }));
+
+    // List rows animate out over a beat, so wait for page one to clear.
+    await waitForElementToBeRemoved(screen.queryByText("Page item 9"));
+    expect(screen.getByText("Page 2 of 2")).toBeInTheDocument();
+    expect(screen.getAllByRole("listitem")).toHaveLength(2);
+    expect(screen.getByRole("button", { name: "Next page" })).toBeDisabled();
+    expect(
+      screen.getByRole("button", { name: "Previous page" }),
+    ).toBeEnabled();
+
+    await user.click(screen.getByRole("button", { name: "Previous page" }));
+
+    await waitForElementToBeRemoved(screen.queryByText("Page item 10"));
+    expect(screen.getByText("Page 1 of 2")).toBeInTheDocument();
+    expect(screen.getAllByRole("listitem")).toHaveLength(10);
+  });
+
+  it("returns to the first page when the criteria change", async () => {
+    const user = userEvent.setup();
+    const transactions = Array.from({ length: 12 }, (_, index) => ({
+      id: `txn-page-${index}`,
+      amount: 1000 + index,
+      type: "expense" as const,
+      categoryId: "cat-food",
+      note: `Page item ${index}`,
+      occurredOn: isoInMonth(0),
+    }));
+    mockUseUserData.mockReturnValue(readyState({ ...DATA, transactions }));
+
+    render(<TransactionsView />);
+
+    await user.click(screen.getByRole("button", { name: "Next page" }));
+    expect(screen.getByText("Page 2 of 2")).toBeInTheDocument();
+
+    await user.type(
+      screen.getByRole("searchbox", { name: "Search transactions" }),
+      "item 11",
+    );
+
+    expect(screen.getByText("1 of 12 shown")).toBeInTheDocument();
+    expect(screen.queryByText("Page 2 of 2")).not.toBeInTheDocument();
+    expect(screen.getByText("Page item 11")).toBeInTheDocument();
   });
 });

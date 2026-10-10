@@ -118,7 +118,7 @@ whitespace, an interactive drag-to-rotate **3D** hero, and smooth scroll-reveal
 - [x] **Day 42 — Delete transaction.** Confirm + undo snackbar.
 - [x] **Day 43 — Filter transactions.** By type/category (pure filter + UI).
 - [x] **Day 44 — Search transactions.** Text search (pure logic + input).
-- [ ] **Day 45 — Month selector + pagination.** Filter by month, paginate.
+- [x] **Day 45 — Month selector + pagination.** Filter by month, paginate.
 
 ## Week 8 — Categories & budgets (functional)
 
