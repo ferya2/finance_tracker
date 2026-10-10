@@ -240,3 +240,9 @@ gauge (SVG ring, percentage in the middle) and each row now shows its
   transactions page gains an animated month select (labeling each month) beside
   the other filters, plus smooth Prev/Next pagination controls (10 per page)
   with the current page highlighted and filters/search resetting to page one.
+- Day 46: categories from real data — pure, unit-tested
+  `buildCategorySummaries` in `lib/finance/category-summary.ts` pairs every
+  category with its current-month total (zero when idle, other months ignored);
+  the Categories page now reads the user's own rows through `useUserData` with a
+  shimmering card skeleton, an error card with retry, a first-run empty state,
+  and the real month label in its header, instead of dummy data.
