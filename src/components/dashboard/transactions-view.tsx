@@ -6,7 +6,10 @@ import {
   AlertTriangle,
   ArrowDownLeft,
   ArrowUpRight,
+  Calendar,
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   Pencil,
   Plus,
   RefreshCw,
@@ -41,7 +44,15 @@ import {
   type RestorableTransaction,
 } from "@/lib/finance/transaction-delete";
 import { buildTransactionList } from "@/lib/finance/transaction-list";
+import {
+  ALL_MONTHS,
+  filterByMonth,
+  formatMonthKeyLabel,
+  monthOptions,
+  type MonthFilter,
+} from "@/lib/finance/transaction-month";
 import { searchTransactions } from "@/lib/finance/transaction-search";
+import { clampPage, countPages, paginate } from "@/lib/finance/pagination";
 import {
   createTransaction,
   deleteTransaction,
@@ -67,6 +78,9 @@ const NOTICE_DURATION_MS = 6_000;
 
 /** How many shimmering placeholder rows stand in for the list while loading. */
 const SKELETON_ROWS = 6;
+
+/** How many transactions make up one page of the list. */
+const PAGE_SIZE = 10;
 
 function Skeleton({ className, delay = 0 }: { className: string; delay?: number }) {
   const reduced = usePrefersReducedMotion();
@@ -146,7 +160,10 @@ export function TransactionsView() {
   const reduced = usePrefersReducedMotion();
   const [typeFilter, setTypeFilter] = useState<TypeFilter>("all");
   const [categoryId, setCategoryId] = useState(ALL_CATEGORIES);
+  const [monthFilter, setMonthFilter] = useState<MonthFilter>(ALL_MONTHS);
   const [query, setQuery] = useState("");
+  /** The 1-based page of filtered rows currently on screen. */
+  const [page, setPage] = useState(1);
   const [adding, setAdding] = useState(false);
   const [editing, setEditing] = useState<Transaction | null>(null);
   /** The transaction waiting to be confirmed, then deleted. */
@@ -183,21 +200,36 @@ export function TransactionsView() {
 
   const total = rows.length;
 
+  /** The distinct months the user has transactions in, newest first. */
+  const months = useMemo(() => monthOptions(rows), [rows]);
+
   const visible = useMemo(
     () =>
       searchTransactions(
-        filterTransactions(rows, { type: typeFilter, categoryId }),
+        filterByMonth(
+          filterTransactions(rows, { type: typeFilter, categoryId }),
+          monthFilter,
+        ),
         query,
       ),
-    [rows, typeFilter, categoryId, query],
+    [rows, typeFilter, categoryId, monthFilter, query],
   );
 
-  /** True once any of the three criteria narrows the list down. */
+  /** The page of filtered rows on screen, clamped in case the list shrank. */
+  const lastPage = countPages(visible.length, PAGE_SIZE);
+  const currentPage = clampPage(page, visible.length, PAGE_SIZE);
+  const paged = useMemo(
+    () => paginate(visible, currentPage, PAGE_SIZE),
+    [visible, currentPage],
+  );
+
+  /** True once any criterion narrows the list down. */
   const filtersActive = useMemo(
     () =>
       !isDefaultFilter({ type: typeFilter, categoryId }) ||
+      monthFilter !== ALL_MONTHS ||
       query.trim() !== "",
-    [typeFilter, categoryId, query],
+    [typeFilter, categoryId, monthFilter, query],
   );
 
   const categories = data?.categories ?? [];
@@ -205,7 +237,9 @@ export function TransactionsView() {
   function clearFilters() {
     setTypeFilter("all");
     setCategoryId(ALL_CATEGORIES);
+    setMonthFilter(ALL_MONTHS);
     setQuery("");
+    setPage(1);
   }
 
   async function handleConfirmDelete() {
@@ -287,13 +321,39 @@ export function TransactionsView() {
               ariaLabel="Filter by type"
               options={filterOptions}
               value={typeFilter}
-              onChange={setTypeFilter}
+              onChange={(value) => {
+                setTypeFilter(value);
+                setPage(1);
+              }}
             />
+            <div className="relative">
+              <Calendar className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted" />
+              <select
+                value={monthFilter}
+                onChange={(event) => {
+                  setMonthFilter(event.target.value);
+                  setPage(1);
+                }}
+                aria-label="Filter by month"
+                className="h-10 appearance-none rounded-full border border-border bg-surface pl-9 pr-8 text-sm text-text focus:border-primary focus:outline-none"
+              >
+                <option value={ALL_MONTHS}>All months</option>
+                {months.map((key) => (
+                  <option key={key} value={key}>
+                    {formatMonthKeyLabel(key)}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-text-muted" />
+            </div>
             <div className="relative">
               <Tag className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted" />
               <select
                 value={categoryId}
-                onChange={(event) => setCategoryId(event.target.value)}
+                onChange={(event) => {
+                  setCategoryId(event.target.value);
+                  setPage(1);
+                }}
                 aria-label="Filter by category"
                 className="h-10 appearance-none rounded-full border border-border bg-surface pl-9 pr-8 text-sm text-text focus:border-primary focus:outline-none"
               >
@@ -311,7 +371,10 @@ export function TransactionsView() {
               <input
                 type="search"
                 value={query}
-                onChange={(event) => setQuery(event.target.value)}
+                onChange={(event) => {
+                  setQuery(event.target.value);
+                  setPage(1);
+                }}
                 placeholder="Search transactions"
                 aria-label="Search transactions"
                 className="h-10 w-full rounded-full border border-border bg-surface pl-9 pr-4 text-sm text-text placeholder:text-text-muted focus:border-primary focus:outline-none"
@@ -379,7 +442,7 @@ export function TransactionsView() {
               className="overflow-hidden rounded-2xl border border-border bg-surface shadow-sm"
             >
               <AnimatePresence initial={false} mode="popLayout">
-                {visible.map((row, index) => {
+                {paged.map((row, index) => {
                   const income = row.type === "income";
                   return (
                     <motion.li
@@ -479,6 +542,59 @@ export function TransactionsView() {
             </motion.ul>
           )}
         </AnimatePresence>
+
+        {lastPage > 1 && (
+          <motion.nav
+            key="pagination"
+            aria-label="Transactions pagination"
+            initial={reduced ? false : { opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, ease: EASE }}
+            className="mt-5 flex items-center justify-center gap-3 sm:justify-end"
+          >
+            <motion.button
+              type="button"
+              onClick={() => setPage(Math.max(1, currentPage - 1))}
+              disabled={currentPage <= 1}
+              aria-label="Previous page"
+              whileHover={
+                reduced || currentPage <= 1 ? undefined : { scale: 1.06 }
+              }
+              whileTap={
+                reduced || currentPage <= 1 ? undefined : { scale: 0.94 }
+              }
+              transition={{ type: "spring", stiffness: 400, damping: 22 }}
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-surface text-text-secondary transition-colors hover:border-primary/40 hover:text-text focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-border disabled:hover:text-text-secondary"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </motion.button>
+            <motion.span
+              key={currentPage}
+              initial={reduced ? false : { opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.2, ease: EASE }}
+              className="text-sm tabular-nums text-text-secondary"
+            >
+              Page {currentPage} of {lastPage}
+            </motion.span>
+            <motion.button
+              type="button"
+              onClick={() => setPage(Math.min(lastPage, currentPage + 1))}
+              disabled={currentPage >= lastPage}
+              aria-label="Next page"
+              whileHover={
+                reduced || currentPage >= lastPage ? undefined : { scale: 1.06 }
+              }
+              whileTap={
+                reduced || currentPage >= lastPage ? undefined : { scale: 0.94 }
+              }
+              transition={{ type: "spring", stiffness: 400, damping: 22 }}
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-surface text-text-secondary transition-colors hover:border-primary/40 hover:text-text focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-border disabled:hover:text-text-secondary"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </motion.button>
+          </motion.nav>
+        )}
       </div>
 
       <AnimatePresence>

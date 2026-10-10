@@ -233,3 +233,10 @@ gauge (SVG ring, percentage in the middle) and each row now shows its
   `matchesTransactionQuery`, `searchTransactions`): case-insensitive substring
   match over note or category name, blank query keeps everything, chained after
   `filterTransactions` so text narrows the same list as the type/category pills.
+- Day 45: month selector + pagination — pure, unit-tested
+  `lib/finance/transaction-month.ts` (`filterByMonth`, `monthOptions`,
+  `monthKeyOf`, `formatMonthKeyLabel`, `ALL_MONTHS`) and
+  `lib/finance/pagination.ts` (`countPages`, `clampPage`, `paginate`); the
+  transactions page gains an animated month select (labeling each month) beside
+  the other filters, plus smooth Prev/Next pagination controls (10 per page)
+  with the current page highlighted and filters/search resetting to page one.

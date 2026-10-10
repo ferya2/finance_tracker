@@ -21,7 +21,7 @@ Source of truth for **what** to build. The agent picks daily tasks from
 - [x] Authed layout, dashboard, summary cards, widgets
 
 ## Phase 6 — Transactions UI (Week 6)
-- [ ] List, add, edit, delete, filter, search, month + pagination
+- [x] List, add, edit, delete, filter, search, month + pagination
 
 ## Phase 7 — Categories & budgets UI (Week 7)
 - [ ] Category CRUD UI, budgets UI, alerts
