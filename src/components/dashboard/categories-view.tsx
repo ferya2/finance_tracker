@@ -1,8 +1,16 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { AlertTriangle, ArrowDownLeft, ArrowUpRight, Plus, RefreshCw } from "lucide-react";
+import {
+  AlertTriangle,
+  ArrowDownLeft,
+  ArrowUpRight,
+  Pencil,
+  Plus,
+  RefreshCw,
+} from "lucide-react";
+import { CategoryFormModal } from "@/components/dashboard/category-form-modal";
 import { EASE, WIDGET_CARD_CLASS } from "@/components/dashboard/motion";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { PageShell } from "@/components/dashboard/page-shell";
@@ -14,6 +22,7 @@ import {
 } from "@/lib/finance/category-summary";
 import { formatCurrency } from "@/lib/finance/format";
 import { currentPeriod, formatMonthLabel } from "@/lib/finance/period";
+import type { Category } from "@/types/category";
 
 /** How many shimmering placeholder cards stand in for the grid while loading. */
 const SKELETON_CARDS = 6;
@@ -92,9 +101,11 @@ function CategoriesError({
 function CategoryCard({
   category,
   index,
+  onEdit,
 }: {
   category: CategorySummaryRow;
   index: number;
+  onEdit: (category: Category) => void;
 }) {
   const reduced = usePrefersReducedMotion();
   const income = category.kind === "income";
@@ -118,15 +129,29 @@ function CategoryCard({
             <ArrowUpRight style={{ color: category.color }} className="h-5 w-5" />
           )}
         </span>
-        <span
-          className={`rounded-full px-2.5 py-1 text-xs font-medium ${
-            income
-              ? "bg-success-light text-success"
-              : "bg-surface-subtle text-text-secondary"
-          }`}
-        >
-          {income ? "Income" : "Expense"}
-        </span>
+        <div className="flex items-center gap-1.5">
+          <span
+            className={`rounded-full px-2.5 py-1 text-xs font-medium ${
+              income
+                ? "bg-success-light text-success"
+                : "bg-surface-subtle text-text-secondary"
+            }`}
+          >
+            {income ? "Income" : "Expense"}
+          </span>
+          <motion.button
+            type="button"
+            onClick={() => onEdit(category)}
+            aria-label={`Edit ${category.name}`}
+            title="Edit category"
+            whileHover={reduced ? undefined : { scale: 1.08 }}
+            whileTap={reduced ? undefined : { scale: 0.94 }}
+            transition={{ type: "spring", stiffness: 400, damping: 22 }}
+            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-text-muted transition-colors hover:bg-surface-subtle hover:text-text focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+          >
+            <Pencil className="h-3.5 w-3.5" />
+          </motion.button>
+        </div>
       </div>
       <h3 className="mt-4 text-sm font-semibold text-text">{category.name}</h3>
       <p className="mt-1 text-sm text-text-secondary tabular-nums">
@@ -140,6 +165,8 @@ function CategoryCard({
 export function CategoriesView() {
   const { status, data, error, reload } = useUserData();
   const reduced = usePrefersReducedMotion();
+  const [adding, setAdding] = useState(false);
+  const [editing, setEditing] = useState<Category | null>(null);
   const period = useMemo(() => currentPeriod(new Date()), []);
   const monthLabel = useMemo(
     () => formatMonthLabel(period.year, period.month),
@@ -163,6 +190,7 @@ export function CategoriesView() {
           action={
             <button
               type="button"
+              onClick={() => setAdding(true)}
               disabled={data === null}
               className="inline-flex h-10 items-center gap-2 rounded-full bg-primary px-5 text-sm font-medium text-primary-foreground shadow-lg shadow-primary/25 transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0 motion-reduce:transform-none"
             >
@@ -223,6 +251,7 @@ export function CategoriesView() {
                       key={category.id}
                       category={category}
                       index={index}
+                      onEdit={(target) => setEditing(target)}
                     />
                   ))}
                 </div>
@@ -231,6 +260,32 @@ export function CategoriesView() {
           )}
         </AnimatePresence>
       </div>
+
+      <AnimatePresence>
+        {adding && (
+          <CategoryFormModal
+            onClose={() => setAdding(false)}
+            onSaved={() => {
+              setAdding(false);
+              reload();
+            }}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {editing !== null && (
+          <CategoryFormModal
+            key={editing.id}
+            category={editing}
+            onClose={() => setEditing(null)}
+            onSaved={() => {
+              setEditing(null);
+              reload();
+            }}
+          />
+        )}
+      </AnimatePresence>
     </PageShell>
   );
 }
