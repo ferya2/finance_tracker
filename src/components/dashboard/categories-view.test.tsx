@@ -10,6 +10,10 @@ const { mockUseUserData } = vi.hoisted(() => ({
 }));
 
 vi.mock("@/components/use-user-data", () => ({ useUserData: mockUseUserData }));
+vi.mock("@/lib/supabase/categories", () => ({
+  createCategory: vi.fn(),
+  updateCategory: vi.fn(),
+}));
 
 function stubMatchMedia(matches: boolean) {
   const mediaQueryList = {
@@ -189,5 +193,28 @@ describe("CategoriesView", () => {
     render(<CategoriesView />);
 
     expect(screen.getByText("No categories yet")).toBeInTheDocument();
+  });
+
+  it("opens the new-category form from the header button", async () => {
+    render(<CategoriesView />);
+
+    await userEvent.click(screen.getByRole("button", { name: /new category/i }));
+
+    expect(
+      screen.getByRole("dialog", { name: "New category" }),
+    ).toBeInTheDocument();
+  });
+
+  it("opens the edit form prefilled from a category card", async () => {
+    render(<CategoriesView />);
+
+    await userEvent.click(
+      screen.getByRole("button", { name: "Edit Food & dining" }),
+    );
+
+    expect(
+      screen.getByRole("dialog", { name: "Edit category" }),
+    ).toBeInTheDocument();
+    expect(screen.getByLabelText("Name")).toHaveValue("Food & dining");
   });
 });

@@ -246,3 +246,10 @@ gauge (SVG ring, percentage in the middle) and each row now shows its
   the Categories page now reads the user's own rows through `useUserData` with a
   shimmering card skeleton, an error card with retry, a first-run empty state,
   and the real month label in its header, instead of dummy data.
+- Day 47: add/edit category — the Categories page's "New category" button and a
+  pencil on each card open an animated `CategoryFormModal` (name, income/expense
+  type, a live colour-preview avatar and a swatch colour picker) that writes
+  through `createCategory`/`updateCategory` and reloads the grid; validation
+  comes from pure, unit-tested `category-form.ts` (`emptyCategoryForm`,
+  `categoryToFormValues`, `toNewCategory`, `validateCategoryForm`,
+  `isValidCategoryColor`, `CATEGORY_COLOR_PALETTE`).
