@@ -262,3 +262,9 @@ gauge (SVG ring, percentage in the middle) and each row now shows its
   pure, unit-tested `category-delete.ts` (`findReassignmentTarget`,
   `countLinkedTransactions`, `planCategoryDelete`, `canDeleteCategory`,
   `describeCategoryDelete`, `describeDeletedCategory`) holds all of the logic.
+- Day 49: budgets from real data — pure, unit-tested `buildBudgetSummaries` in
+  `lib/finance/budget-summary.ts` pairs each of the month's budgets with its
+  category and computed status (other months ignored, unknown categories fall
+  back to "Uncategorized"); the Budgets page now reads the user's own rows
+  through `useUserData` with a shimmering skeleton, an error card with retry, a
+  first-run empty state, and the real month label, instead of dummy data.
