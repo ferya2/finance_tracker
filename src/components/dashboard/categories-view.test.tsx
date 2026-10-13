@@ -1,18 +1,32 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { PostgrestError } from "@supabase/supabase-js";
 import { CategoriesView } from "./categories-view";
 import type { UserData } from "@/lib/supabase/dashboard";
 
-const { mockUseUserData } = vi.hoisted(() => ({
+const {
+  mockUseUserData,
+  mockCreateCategory,
+  mockUpdateCategory,
+  mockDeleteCategory,
+  mockReassignTransactions,
+} = vi.hoisted(() => ({
   mockUseUserData: vi.fn(),
+  mockCreateCategory: vi.fn(),
+  mockUpdateCategory: vi.fn(),
+  mockDeleteCategory: vi.fn(),
+  mockReassignTransactions: vi.fn(),
 }));
 
 vi.mock("@/components/use-user-data", () => ({ useUserData: mockUseUserData }));
 vi.mock("@/lib/supabase/categories", () => ({
-  createCategory: vi.fn(),
-  updateCategory: vi.fn(),
+  createCategory: mockCreateCategory,
+  updateCategory: mockUpdateCategory,
+  deleteCategory: mockDeleteCategory,
+}));
+vi.mock("@/lib/supabase/transactions", () => ({
+  reassignTransactions: mockReassignTransactions,
 }));
 
 function stubMatchMedia(matches: boolean) {
@@ -88,6 +102,12 @@ beforeEach(() => {
   stubMatchMedia(true);
   mockUseUserData.mockReset();
   mockUseUserData.mockReturnValue(readyState(DATA));
+  mockCreateCategory.mockReset();
+  mockUpdateCategory.mockReset();
+  mockDeleteCategory.mockReset();
+  mockDeleteCategory.mockResolvedValue({ error: null });
+  mockReassignTransactions.mockReset();
+  mockReassignTransactions.mockResolvedValue({ error: null });
 });
 
 afterEach(() => {
@@ -216,5 +236,144 @@ describe("CategoriesView", () => {
       screen.getByRole("dialog", { name: "Edit category" }),
     ).toBeInTheDocument();
     expect(screen.getByLabelText("Name")).toHaveValue("Food & dining");
+  });
+
+  it("asks before deleting a category and names where its transactions go", async () => {
+    const user = userEvent.setup();
+    render(<CategoriesView />);
+
+    await user.click(
+      screen.getByRole("button", { name: "Delete Food & dining" }),
+    );
+
+    expect(
+      screen.getByRole("dialog", { name: "Delete this category?" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        '2 transactions will move to "Housing" before "Food & dining" is removed.',
+      ),
+    ).toBeInTheDocument();
+    expect(mockReassignTransactions).not.toHaveBeenCalled();
+    expect(mockDeleteCategory).not.toHaveBeenCalled();
+  });
+
+  it("reassigns a category's transactions before deleting it", async () => {
+    const user = userEvent.setup();
+    const reload = vi.fn();
+    mockUseUserData.mockReturnValue(readyState(DATA, reload));
+    render(<CategoriesView />);
+
+    await user.click(
+      screen.getByRole("button", { name: "Delete Food & dining" }),
+    );
+    await user.click(screen.getByRole("button", { name: "Delete" }));
+
+    await waitFor(() =>
+      expect(mockDeleteCategory).toHaveBeenCalledWith("cat-food"),
+    );
+    expect(mockReassignTransactions).toHaveBeenCalledWith(
+      "cat-food",
+      "cat-housing",
+    );
+    expect(reload).toHaveBeenCalledOnce();
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(screen.getByRole("status")).toHaveTextContent(
+      'Deleted "Food & dining" · 2 transactions moved to "Housing".',
+    );
+  });
+
+  it("deletes an unused category without touching any transactions", async () => {
+    const user = userEvent.setup();
+    const reload = vi.fn();
+    mockUseUserData.mockReturnValue(
+      readyState({
+        ...DATA,
+        categories: [
+          ...DATA.categories,
+          {
+            id: "cat-fun",
+            name: "Entertainment",
+            color: "#db2777",
+            kind: "expense",
+          },
+        ],
+      }, reload),
+    );
+    render(<CategoriesView />);
+
+    await user.click(
+      screen.getByRole("button", { name: "Delete Entertainment" }),
+    );
+
+    expect(
+      screen.getByText(
+        'No transactions use "Entertainment", so it can be removed safely.',
+      ),
+    ).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Delete" }));
+
+    await waitFor(() =>
+      expect(mockDeleteCategory).toHaveBeenCalledWith("cat-fun"),
+    );
+    expect(mockReassignTransactions).not.toHaveBeenCalled();
+    expect(screen.getByRole("status")).toHaveTextContent(
+      'Deleted "Entertainment".',
+    );
+  });
+
+  it("refuses to delete the last category of its kind while it is in use", async () => {
+    const user = userEvent.setup();
+    mockUseUserData.mockReturnValue(
+      readyState({ ...DATA, categories: [DATA.categories[2]] }),
+    );
+    render(<CategoriesView />);
+
+    await user.click(
+      screen.getByRole("button", { name: "Delete Food & dining" }),
+    );
+
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      '"Food & dining" is used by 2 transactions and there is no other expense category to move them to. Add one first.',
+    );
+    expect(mockDeleteCategory).not.toHaveBeenCalled();
+  });
+
+  it("keeps the category when the delete is backed out of", async () => {
+    const user = userEvent.setup();
+    render(<CategoriesView />);
+
+    await user.click(
+      screen.getByRole("button", { name: "Delete Food & dining" }),
+    );
+    await user.click(screen.getByRole("button", { name: "Keep it" }));
+
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(mockReassignTransactions).not.toHaveBeenCalled();
+    expect(mockDeleteCategory).not.toHaveBeenCalled();
+    expect(screen.getByText("Food & dining")).toBeInTheDocument();
+  });
+
+  it("keeps the dialog open and explains the failure when the reassignment fails", async () => {
+    const user = userEvent.setup();
+    mockReassignTransactions.mockResolvedValue({
+      error: { message: "Failed to reassign transactions" } as unknown as PostgrestError,
+    });
+    render(<CategoriesView />);
+
+    await user.click(
+      screen.getByRole("button", { name: "Delete Food & dining" }),
+    );
+    await user.click(screen.getByRole("button", { name: "Delete" }));
+
+    expect(
+      await screen.findByText("Failed to reassign transactions"),
+    ).toBeInTheDocument();
+    expect(mockDeleteCategory).not.toHaveBeenCalled();
+    expect(
+      screen.getByRole("dialog", { name: "Delete this category?" }),
+    ).toBeInTheDocument();
   });
 });

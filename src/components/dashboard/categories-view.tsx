@@ -9,23 +9,43 @@ import {
   Pencil,
   Plus,
   RefreshCw,
+  Trash2,
 } from "lucide-react";
 import { CategoryFormModal } from "@/components/dashboard/category-form-modal";
+import { ConfirmDialog } from "@/components/dashboard/confirm-dialog";
 import { EASE, WIDGET_CARD_CLASS } from "@/components/dashboard/motion";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { PageShell } from "@/components/dashboard/page-shell";
+import { Snackbar } from "@/components/dashboard/snackbar";
 import { usePrefersReducedMotion } from "@/components/use-prefers-reduced-motion";
 import { useUserData } from "@/components/use-user-data";
+import {
+  canDeleteCategory,
+  describeCategoryDelete,
+  describeDeletedCategory,
+  planCategoryDelete,
+} from "@/lib/finance/category-delete";
 import {
   buildCategorySummaries,
   type CategorySummaryRow,
 } from "@/lib/finance/category-summary";
 import { formatCurrency } from "@/lib/finance/format";
 import { currentPeriod, formatMonthLabel } from "@/lib/finance/period";
+import { deleteCategory } from "@/lib/supabase/categories";
+import { reassignTransactions } from "@/lib/supabase/transactions";
 import type { Category } from "@/types/category";
 
 /** How many shimmering placeholder cards stand in for the grid while loading. */
 const SKELETON_CARDS = 6;
+
+/** How long a notice stays up, with no action to offer. */
+const NOTICE_DURATION_MS = 6_000;
+
+/** What the snackbar at the foot of the page is currently saying. */
+interface Notice {
+  message: string;
+  tone: "neutral" | "danger";
+}
 
 function Skeleton({ className }: { className: string }) {
   const reduced = usePrefersReducedMotion();
@@ -102,10 +122,12 @@ function CategoryCard({
   category,
   index,
   onEdit,
+  onDelete,
 }: {
   category: CategorySummaryRow;
   index: number;
   onEdit: (category: Category) => void;
+  onDelete: (category: Category) => void;
 }) {
   const reduced = usePrefersReducedMotion();
   const income = category.kind === "income";
@@ -151,6 +173,18 @@ function CategoryCard({
           >
             <Pencil className="h-3.5 w-3.5" />
           </motion.button>
+          <motion.button
+            type="button"
+            onClick={() => onDelete(category)}
+            aria-label={`Delete ${category.name}`}
+            title="Delete category"
+            whileHover={reduced ? undefined : { scale: 1.08 }}
+            whileTap={reduced ? undefined : { scale: 0.94 }}
+            transition={{ type: "spring", stiffness: 400, damping: 22 }}
+            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-text-muted transition-colors hover:bg-danger-subtle hover:text-danger focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-danger"
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+          </motion.button>
         </div>
       </div>
       <h3 className="mt-4 text-sm font-semibold text-text">{category.name}</h3>
@@ -167,6 +201,11 @@ export function CategoriesView() {
   const reduced = usePrefersReducedMotion();
   const [adding, setAdding] = useState(false);
   const [editing, setEditing] = useState<Category | null>(null);
+  /** The category waiting to be confirmed, then deleted. */
+  const [deleting, setDeleting] = useState<Category | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [deleteBusy, setDeleteBusy] = useState(false);
+  const [notice, setNotice] = useState<Notice | null>(null);
   const period = useMemo(() => currentPeriod(new Date()), []);
   const monthLabel = useMemo(
     () => formatMonthLabel(period.year, period.month),
@@ -179,6 +218,73 @@ export function CategoriesView() {
         : null,
     [data, period],
   );
+
+  /** What removing the chosen category involves — its rows and their new home. */
+  const deletePlan = useMemo(
+    () =>
+      deleting === null || data === null
+        ? null
+        : planCategoryDelete(deleting, data.categories, data.transactions),
+    [deleting, data],
+  );
+
+  function requestDelete(category: Category) {
+    const plan =
+      data === null
+        ? null
+        : planCategoryDelete(category, data.categories, data.transactions);
+
+    if (plan === null || !canDeleteCategory(plan)) {
+      setNotice({
+        message: plan
+          ? describeCategoryDelete(plan)
+          : "Your categories are still loading. Try again in a moment.",
+        tone: "danger",
+      });
+      return;
+    }
+
+    setDeleteError(null);
+    setDeleting(category);
+  }
+
+  async function handleConfirmDelete() {
+    if (deleting === null || deletePlan === null) return;
+
+    const plan = deletePlan;
+    setDeleteBusy(true);
+
+    let failure: string | null = null;
+
+    if (plan.linkedCount > 0 && plan.target) {
+      const { error: reassignError } = await reassignTransactions(
+        plan.category.id,
+        plan.target.id,
+      );
+      if (reassignError) {
+        failure = reassignError.message;
+      }
+    }
+
+    if (failure === null) {
+      const { error: deleteErr } = await deleteCategory(plan.category.id);
+      if (deleteErr) {
+        failure = deleteErr.message;
+      }
+    }
+
+    setDeleteBusy(false);
+
+    if (failure !== null) {
+      setDeleteError(failure);
+      return;
+    }
+
+    setDeleteError(null);
+    setDeleting(null);
+    setNotice({ message: describeDeletedCategory(plan), tone: "neutral" });
+    reload();
+  }
 
   return (
     <PageShell>
@@ -252,6 +358,7 @@ export function CategoriesView() {
                       category={category}
                       index={index}
                       onEdit={(target) => setEditing(target)}
+                      onDelete={requestDelete}
                     />
                   ))}
                 </div>
@@ -283,6 +390,40 @@ export function CategoriesView() {
               setEditing(null);
               reload();
             }}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {deleting !== null && deletePlan !== null && (
+          <ConfirmDialog
+            title="Delete this category?"
+            description={describeCategoryDelete(deletePlan)}
+            confirmLabel="Delete"
+            cancelLabel="Keep it"
+            tone="danger"
+            busy={deleteBusy}
+            busyLabel="Deleting…"
+            error={deleteError}
+            onConfirm={() => {
+              void handleConfirmDelete();
+            }}
+            onCancel={() => {
+              setDeleting(null);
+              setDeleteError(null);
+            }}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {notice !== null && (
+          <Snackbar
+            key={notice.message}
+            message={notice.message}
+            tone={notice.tone}
+            duration={NOTICE_DURATION_MS}
+            onDismiss={() => setNotice(null)}
           />
         )}
       </AnimatePresence>

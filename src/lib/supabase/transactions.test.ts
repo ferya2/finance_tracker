@@ -4,6 +4,7 @@ import {
   createTransaction,
   deleteTransaction,
   listTransactions,
+  reassignTransactions,
   updateTransaction,
 } from "./transactions";
 import type { Transaction } from "@/types/transaction";
@@ -266,6 +267,33 @@ describe("deleteTransaction", () => {
     });
 
     const result = await deleteTransaction("txn-1");
+
+    expect(result.error).toBe(dbError);
+  });
+});
+
+describe("reassignTransactions", () => {
+  it("moves every transaction from one category to another", async () => {
+    const update = vi.fn().mockReturnThis();
+    const eq = vi.fn().mockResolvedValue({ data: null, error: null });
+    mockFrom.mockReturnValue({ update, eq });
+
+    const result = await reassignTransactions("cat-food", "cat-housing");
+
+    expect(mockFrom).toHaveBeenCalledWith("transactions");
+    expect(update).toHaveBeenCalledWith({ category_id: "cat-housing" });
+    expect(eq).toHaveBeenCalledWith("category_id", "cat-food");
+    expect(result.error).toBeNull();
+  });
+
+  it("returns the error when the reassignment fails", async () => {
+    const dbError = error("Failed to reassign transactions");
+    mockFrom.mockReturnValue({
+      update: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockResolvedValue({ data: null, error: dbError }),
+    });
+
+    const result = await reassignTransactions("cat-food", "cat-housing");
 
     expect(result.error).toBe(dbError);
   });
