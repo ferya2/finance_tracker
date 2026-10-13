@@ -43,6 +43,10 @@ export interface DeleteTransactionResult {
   error: PostgrestError | null;
 }
 
+export interface ReassignTransactionsResult {
+  error: PostgrestError | null;
+}
+
 function rowToTransaction(row: TransactionRow): Transaction {
   return {
     id: row.id,
@@ -143,6 +147,23 @@ export async function deleteTransaction(
     .from("transactions")
     .delete()
     .eq("id", id);
+
+  return { error };
+}
+
+/**
+ * Move every transaction pointing at one category onto another in a single
+ * update. Used before a category is deleted, so no transaction is left
+ * referring to a row that no longer exists.
+ */
+export async function reassignTransactions(
+  fromCategoryId: string,
+  toCategoryId: string,
+): Promise<ReassignTransactionsResult> {
+  const { error } = await getSupabaseClient()
+    .from("transactions")
+    .update({ category_id: toCategoryId })
+    .eq("category_id", fromCategoryId);
 
   return { error };
 }

@@ -253,3 +253,12 @@ gauge (SVG ring, percentage in the middle) and each row now shows its
   comes from pure, unit-tested `category-form.ts` (`emptyCategoryForm`,
   `categoryToFormValues`, `toNewCategory`, `validateCategoryForm`,
   `isValidCategoryColor`, `CATEGORY_COLOR_PALETTE`).
+- Day 48: delete category — a trash button on each card opens an animated
+  `ConfirmDialog` that previews what happens to the category's transactions;
+  any linked rows are reassigned to the first sibling of the same kind (a new
+  mocked, unit-tested `reassignTransactions` bulk update) before the category is
+  removed, with a `Snackbar` confirming the move. Deleting the last category of
+  its kind while it is still in use is refused with an explanatory alert. The
+  pure, unit-tested `category-delete.ts` (`findReassignmentTarget`,
+  `countLinkedTransactions`, `planCategoryDelete`, `canDeleteCategory`,
+  `describeCategoryDelete`, `describeDeletedCategory`) holds all of the logic.
