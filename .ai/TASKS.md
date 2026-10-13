@@ -125,7 +125,7 @@ whitespace, an interactive drag-to-rotate **3D** hero, and smooth scroll-reveal
 - [x] **Day 46 — Categories (real).** Wire categories page to real data.
 - [x] **Day 47 — Add/edit category.** Color + icon picker, animated.
 - [x] **Day 48 — Delete category.** Reassign/handle linked transactions.
-- [ ] **Day 49 — Budgets (real).** Wire budgets page to real data.
+- [x] **Day 49 — Budgets (real).** Wire budgets page to real data.
 - [ ] **Day 50 — Set/edit budget.** Per category/month.
 - [ ] **Day 51 — Budget alerts.** Over-budget indicators + toast.
 - [ ] **Day 52 — Categories/budgets polish.** Motion + responsive.
