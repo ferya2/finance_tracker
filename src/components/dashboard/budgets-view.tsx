@@ -1,17 +1,19 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { AlertTriangle, PiggyBank, Plus, RefreshCw } from "lucide-react";
+import { AlertTriangle, Pencil, PiggyBank, Plus, RefreshCw } from "lucide-react";
 import { EASE, WIDGET_CARD_CLASS } from "@/components/dashboard/motion";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { PageShell } from "@/components/dashboard/page-shell";
 import { usePrefersReducedMotion } from "@/components/use-prefers-reduced-motion";
+import { BudgetFormModal } from "@/components/dashboard/budget-form-modal";
 import { useUserData } from "@/components/use-user-data";
 import {
   buildBudgetSummaries,
   type BudgetSummaryRow,
 } from "@/lib/finance/budget-summary";
+import type { Budget } from "@/types/budget";
 import { formatCurrency } from "@/lib/finance/format";
 import { currentPeriod, formatMonthLabel } from "@/lib/finance/period";
 
@@ -93,9 +95,11 @@ function BudgetsError({
 function BudgetCard({
   budget,
   index,
+  onEdit,
 }: {
   budget: BudgetSummaryRow;
   index: number;
+  onEdit: () => void;
 }) {
   const reduced = usePrefersReducedMotion();
   const over = budget.overBudget;
@@ -110,7 +114,7 @@ function BudgetCard({
         ease: EASE,
       }}
       whileHover={reduced ? undefined : { y: -3 }}
-      className="flex flex-col rounded-2xl border border-border bg-surface p-5 shadow-sm transition-shadow hover:shadow-md"
+      className="group flex flex-col rounded-2xl border border-border bg-surface p-5 shadow-sm transition-shadow hover:shadow-md"
     >
       <div className="flex items-center justify-between gap-3">
         <span className="flex items-center gap-2 text-sm font-semibold text-text">
@@ -120,11 +124,25 @@ function BudgetCard({
           />
           {budget.categoryName}
         </span>
-        {over && (
-          <span className="rounded-full bg-danger-subtle px-2.5 py-1 text-xs font-medium text-danger">
-            Over budget
-          </span>
-        )}
+        <div className="flex items-center gap-1.5">
+          {over && (
+            <span className="rounded-full bg-danger-subtle px-2.5 py-1 text-xs font-medium text-danger">
+              Over budget
+            </span>
+          )}
+          <motion.button
+            type="button"
+            onClick={onEdit}
+            aria-label={`Edit ${budget.categoryName} budget`}
+            title="Edit budget"
+            whileHover={reduced ? undefined : { scale: 1.08 }}
+            whileTap={reduced ? undefined : { scale: 0.94 }}
+            transition={{ type: "spring", stiffness: 400, damping: 22 }}
+            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-text-muted transition-colors hover:bg-surface-subtle hover:text-text focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+          >
+            <Pencil className="h-3.5 w-3.5" />
+          </motion.button>
+        </div>
       </div>
 
       <div className="mt-3 flex items-baseline justify-between gap-2 text-sm">
@@ -183,6 +201,8 @@ export function BudgetsView() {
         : null,
     [data, period],
   );
+  const [adding, setAdding] = useState(false);
+  const [editing, setEditing] = useState<Budget | null>(null);
   const overCount = budgets?.filter((budget) => budget.overBudget).length ?? 0;
 
   return (
@@ -195,6 +215,7 @@ export function BudgetsView() {
           action={
             <button
               type="button"
+              onClick={() => setAdding(true)}
               disabled={data === null}
               className="inline-flex h-10 items-center gap-2 rounded-full bg-primary px-5 text-sm font-medium text-primary-foreground shadow-lg shadow-primary/25 transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0 motion-reduce:transform-none"
             >
@@ -266,12 +287,41 @@ export function BudgetsView() {
                         key={budget.id}
                         budget={budget}
                         index={index}
+                        onEdit={() => {
+                          const original = data?.budgets.find((x) => x.id === budget.id);
+                          if (original) setEditing(original);
+                        }}
                       />
                     ))}
                   </div>
                 </>
               )}
             </motion.div>
+          )}
+        </AnimatePresence>
+        <AnimatePresence>
+          {adding && data !== null && (
+            <BudgetFormModal
+              categories={data.categories}
+              period={period}
+              onClose={() => setAdding(false)}
+              onSaved={() => {
+                setAdding(false);
+                reload();
+              }}
+            />
+          )}
+          {editing && data !== null && (
+            <BudgetFormModal
+              budget={editing}
+              categories={data.categories}
+              period={period}
+              onClose={() => setEditing(null)}
+              onSaved={() => {
+                setEditing(null);
+                reload();
+              }}
+            />
           )}
         </AnimatePresence>
       </div>
