@@ -268,3 +268,10 @@ gauge (SVG ring, percentage in the middle) and each row now shows its
   back to "Uncategorized"); the Budgets page now reads the user's own rows
   through `useUserData` with a shimmering skeleton, an error card with retry, a
   first-run empty state, and the real month label, instead of dummy data.
+- Day 50: set/edit budget — the Budgets page's "Set budget" button and a new
+  pencil button on each card open an animated `BudgetFormModal` (expense-category
+  select, month picker, and a limit amount) that writes through
+  `createBudget`/`updateBudget` and reloads the grid; validation and conversion
+  come from pure, unit-tested `budget-form.ts` (`emptyBudgetForm`,
+  `budgetToFormValues`, `toNewBudget`, `toBudgetUpdate`, `validateBudgetForm`,
+  `budgetableCategories`, `buildMonthOptions`).
