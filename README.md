@@ -275,3 +275,7 @@ gauge (SVG ring, percentage in the middle) and each row now shows its
   come from pure, unit-tested `budget-form.ts` (`emptyBudgetForm`,
   `budgetToFormValues`, `toNewBudget`, `toBudgetUpdate`, `validateBudgetForm`,
   `budgetableCategories`, `buildMonthOptions`).
+- Day 51: budget alerts — pure, unit-tested `budget-alert.ts` (`budgetAlerts`,
+  `budgetAlertMessage`) ranks the month's over-budget and near-limit categories;
+  the Budgets page adds a warning "Near limit" badge/colour for budgets at or
+  past the warning mark and raises an animated `Snackbar` summarising the alerts.

@@ -132,6 +132,20 @@ describe("BudgetsView", () => {
     expect(screen.getByText("1 need attention")).toBeInTheDocument();
   });
 
+  it("flags a budget closing in on its limit", () => {
+    render(<BudgetsView />);
+
+    expect(screen.getByText("Near limit")).toBeInTheDocument();
+  });
+
+  it("raises a toast summarising the month's alerts", () => {
+    render(<BudgetsView />);
+
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      "Budget alert: 1 over budget · 1 near the limit",
+    );
+  });
+
   it("shows a category with no spending this month as zero", () => {
     render(<BudgetsView />);
 
