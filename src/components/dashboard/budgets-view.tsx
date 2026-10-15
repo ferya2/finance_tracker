@@ -6,9 +6,15 @@ import { AlertTriangle, Pencil, PiggyBank, Plus, RefreshCw } from "lucide-react"
 import { EASE, WIDGET_CARD_CLASS } from "@/components/dashboard/motion";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { PageShell } from "@/components/dashboard/page-shell";
+import { Snackbar } from "@/components/dashboard/snackbar";
 import { usePrefersReducedMotion } from "@/components/use-prefers-reduced-motion";
 import { BudgetFormModal } from "@/components/dashboard/budget-form-modal";
 import { useUserData } from "@/components/use-user-data";
+import {
+  budgetAlertMessage,
+  budgetAlerts,
+} from "@/lib/finance/budget-alert";
+import { budgetPressure, type BudgetPressure } from "@/lib/finance/budget";
 import {
   buildBudgetSummaries,
   type BudgetSummaryRow,
@@ -19,6 +25,27 @@ import { currentPeriod, formatMonthLabel } from "@/lib/finance/period";
 
 /** How many shimmering placeholder cards stand in for the grid while loading. */
 const SKELETON_CARDS = 6;
+
+/** The chip and bar colour for a budget that is running out or already over. */
+const pressureBarClass: Record<BudgetPressure, string> = {
+  onTrack: "bg-primary",
+  warning: "bg-warning",
+  over: "bg-danger",
+};
+
+const pressureBadge: Record<
+  Exclude<BudgetPressure, "onTrack">,
+  { label: string; className: string }
+> = {
+  warning: { label: "Near limit", className: "bg-warning-light text-warning" },
+  over: { label: "Over budget", className: "bg-danger-subtle text-danger" },
+};
+
+const pressureFooterClass: Record<BudgetPressure, string> = {
+  onTrack: "text-text-muted",
+  warning: "font-medium text-warning",
+  over: "font-medium text-danger",
+};
 
 function Skeleton({ className }: { className: string }) {
   const reduced = usePrefersReducedMotion();
@@ -103,6 +130,8 @@ function BudgetCard({
 }) {
   const reduced = usePrefersReducedMotion();
   const over = budget.overBudget;
+  const pressure = budgetPressure(budget);
+  const badge = over ? pressureBadge.over : pressureBadge.warning;
 
   return (
     <motion.div
@@ -125,9 +154,11 @@ function BudgetCard({
           {budget.categoryName}
         </span>
         <div className="flex items-center gap-1.5">
-          {over && (
-            <span className="rounded-full bg-danger-subtle px-2.5 py-1 text-xs font-medium text-danger">
-              Over budget
+          {pressure !== "onTrack" && (
+            <span
+              className={`rounded-full px-2.5 py-1 text-xs font-medium ${badge.className}`}
+            >
+              {badge.label}
             </span>
           )}
           <motion.button
@@ -164,14 +195,12 @@ function BudgetCard({
             delay: 0.2 + index * 0.05,
             ease: EASE,
           }}
-          className={`h-full rounded-full ${over ? "bg-danger" : "bg-primary"}`}
+          className={`h-full rounded-full ${pressureBarClass[pressure]}`}
         />
       </div>
 
       <p
-        className={`mt-2.5 text-xs ${
-          over ? "font-medium text-danger" : "text-text-muted"
-        }`}
+        className={`mt-2.5 text-xs ${pressureFooterClass[pressure]}`}
       >
         {over
           ? `Over by ${formatCurrency(Math.abs(budget.remaining))}`
@@ -204,6 +233,15 @@ export function BudgetsView() {
   const [adding, setAdding] = useState(false);
   const [editing, setEditing] = useState<Budget | null>(null);
   const overCount = budgets?.filter((budget) => budget.overBudget).length ?? 0;
+
+  const alerts = useMemo(
+    () => (budgets ? budgetAlerts(budgets) : []),
+    [budgets],
+  );
+  const alertMessage = budgetAlertMessage(alerts);
+  // Remember the message that was waved away so a reload only re-raises the
+  // alert when the month's numbers actually change.
+  const [dismissedAlert, setDismissedAlert] = useState<string | null>(null);
 
   return (
     <PageShell>
@@ -321,6 +359,17 @@ export function BudgetsView() {
                 setEditing(null);
                 reload();
               }}
+            />
+          )}
+        </AnimatePresence>
+
+        <AnimatePresence>
+          {alertMessage !== null && alertMessage !== dismissedAlert && (
+            <Snackbar
+              key={alertMessage}
+              message={alertMessage}
+              tone="danger"
+              onDismiss={() => setDismissedAlert(alertMessage)}
             />
           )}
         </AnimatePresence>
