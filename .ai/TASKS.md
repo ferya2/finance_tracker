@@ -128,7 +128,7 @@ whitespace, an interactive drag-to-rotate **3D** hero, and smooth scroll-reveal
 - [x] **Day 49 — Budgets (real).** Wire budgets page to real data.
 - [x] **Day 50 — Set/edit budget.** Per category/month.
 - [x] **Day 51 — Budget alerts.** Over-budget indicators + toast.
-- [ ] **Day 52 — Categories/budgets polish.** Motion + responsive.
+- [x] **Day 52 — Categories/budgets polish.** Motion + responsive.
 
 ## Week 9 — Charts & reports (functional)
 
