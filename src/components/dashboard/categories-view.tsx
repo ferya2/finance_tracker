@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { CategoryFormModal } from "@/components/dashboard/category-form-modal";
 import { ConfirmDialog } from "@/components/dashboard/confirm-dialog";
-import { EASE, WIDGET_CARD_CLASS } from "@/components/dashboard/motion";
+import { EASE, WIDGET_CARD_CLASS, staggerDelay } from "@/components/dashboard/motion";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { PageShell } from "@/components/dashboard/page-shell";
 import { Snackbar } from "@/components/dashboard/snackbar";
@@ -136,9 +136,13 @@ function CategoryCard({
     <motion.div
       initial={reduced ? false : { opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay: index * 0.04, ease: EASE }}
+      transition={{
+        duration: 0.4,
+        delay: staggerDelay(index),
+        ease: EASE,
+      }}
       whileHover={reduced ? undefined : { y: -3 }}
-      className="group rounded-2xl border border-border bg-surface p-5 shadow-sm transition-shadow hover:shadow-md"
+      className={WIDGET_CARD_CLASS}
     >
       <div className="flex items-start justify-between gap-3">
         <span

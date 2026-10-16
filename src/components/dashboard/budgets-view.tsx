@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { AlertTriangle, Pencil, PiggyBank, Plus, RefreshCw } from "lucide-react";
-import { EASE, WIDGET_CARD_CLASS } from "@/components/dashboard/motion";
+import { EASE, WIDGET_CARD_CLASS, staggerDelay } from "@/components/dashboard/motion";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { PageShell } from "@/components/dashboard/page-shell";
 import { Snackbar } from "@/components/dashboard/snackbar";
@@ -139,11 +139,11 @@ function BudgetCard({
       animate={{ opacity: 1, y: 0 }}
       transition={{
         duration: 0.4,
-        delay: index * 0.04,
+        delay: staggerDelay(index),
         ease: EASE,
       }}
       whileHover={reduced ? undefined : { y: -3 }}
-      className="group flex flex-col rounded-2xl border border-border bg-surface p-5 shadow-sm transition-shadow hover:shadow-md"
+      className={WIDGET_CARD_CLASS}
     >
       <div className="flex items-center justify-between gap-3">
         <span className="flex items-center gap-2 text-sm font-semibold text-text">
@@ -187,16 +187,16 @@ function BudgetCard({
       </div>
 
       <div className="mt-2 h-2.5 overflow-hidden rounded-full bg-surface-subtle">
-        <motion.div
-          initial={reduced ? false : { width: 0 }}
-          animate={{ width: `${Math.min(Math.max(budget.percent, 0), 100)}%` }}
-          transition={{
-            duration: 0.8,
-            delay: 0.2 + index * 0.05,
-            ease: EASE,
-          }}
-          className={`h-full rounded-full ${pressureBarClass[pressure]}`}
-        />
+          <motion.div
+            initial={reduced ? false : { width: 0 }}
+            animate={{ width: `${Math.min(Math.max(budget.percent, 0), 100)}%` }}
+            transition={{
+              duration: 0.8,
+              delay: staggerDelay(index, 0.05, 0.25),
+              ease: EASE,
+            }}
+            className={`h-full rounded-full ${pressureBarClass[pressure]}`}
+          />
       </div>
 
       <p

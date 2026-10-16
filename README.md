@@ -279,3 +279,4 @@ gauge (SVG ring, percentage in the middle) and each row now shows its
   `budgetAlertMessage`) ranks the month's over-budget and near-limit categories;
   the Budgets page adds a warning "Near limit" badge/colour for budgets at or
   past the warning mark and raises an animated `Snackbar` summarising the alerts.
+- Day 52: categories and budgets polish — consistent staggered motion with capped delay, shared widget-card styling, and responsive tweaks for cleaner motion across both pages.
