@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { PageShell } from "@/components/dashboard/page-shell";
 import { ChartVisual } from "@/components/dashboard/chart-visual";
+import { IncomeExpenseChart } from "@/components/dashboard/income-expense-chart";
 import { SpendingTrend } from "@/components/dashboard/spending-trend";
 import { usePrefersReducedMotion } from "@/components/use-prefers-reduced-motion";
 import { useUserData } from "@/components/use-user-data";
@@ -14,60 +15,6 @@ import {
   getDummyCategory,
 } from "@/lib/finance/dummy";
 import { formatCurrency } from "@/lib/finance/format";
-
-const maxMonthlyValue = Math.max(
-  ...DUMMY_MONTHLY_SERIES.flatMap((point) => [point.income, point.expense]),
-);
-
-function IncomeExpenseChart() {
-  const reduced = usePrefersReducedMotion();
-
-  return (
-    <section className="rounded-2xl border border-border bg-surface p-6 shadow-sm">
-      <div className="flex items-center justify-between gap-3">
-        <h2 className="text-base font-semibold text-text">Income vs expenses</h2>
-        <span className="rounded-full bg-surface-subtle px-2.5 py-1 text-xs font-medium text-text-secondary">
-          Last 6 months
-        </span>
-      </div>
-
-      <div className="mt-6 flex items-end gap-3 sm:gap-5">
-        {DUMMY_MONTHLY_SERIES.map((point, i) => (
-          <div key={point.month} className="flex flex-1 flex-col items-center gap-2">
-            <div className="flex h-40 w-full items-end justify-center gap-1.5">
-              {[point.income, point.expense].map((value, j) => (
-                <motion.div
-                  key={j}
-                  initial={reduced ? false : { height: 0 }}
-                  animate={{ height: `${Math.max((value / maxMonthlyValue) * 100, 3)}%` }}
-                  transition={{
-                    duration: 0.7,
-                    delay: 0.1 + i * 0.06 + j * 0.04,
-                    ease: [0.25, 0.1, 0.25, 1],
-                  }}
-                  title={`${j === 0 ? "Income" : "Expense"}: ${formatCurrency(value)}`}
-                  className={`w-3 rounded-t-md sm:w-4 ${
-                    j === 0 ? "bg-primary" : "bg-danger"
-                  }`}
-                />
-              ))}
-            </div>
-            <span className="text-xs font-medium text-text-muted">{point.month}</span>
-          </div>
-        ))}
-      </div>
-
-      <div className="mt-5 flex items-center gap-5 text-xs text-text-secondary">
-        <span className="flex items-center gap-1.5">
-          <span className="h-2.5 w-2.5 rounded-full bg-primary" /> Income
-        </span>
-        <span className="flex items-center gap-1.5">
-          <span className="h-2.5 w-2.5 rounded-full bg-danger" /> Expenses
-        </span>
-      </div>
-    </section>
-  );
-}
 
 function buildDonutStops() {
   let acc = 0;
@@ -231,7 +178,10 @@ export function ReportsView() {
               transactions={data?.transactions ?? []}
               loading={status === "loading"}
             />
-            <IncomeExpenseChart />
+            <IncomeExpenseChart
+              transactions={data?.transactions ?? []}
+              loading={status === "loading"}
+            />
             <div className="grid gap-4 sm:grid-cols-2">
               <CategoryDonut />
               <BalanceTrend />
