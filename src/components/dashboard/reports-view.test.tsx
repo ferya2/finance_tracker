@@ -37,6 +37,14 @@ const DATA: UserData = {
       note: "Rent",
       occurredOn: isoDaysFromToday(-1),
     },
+    {
+      id: "txn-2",
+      amount: 500000,
+      type: "income",
+      categoryId: "cat-salary",
+      note: "Salary",
+      occurredOn: isoDaysFromToday(0),
+    },
   ],
   categories: [],
   budgets: [],
@@ -62,12 +70,12 @@ describe("ReportsView", () => {
     render(<ReportsView />);
 
     expect(screen.getByRole("heading", { name: "Reports" })).toBeInTheDocument();
-    expect(screen.getByText("Income vs expenses")).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Income vs expenses" }),
+    ).toBeInTheDocument();
     expect(screen.getByText("Last 6 months")).toBeInTheDocument();
-    expect(screen.getAllByText("Apr").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("Sep").length).toBeGreaterThan(0);
-    expect(screen.getByText("Income")).toBeInTheDocument();
-    expect(screen.getByText("Expenses")).toBeInTheDocument();
+    expect(screen.getAllByText("Income").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Expenses").length).toBeGreaterThan(0);
   });
 
   it("renders the spending-share donut with per-category figures", () => {

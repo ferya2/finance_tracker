@@ -133,7 +133,7 @@ whitespace, an interactive drag-to-rotate **3D** hero, and smooth scroll-reveal
 ## Week 9 — Charts & reports (functional)
 
 - [x] **Day 53 — Trend line chart.** Spending over time (aggregation tested).
-- [ ] **Day 54 — Income vs expense chart.** Grouped bars.
+- [x] **Day 54 — Income vs expense chart.** Grouped bars.
 - [ ] **Day 55 — Category donut.** Share per category.
 - [ ] **Day 56 — Monthly report page.** Composed report view.
 - [ ] **Day 57 — Yearly overview.** 12-month summary.
