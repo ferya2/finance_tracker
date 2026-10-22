@@ -280,3 +280,4 @@ gauge (SVG ring, percentage in the middle) and each row now shows its
   the Budgets page adds a warning "Near limit" badge/colour for budgets at or
   past the warning mark and raises an animated `Snackbar` summarising the alerts.
 - Day 52: categories and budgets polish — consistent staggered motion with capped delay, shared widget-card styling, and responsive tweaks for cleaner motion across both pages.
+- Day 53: trend line chart — pure, unit-tested `trend.ts` (`buildSpendingTrend`, `trendWindow`, `trendTotals`, `trendAverage`, `trendPeak`) buckets spending into day/week/month points; the Reports page gains an animated "Spending over time" line chart with a range toggle, drawn from the user's own transactions.

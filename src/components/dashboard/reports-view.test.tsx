@@ -1,6 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { ReportsView } from "./reports-view";
+import type { UserData } from "@/lib/supabase/dashboard";
+
+const { mockUseUserData } = vi.hoisted(() => ({
+  mockUseUserData: vi.fn(),
+}));
+
+vi.mock("@/components/use-user-data", () => ({ useUserData: mockUseUserData }));
 
 function stubMatchMedia(matches: boolean) {
   const mediaQueryList = {
@@ -11,8 +18,39 @@ function stubMatchMedia(matches: boolean) {
   vi.stubGlobal("matchMedia", vi.fn(() => mediaQueryList));
 }
 
+/** A `YYYY-MM-DD` date a number of days from today (0 = today). */
+function isoDaysFromToday(days: number): string {
+  const now = new Date();
+  const date = new Date(now.getFullYear(), now.getMonth(), now.getDate() + days);
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(
+    date.getDate(),
+  ).padStart(2, "0")}`;
+}
+
+const DATA: UserData = {
+  transactions: [
+    {
+      id: "txn-1",
+      amount: 4500,
+      type: "expense",
+      categoryId: "cat-housing",
+      note: "Rent",
+      occurredOn: isoDaysFromToday(-1),
+    },
+  ],
+  categories: [],
+  budgets: [],
+};
+
 beforeEach(() => {
   stubMatchMedia(true);
+  mockUseUserData.mockReset();
+  mockUseUserData.mockReturnValue({
+    status: "ready",
+    data: DATA,
+    error: null,
+    reload: vi.fn(),
+  });
 });
 
 afterEach(() => {
@@ -48,6 +86,16 @@ describe("ReportsView", () => {
     expect(screen.getByText("Balance trend")).toBeInTheDocument();
     expect(screen.getByText("$4,821.50")).toBeInTheDocument();
     expect(screen.getByText("Balance at the end of the period:")).toBeInTheDocument();
+  });
+
+  it("renders the spending trend from the user's own transactions", () => {
+    render(<ReportsView />);
+
+    expect(
+      screen.getByRole("heading", { name: "Spending over time" }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Last 30 days")).toBeInTheDocument();
+    expect(screen.getAllByText("$45.00").length).toBeGreaterThan(0);
   });
 
   it("shows the 3D accent tile even without WebGL", () => {
