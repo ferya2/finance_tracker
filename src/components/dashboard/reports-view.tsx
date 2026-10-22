@@ -4,7 +4,9 @@ import { motion } from "framer-motion";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { PageShell } from "@/components/dashboard/page-shell";
 import { ChartVisual } from "@/components/dashboard/chart-visual";
+import { SpendingTrend } from "@/components/dashboard/spending-trend";
 import { usePrefersReducedMotion } from "@/components/use-prefers-reduced-motion";
+import { useUserData } from "@/components/use-user-data";
 import {
   DUMMY_CATEGORY_BREAKDOWN,
   DUMMY_MONTHLY_SERIES,
@@ -212,6 +214,8 @@ function BalanceTrend() {
 }
 
 export function ReportsView() {
+  const { status, data } = useUserData();
+
   return (
     <PageShell>
       <div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 lg:py-10">
@@ -223,6 +227,10 @@ export function ReportsView() {
 
         <div className="grid gap-4 lg:grid-cols-5">
           <div className="flex flex-col gap-4 lg:col-span-4">
+            <SpendingTrend
+              transactions={data?.transactions ?? []}
+              loading={status === "loading"}
+            />
             <IncomeExpenseChart />
             <div className="grid gap-4 sm:grid-cols-2">
               <CategoryDonut />
