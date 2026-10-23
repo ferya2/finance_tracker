@@ -1,87 +1,22 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useMemo } from "react";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { PageShell } from "@/components/dashboard/page-shell";
 import { ChartVisual } from "@/components/dashboard/chart-visual";
 import { IncomeExpenseChart } from "@/components/dashboard/income-expense-chart";
 import { SpendingTrend } from "@/components/dashboard/spending-trend";
+import { CategoryDonut } from "@/components/dashboard/category-donut";
 import { usePrefersReducedMotion } from "@/components/use-prefers-reduced-motion";
 import { useUserData } from "@/components/use-user-data";
+import { buildDonutBreakdown } from "@/lib/finance/donut";
 import {
   DUMMY_CATEGORY_BREAKDOWN,
   DUMMY_MONTHLY_SERIES,
-  DUMMY_SUMMARY,
   getDummyCategory,
 } from "@/lib/finance/dummy";
 import { formatCurrency } from "@/lib/finance/format";
-
-function buildDonutStops() {
-  let acc = 0;
-  return DUMMY_CATEGORY_BREAKDOWN.map((item) => {
-    const from = acc;
-    acc += item.sharePercent;
-    return `${getDummyCategory(item.categoryId)?.color} ${from}% ${acc}%`;
-  }).join(", ");
-}
-
-function CategoryDonut() {
-  const reduced = usePrefersReducedMotion();
-
-  return (
-    <section className="rounded-2xl border border-border bg-surface p-6 shadow-sm">
-      <h2 className="text-base font-semibold text-text">Spending shares</h2>
-
-      <div className="mt-6 flex flex-col items-center gap-6 sm:flex-row">
-        <motion.div
-          initial={reduced ? false : { opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
-          className="relative h-40 w-40 shrink-0"
-        >
-          <div
-            className="h-full w-full rounded-full"
-            style={{ background: `conic-gradient(from -90deg, ${buildDonutStops()})` }}
-          />
-          <div className="absolute inset-7 flex flex-col items-center justify-center rounded-full bg-surface">
-            <span className="text-lg font-semibold text-text tabular-nums">
-              {formatCurrency(DUMMY_SUMMARY.monthlyExpense)}
-            </span>
-            <span className="text-xs text-text-muted">spent this month</span>
-          </div>
-        </motion.div>
-
-        <ul className="flex w-full flex-col gap-2.5">
-          {DUMMY_CATEGORY_BREAKDOWN.map((item) => {
-            const category = getDummyCategory(item.categoryId);
-            return (
-              <li
-                key={item.categoryId}
-                className="flex items-center justify-between gap-3 text-sm"
-              >
-                <span className="flex min-w-0 items-center gap-2 font-medium text-text">
-                  <span
-                    className="h-2.5 w-2.5 shrink-0 rounded-full"
-                    style={{ backgroundColor: category?.color }}
-                  />
-                  <span className="truncate">{category?.name}</span>
-                </span>
-                <span className="shrink-0 text-text-secondary tabular-nums">
-                  <span className="font-medium text-text">
-                    {formatCurrency(item.amount)}
-                  </span>
-                  <span className="ml-2 text-xs text-text-muted">
-                    {item.sharePercent}%
-                  </span>
-                </span>
-              </li>
-            );
-          })}
-        </ul>
-      </div>
-    </section>
-  );
-}
 
 function buildTrendPoints() {
   const balances = DUMMY_MONTHLY_SERIES.map((point) => point.balance);
@@ -160,6 +95,31 @@ function BalanceTrend() {
   );
 }
 
+function SpendingShares() {
+  const donut = useMemo(() => {
+    const rows = DUMMY_CATEGORY_BREAKDOWN.map((item) => {
+      const category = getDummyCategory(item.categoryId);
+      return {
+        categoryId: item.categoryId,
+        categoryName: category?.name ?? "Uncategorized",
+        categoryColor: category?.color ?? "#94a3b8",
+        amount: item.amount,
+      };
+    });
+    return buildDonutBreakdown(rows);
+  }, []);
+
+  return (
+    <section className="rounded-2xl border border-border bg-surface p-6 shadow-sm">
+      <div className="flex items-center justify-between gap-3">
+        <h2 className="text-base font-semibold text-text">Spending shares</h2>
+        <span className="text-xs text-text-muted">By category</span>
+      </div>
+      <CategoryDonut breakdown={donut} />
+    </section>
+  );
+}
+
 export function ReportsView() {
   const { status, data } = useUserData();
 
@@ -183,7 +143,7 @@ export function ReportsView() {
               loading={status === "loading"}
             />
             <div className="grid gap-4 sm:grid-cols-2">
-              <CategoryDonut />
+              <SpendingShares />
               <BalanceTrend />
             </div>
           </div>
