@@ -284,3 +284,4 @@ gauge (SVG ring, percentage in the middle) and each row now shows its
 - Day 54: income vs expense chart — pure, unit-tested `income-expense.ts` (`buildIncomeExpenseSeries`) groups income/expense into six-month grouped bars (keeps empty months, spans years) and the Reports page renders them from real transactions.
 - Day 55: category donut — Reports spending shares now use the pure  with the animated  component (shared with the dashboard), showing per-category shares with smooth transitions.
 - Day 55: category donut — Reports spending shares use the pure buildDonutBreakdown with the animated CategoryDonut (shared with dashboard), showing per-category shares with smooth transitions.
+- Day 56: monthly report — pure, unit-tested `buildMonthlyReport` composes income/expense/balance with per-category spending and lists transactions for a selected month; the Reports page adds an animated composed monthly report with a month selector.
