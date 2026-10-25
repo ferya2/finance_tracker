@@ -53,10 +53,15 @@ function toUnits(percent: number): number {
 
 interface CategoryDonutProps {
   breakdown: DonutBreakdown;
+  /** Line under the total in the middle; defaults to "spent this month". */
+  caption?: string;
 }
 
 /** An animated donut of a month's spending, with a total in the middle. */
-export function CategoryDonut({ breakdown }: CategoryDonutProps) {
+export function CategoryDonut({
+  breakdown,
+  caption = "spent this month",
+}: CategoryDonutProps) {
   const reduced = usePrefersReducedMotion();
   const arcs = donutArcs(breakdown);
 
@@ -109,7 +114,7 @@ export function CategoryDonut({ breakdown }: CategoryDonutProps) {
             {formatCurrency(breakdown.total)}
           </span>
           <span className="mt-0.5 text-[11px] leading-tight text-text-muted">
-            spent this month
+            {caption}
           </span>
         </div>
       </motion.div>

@@ -7,6 +7,7 @@ import {
   isoDate,
   monthKey,
   monthRange,
+  nextPeriod,
   previousPeriod,
 } from "./period";
 
@@ -153,6 +154,35 @@ describe("previousPeriod", () => {
     const period = { year: 2026, month: 1 };
     previousPeriod(period);
     expect(period).toEqual({ year: 2026, month: 1 });
+  });
+});
+
+describe("nextPeriod", () => {
+  it("steps forward one month inside the same year", () => {
+    expect(nextPeriod({ year: 2026, month: 9 })).toEqual({
+      year: 2026,
+      month: 10,
+    });
+  });
+
+  it("steps forward from the last month into December", () => {
+    expect(nextPeriod({ year: 2026, month: 11 })).toEqual({
+      year: 2026,
+      month: 12,
+    });
+  });
+
+  it("rolls over to January of the next year in December", () => {
+    expect(nextPeriod({ year: 2026, month: 12 })).toEqual({
+      year: 2027,
+      month: 1,
+    });
+  });
+
+  it("does not mutate the period it was given", () => {
+    const period = { year: 2026, month: 12 };
+    nextPeriod(period);
+    expect(period).toEqual({ year: 2026, month: 12 });
   });
 });
 
