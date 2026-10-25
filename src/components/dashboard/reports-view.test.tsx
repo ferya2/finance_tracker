@@ -106,6 +106,15 @@ describe("ReportsView", () => {
     expect(screen.getAllByText("$45.00").length).toBeGreaterThan(0);
   });
 
+  it("links to the composed monthly report", () => {
+    render(<ReportsView />);
+
+    expect(screen.getByRole("link", { name: "Monthly report" })).toHaveAttribute(
+      "href",
+      "/dashboard/reports/monthly",
+    );
+  });
+
   it("shows the 3D accent tile even without WebGL", () => {
     render(<ReportsView />);
 

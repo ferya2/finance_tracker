@@ -1,6 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { CalendarRange } from "lucide-react";
+import Link from "next/link";
 import { useMemo } from "react";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { PageShell } from "@/components/dashboard/page-shell";
@@ -130,6 +132,15 @@ export function ReportsView() {
           eyebrow="September 2026"
           title="Reports"
           description="Turn your history into clear charts — spending, trends and shares at a glance."
+          action={
+            <Link
+              href="/dashboard/reports/monthly"
+              className="inline-flex h-10 items-center gap-2 rounded-full bg-primary px-5 text-sm font-medium text-primary-foreground shadow-lg shadow-primary/25 transition-transform hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary motion-reduce:transform-none"
+            >
+              <CalendarRange className="h-4 w-4" />
+              Monthly report
+            </Link>
+          }
         />
 
         <div className="grid gap-4 lg:grid-cols-5">
