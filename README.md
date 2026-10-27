@@ -285,3 +285,4 @@ gauge (SVG ring, percentage in the middle) and each row now shows its
 - Day 55: category donut — Reports spending shares now use the pure  with the animated  component (shared with the dashboard), showing per-category shares with smooth transitions.
 - Day 55: category donut — Reports spending shares use the pure buildDonutBreakdown with the animated CategoryDonut (shared with dashboard), showing per-category shares with smooth transitions.
 - Day 56: monthly report page — pure, unit-tested `monthly-report.ts` composes one month's income/expense/net, month-over-month change, category shares, a day-by-day trend and budget performance; the new animated `/dashboard/reports/monthly` page steps through months and is linked from Reports.
+- Day 57: add yearly overview — pure, unit-tested 12-month summary in lib/finance/yearly.ts with a new /dashboard/reports/yearly page and navigation from Reports.

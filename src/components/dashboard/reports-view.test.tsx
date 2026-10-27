@@ -113,6 +113,10 @@ describe("ReportsView", () => {
       "href",
       "/dashboard/reports/monthly",
     );
+    expect(screen.getByRole("link", { name: "Yearly overview" })).toHaveAttribute(
+      "href",
+      "/dashboard/reports/yearly",
+    );
   });
 
   it("shows the 3D accent tile even without WebGL", () => {
