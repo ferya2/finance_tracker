@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { CalendarRange } from "lucide-react";
+import { Calendar, CalendarRange } from "lucide-react";
 import Link from "next/link";
 import { useMemo } from "react";
 import { PageHeader } from "@/components/dashboard/page-header";
@@ -133,13 +133,22 @@ export function ReportsView() {
           title="Reports"
           description="Turn your history into clear charts — spending, trends and shares at a glance."
           action={
-            <Link
-              href="/dashboard/reports/monthly"
-              className="inline-flex h-10 items-center gap-2 rounded-full bg-primary px-5 text-sm font-medium text-primary-foreground shadow-lg shadow-primary/25 transition-transform hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary motion-reduce:transform-none"
-            >
-              <CalendarRange className="h-4 w-4" />
-              Monthly report
-            </Link>
+            <div className="flex flex-wrap items-center gap-2">
+              <Link
+                href="/dashboard/reports/monthly"
+                className="inline-flex h-10 items-center gap-2 rounded-full border border-border bg-surface px-4 text-sm font-medium text-text transition-colors hover:bg-surface-subtle"
+              >
+                <CalendarRange className="h-4 w-4" />
+                Monthly report
+              </Link>
+              <Link
+                href="/dashboard/reports/yearly"
+                className="inline-flex h-10 items-center gap-2 rounded-full bg-primary px-5 text-sm font-medium text-primary-foreground shadow-lg shadow-primary/25 transition-transform hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary motion-reduce:transform-none"
+              >
+                <Calendar className="h-4 w-4" />
+                Yearly overview
+              </Link>
+            </div>
           }
         />
 
