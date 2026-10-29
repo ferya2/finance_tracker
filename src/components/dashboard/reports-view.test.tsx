@@ -106,9 +106,13 @@ describe("ReportsView", () => {
     expect(screen.getAllByText("$45.00").length).toBeGreaterThan(0);
   });
 
-  it("links to the composed monthly report", () => {
+  it("links to the composed reports", () => {
     render(<ReportsView />);
 
+    expect(screen.getByRole("link", { name: "Custom range" })).toHaveAttribute(
+      "href",
+      "/dashboard/reports/range",
+    );
     expect(screen.getByRole("link", { name: "Monthly report" })).toHaveAttribute(
       "href",
       "/dashboard/reports/monthly",

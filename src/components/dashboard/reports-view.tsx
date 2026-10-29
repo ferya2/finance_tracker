@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Calendar, CalendarRange } from "lucide-react";
+import { Calendar, CalendarDays, CalendarRange } from "lucide-react";
 import Link from "next/link";
 import { useMemo } from "react";
 import { PageHeader } from "@/components/dashboard/page-header";
@@ -134,6 +134,13 @@ export function ReportsView() {
           description="Turn your history into clear charts — spending, trends and shares at a glance."
           action={
             <div className="flex flex-wrap items-center gap-2">
+              <Link
+                href="/dashboard/reports/range"
+                className="inline-flex h-10 items-center gap-2 rounded-full border border-border bg-surface px-4 text-sm font-medium text-text transition-colors hover:bg-surface-subtle"
+              >
+                <CalendarDays className="h-4 w-4" />
+                Custom range
+              </Link>
               <Link
                 href="/dashboard/reports/monthly"
                 className="inline-flex h-10 items-center gap-2 rounded-full border border-border bg-surface px-4 text-sm font-medium text-text transition-colors hover:bg-surface-subtle"
