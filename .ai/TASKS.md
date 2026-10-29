@@ -137,7 +137,7 @@ whitespace, an interactive drag-to-rotate **3D** hero, and smooth scroll-reveal
 - [x] **Day 55 — Category donut.** Share per category.
 - [x] **Day 56 — Monthly report page.** Composed report view.
 - [x] **Day 57 — Yearly overview.** 12-month summary.
-- [ ] **Day 58 — Report date-range filter.** Custom ranges (logic tested).
+- [x] **Day 58 — Report date-range filter.** Custom ranges (logic tested).
 - [ ] **Day 59 — Chart animations.** Smooth transitions + polish.
 
 ## Week 10 — Advanced features I
