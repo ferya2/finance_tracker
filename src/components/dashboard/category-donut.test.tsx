@@ -114,6 +114,28 @@ describe("CategoryDonut", () => {
     expect(rows.at(-1)).toHaveTextContent("Other$6.0017%");
   });
 
+  it("resizes the arcs when the breakdown changes", () => {
+    const { container, rerender } = render(
+      <CategoryDonut breakdown={buildDonutBreakdown(ROWS)} />,
+    );
+    const before = arcs(container).map((arc) =>
+      arc.getAttribute("stroke-dasharray"),
+    );
+
+    rerender(
+      <CategoryDonut
+        breakdown={buildDonutBreakdown([ROWS[0] as DonutSourceRow])}
+      />,
+    );
+
+    const after = arcs(container).map((arc) =>
+      arc.getAttribute("stroke-dasharray"),
+    );
+    expect(after).not.toEqual(before);
+    expect(after).toHaveLength(1);
+    expect(screen.getAllByText("$1,150.00")).toHaveLength(2);
+  });
+
   it("draws no arcs when there is nothing to chart", () => {
     const { container } = render(
       <CategoryDonut breakdown={buildDonutBreakdown([])} />,

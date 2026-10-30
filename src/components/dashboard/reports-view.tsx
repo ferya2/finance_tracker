@@ -67,8 +67,8 @@ function BalanceTrend() {
             transition={{ duration: 1.1, ease: [0.25, 0.1, 0.25, 1] }}
             vectorEffect="non-scaling-stroke"
           />
-          {points.map((point) => (
-            <circle
+          {points.map((point, index) => (
+            <motion.circle
               key={point.month}
               cx={point.x}
               cy={point.y}
@@ -77,6 +77,14 @@ function BalanceTrend() {
               stroke="var(--color-surface)"
               strokeWidth={1.5}
               className="text-primary"
+              style={{ transformBox: "fill-box", transformOrigin: "center" }}
+              initial={reduced ? false : { opacity: 0, scale: 0 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{
+                duration: 0.3,
+                delay: 0.4 + index * 0.06,
+                ease: [0.25, 0.1, 0.25, 1],
+              }}
             />
           ))}
         </svg>

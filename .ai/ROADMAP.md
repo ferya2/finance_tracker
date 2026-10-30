@@ -27,7 +27,7 @@ Source of truth for **what** to build. The agent picks daily tasks from
 - [ ] Category CRUD UI, budgets UI, alerts
 
 ## Phase 8 — Charts & reports (Week 8)
-- [ ] Trend, income/expense, donut, monthly & yearly reports
+- [x] Trend, income/expense, donut, monthly & yearly reports
 
 ## Phase 9 — Advanced I (Week 9)
 - [ ] Recurring, accounts/transfers, tags, receipts (Storage)
