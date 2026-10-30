@@ -1,6 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useState } from "react";
+import { AnimatedNumber } from "@/components/dashboard/animated-number";
 import { EASE, staggerDelay } from "@/components/dashboard/motion";
 import { usePrefersReducedMotion } from "@/components/use-prefers-reduced-motion";
 import type { DonutBreakdown, DonutSlice } from "@/lib/finance/donut";
@@ -64,6 +66,7 @@ export function CategoryDonut({
 }: CategoryDonutProps) {
   const reduced = usePrefersReducedMotion();
   const arcs = donutArcs(breakdown);
+  const [hoveredKey, setHoveredKey] = useState<string | null>(null);
 
   return (
     <div className="mt-5 flex flex-col items-center gap-6 sm:flex-row sm:gap-8">
@@ -88,31 +91,56 @@ export function CategoryDonut({
             strokeWidth={STROKE_WIDTH}
             className="stroke-surface-subtle"
           />
-          {arcs.map(({ slice, dash, offset }, index) => (
-            <motion.circle
-              key={slice.key}
-              cx={CENTER}
-              cy={CENTER}
-              r={RADIUS}
-              fill="none"
-              stroke={slice.color}
-              strokeWidth={STROKE_WIDTH}
-              strokeLinecap="butt"
-              strokeDasharray={`${toUnits(dash)} ${CIRCUMFERENCE.toFixed(2)}`}
-              initial={reduced ? false : { strokeDashoffset: 0 }}
-              animate={{ strokeDashoffset: toUnits(offset) }}
-              transition={{
-                duration: 0.7,
-                delay: staggerDelay(index, 0.08, 0.1),
-                ease: EASE,
-              }}
-            />
-          ))}
+          {arcs.map(({ slice, dash, offset }, index) => {
+            const active = hoveredKey === slice.key;
+            const dimmed = hoveredKey !== null && !active;
+            const dashArray = `${toUnits(dash)} ${CIRCUMFERENCE.toFixed(2)}`;
+
+            return (
+              <motion.circle
+                key={slice.key}
+                cx={CENTER}
+                cy={CENTER}
+                r={RADIUS}
+                fill="none"
+                stroke={slice.color}
+                strokeWidth={STROKE_WIDTH}
+                strokeLinecap="butt"
+                {...(reduced ? { strokeDasharray: dashArray } : {})}
+                initial={
+                  reduced
+                    ? false
+                    : { strokeDashoffset: 0, strokeDasharray: dashArray }
+                }
+                animate={
+                  reduced
+                    ? { strokeDashoffset: toUnits(offset) }
+                    : {
+                        strokeDashoffset: toUnits(offset),
+                        strokeDasharray: dashArray,
+                        strokeWidth: active ? STROKE_WIDTH + 4 : STROKE_WIDTH,
+                        opacity: dimmed ? 0.45 : 1,
+                      }
+                }
+                transition={{
+                  strokeDashoffset: {
+                    duration: 0.7,
+                    delay: staggerDelay(index, 0.08, 0.1),
+                    ease: EASE,
+                  },
+                  strokeDasharray: { duration: 0.7, ease: EASE },
+                  strokeWidth: { duration: 0.2, ease: EASE },
+                  opacity: { duration: 0.2, ease: EASE },
+                }}
+              />
+            );
+          })}
         </svg>
         <div className="absolute inset-[22%] flex flex-col items-center justify-center rounded-full bg-surface text-center">
-          <span className="text-base font-semibold text-text tabular-nums">
-            {formatCurrency(breakdown.total)}
-          </span>
+          <AnimatedNumber
+            value={breakdown.total}
+            className="text-base font-semibold text-text tabular-nums"
+          />
           <span className="mt-0.5 text-[11px] leading-tight text-text-muted">
             {caption}
           </span>
@@ -126,7 +154,11 @@ export function CategoryDonut({
             initial={reduced ? false : { opacity: 0, x: -8 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.35, delay: staggerDelay(index, 0.05, 0.15), ease: EASE }}
-            className="flex items-center justify-between gap-3 text-sm"
+            onPointerEnter={() => setHoveredKey(slice.key)}
+            onPointerLeave={() => setHoveredKey(null)}
+            className={`flex items-center justify-between gap-3 rounded-lg px-1 py-0.5 text-sm transition-colors motion-reduce:transition-none ${
+              hoveredKey === slice.key ? "bg-surface-subtle" : ""
+            }`}
           >
             <span className="flex min-w-0 items-center gap-2 font-medium text-text">
               <span

@@ -61,6 +61,27 @@ describe("TrendLineChart", () => {
     expect(table).toHaveTextContent("$5,000.00");
   });
 
+  it("redraws the line when the underlying data changes", () => {
+    const { container, rerender } = render(<TrendLineChart points={POINTS} />);
+    const before = container.querySelector("path")?.getAttribute("d");
+
+    rerender(
+      <TrendLineChart
+        points={[
+          { ...POINTS[0], expense: 9000 },
+          POINTS[1],
+          POINTS[2],
+        ]}
+      />,
+    );
+
+    const after = container.querySelector("path")?.getAttribute("d");
+    expect(after).not.toBe(before);
+    expect(screen.getByRole("table", { hidden: true })).toHaveTextContent(
+      "$90.00",
+    );
+  });
+
   it("renders nothing to plot when there are no points", () => {
     const { container } = render(<TrendLineChart points={[]} />);
 

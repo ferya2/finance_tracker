@@ -117,7 +117,7 @@ export function IncomeExpenseChart({
                           staggerDelay(index, 0.06, 0.1) + barIndex * 0.04,
                         ease: EASE,
                       }}
-                      className={`w-2.5 rounded-t-md ${bar.tone} sm:w-3.5`}
+                      className={`w-2.5 rounded-t-md transition-opacity hover:opacity-80 motion-reduce:transition-none ${bar.tone} sm:w-3.5`}
                     />
                   ))}
                 </div>

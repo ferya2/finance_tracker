@@ -78,6 +78,12 @@ export function TrendLineChart({
       : "";
 
   const labels = labelIndexes(points.length);
+  // Remount the plot whenever the underlying values change so the line redraws
+  // itself instead of snapping to the new shape. The parent often remounts the
+  // whole chart, but this also covers live data and measure updates.
+  const signature = `${measure}:${points
+    .map((point) => `${point.key}:${valueOf(point, measure)}`)
+    .join("|")}`;
 
   function handlePointerMove(event: PointerEvent<HTMLDivElement>) {
     if (points.length === 0) return;
@@ -113,6 +119,7 @@ export function TrendLineChart({
 
         {coordinates.length > 0 && (
           <svg
+            key={signature}
             viewBox="0 0 100 100"
             preserveAspectRatio="none"
             aria-hidden
