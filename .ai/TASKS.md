@@ -142,7 +142,7 @@ whitespace, an interactive drag-to-rotate **3D** hero, and smooth scroll-reveal
 
 ## Week 10 — Advanced features I
 
-- [ ] **Day 60 — Recurring transactions (logic).** Model + next-occurrence logic.
+- [x] **Day 60 — Recurring transactions (logic).** Model + next-occurrence logic.
   Tests.
 - [ ] **Day 61 — Recurring UI.** Create/manage recurring entries.
 - [ ] **Day 62 — Accounts/wallets (model+data).** Multiple accounts, per-account
