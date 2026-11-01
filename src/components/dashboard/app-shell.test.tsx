@@ -42,6 +42,7 @@ afterEach(() => {
 const navItems: Array<[string, string]> = [
   ["Dashboard", "/dashboard"],
   ["Transactions", "/dashboard/transactions"],
+  ["Recurring", "/dashboard/recurring"],
   ["Categories", "/dashboard/categories"],
   ["Budgets", "/dashboard/budgets"],
   ["Reports", "/dashboard/reports"],
