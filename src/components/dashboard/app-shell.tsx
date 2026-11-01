@@ -8,6 +8,7 @@ import {
   LogOut,
   Menu,
   PiggyBank,
+  Repeat,
   Settings,
   Sparkles,
   Tags,
@@ -33,6 +34,7 @@ interface NavItem {
 const navItems: NavItem[] = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { label: "Transactions", href: "/dashboard/transactions", icon: ArrowLeftRight },
+  { label: "Recurring", href: "/dashboard/recurring", icon: Repeat },
   { label: "Categories", href: "/dashboard/categories", icon: Tags },
   { label: "Budgets", href: "/dashboard/budgets", icon: PiggyBank },
   { label: "Reports", href: "/dashboard/reports", icon: BarChart3 },

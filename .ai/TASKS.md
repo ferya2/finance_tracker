@@ -144,7 +144,7 @@ whitespace, an interactive drag-to-rotate **3D** hero, and smooth scroll-reveal
 
 - [x] **Day 60 — Recurring transactions (logic).** Model + next-occurrence logic.
   Tests.
-- [ ] **Day 61 — Recurring UI.** Create/manage recurring entries.
+- [x] **Day 61 — Recurring UI.** Create/manage recurring entries.
 - [ ] **Day 62 — Accounts/wallets (model+data).** Multiple accounts, per-account
   balance. Tests + schema note.
 - [ ] **Day 63 — Accounts UI + transfers.** Transfer between accounts.
