@@ -147,7 +147,7 @@ whitespace, an interactive drag-to-rotate **3D** hero, and smooth scroll-reveal
 - [x] **Day 61 — Recurring UI.** Create/manage recurring entries.
 - [x] **Day 62 — Accounts/wallets (model+data).** Multiple accounts, per-account
   balance. Tests + schema note.
-- [ ] **Day 63 — Accounts UI + transfers.** Transfer between accounts.
+- [x] **Day 63 — Accounts UI + transfers.** Transfer between accounts.
 - [ ] **Day 64 — Tags (logic+data).** Tag model + filter logic. Tests.
 - [ ] **Day 65 — Tags UI.** Assign + filter by tag.
 - [ ] **Day 66 — Receipts.** Upload receipt image to Supabase Storage, attach to a
