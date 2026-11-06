@@ -2,16 +2,21 @@ import { describe, expect, it } from "vitest";
 import {
   EMPTY_TAG_FILTER,
   MAX_TAG_NAME_LENGTH,
+  countAssignedTransactions,
   filterByTags,
   isDefaultTagFilter,
   isValidTagName,
   matchesTagFilter,
   normalizeTagName,
+  sanitizeTagAssignments,
   tagNameKey,
+  tagsForTransaction,
   toggleTagFilter,
+  toggleTagId,
   uniqueTagIds,
+  withTransactionTags,
 } from "./tags";
-import type { TagFilter } from "./tags";
+import type { TagAssignment, TagFilter } from "./tags";
 
 const anyOf = (...tagIds: string[]): TagFilter => ({ tagIds, mode: "any" });
 const allOf = (...tagIds: string[]): TagFilter => ({ tagIds, mode: "all" });
@@ -186,5 +191,159 @@ describe("toggleTagFilter", () => {
     const filter = anyOf("tag-1");
     toggleTagFilter(filter, "tag-2");
     expect(filter).toEqual({ tagIds: ["tag-1"], mode: "any" });
+  });
+});
+
+describe("toggleTagId", () => {
+  it("adds a missing tag", () => {
+    expect(toggleTagId(["tag-1"], "tag-2")).toEqual(["tag-1", "tag-2"]);
+  });
+
+  it("removes a tag that is already assigned", () => {
+    expect(toggleTagId(["tag-1", "tag-2"], "tag-1")).toEqual(["tag-2"]);
+  });
+
+  it("normalizes duplicates and blanks", () => {
+    expect(toggleTagId(["tag-1", "tag-1", " "], "tag-2")).toEqual([
+      "tag-1",
+      "tag-2",
+    ]);
+  });
+
+  it("ignores a blank id", () => {
+    expect(toggleTagId(["tag-1"], "   ")).toEqual(["tag-1"]);
+  });
+
+  it("does not mutate the input", () => {
+    const input = ["tag-1"];
+    toggleTagId(input, "tag-2");
+    expect(input).toEqual(["tag-1"]);
+  });
+});
+
+describe("tagsForTransaction", () => {
+  const assignments: TagAssignment[] = [
+    { transactionId: "txn-1", tagIds: ["tag-1", "tag-2"] },
+  ];
+
+  it("returns the assigned ids in order", () => {
+    expect(tagsForTransaction(assignments, "txn-1")).toEqual([
+      "tag-1",
+      "tag-2",
+    ]);
+  });
+
+  it("returns an empty list for an unknown transaction", () => {
+    expect(tagsForTransaction(assignments, "txn-2")).toEqual([]);
+  });
+
+  it("returns an empty list for a blank id", () => {
+    expect(tagsForTransaction(assignments, "  ")).toEqual([]);
+  });
+
+  it("returns a copy that cannot mutate the assignment", () => {
+    const ids = tagsForTransaction(assignments, "txn-1");
+    ids.push("tag-3");
+    expect(assignments[0]?.tagIds).toEqual(["tag-1", "tag-2"]);
+  });
+});
+
+describe("withTransactionTags", () => {
+  const assignments: TagAssignment[] = [
+    { transactionId: "txn-1", tagIds: ["tag-1"] },
+    { transactionId: "txn-2", tagIds: ["tag-2"] },
+  ];
+
+  it("adds an assignment for a new transaction", () => {
+    expect(withTransactionTags(assignments, "txn-3", ["tag-3"])).toEqual([
+      { transactionId: "txn-1", tagIds: ["tag-1"] },
+      { transactionId: "txn-2", tagIds: ["tag-2"] },
+      { transactionId: "txn-3", tagIds: ["tag-3"] },
+    ]);
+  });
+
+  it("replaces an existing transaction's tags in place", () => {
+    expect(withTransactionTags(assignments, "txn-1", ["tag-3"])).toEqual([
+      { transactionId: "txn-1", tagIds: ["tag-3"] },
+      { transactionId: "txn-2", tagIds: ["tag-2"] },
+    ]);
+  });
+
+  it("removes the assignment when the selection is empty", () => {
+    expect(withTransactionTags(assignments, "txn-1", [])).toEqual([
+      { transactionId: "txn-2", tagIds: ["tag-2"] },
+    ]);
+  });
+
+  it("normalizes the new selection", () => {
+    expect(withTransactionTags(assignments, "txn-1", ["tag-2", " ", "tag-2"]))
+      .toEqual([
+        { transactionId: "txn-1", tagIds: ["tag-2"] },
+        { transactionId: "txn-2", tagIds: ["tag-2"] },
+      ]);
+  });
+
+  it("does not mutate the input assignments", () => {
+    withTransactionTags(assignments, "txn-1", ["tag-9"]);
+    expect(assignments).toEqual([
+      { transactionId: "txn-1", tagIds: ["tag-1"] },
+      { transactionId: "txn-2", tagIds: ["tag-2"] },
+    ]);
+  });
+});
+
+describe("countAssignedTransactions", () => {
+  const assignments: TagAssignment[] = [
+    { transactionId: "txn-1", tagIds: ["tag-1", "tag-2"] },
+    { transactionId: "txn-2", tagIds: ["tag-1"] },
+  ];
+
+  it("counts the transactions carrying a tag", () => {
+    expect(countAssignedTransactions(assignments, "tag-1")).toBe(2);
+    expect(countAssignedTransactions(assignments, "tag-2")).toBe(1);
+  });
+
+  it("returns zero for an unused or blank tag", () => {
+    expect(countAssignedTransactions(assignments, "tag-9")).toBe(0);
+    expect(countAssignedTransactions(assignments, "  ")).toBe(0);
+  });
+});
+
+describe("sanitizeTagAssignments", () => {
+  it("keeps valid assignments and normalizes ids", () => {
+    expect(
+      sanitizeTagAssignments([
+        { transactionId: " txn-1 ", tagIds: ["tag-1", "tag-1", " "] },
+        { transactionId: "txn-2", tagIds: ["tag-2"] },
+      ]),
+    ).toEqual([
+      { transactionId: "txn-1", tagIds: ["tag-1"] },
+      { transactionId: "txn-2", tagIds: ["tag-2"] },
+    ]);
+  });
+
+  it("merges repeated entries for the same transaction", () => {
+    expect(
+      sanitizeTagAssignments([
+        { transactionId: "txn-1", tagIds: ["tag-1"] },
+        { transactionId: "txn-1", tagIds: ["tag-2", "tag-1"] },
+      ]),
+    ).toEqual([{ transactionId: "txn-1", tagIds: ["tag-1", "tag-2"] }]);
+  });
+
+  it("drops entries without a transaction id or tags", () => {
+    expect(
+      sanitizeTagAssignments([
+        { transactionId: "  ", tagIds: ["tag-1"] },
+        { transactionId: "txn-1", tagIds: [] },
+        { transactionId: "txn-2", tagIds: [1, null] },
+      ]),
+    ).toEqual([]);
+  });
+
+  it("returns no assignments for a non-array value", () => {
+    expect(sanitizeTagAssignments(null)).toEqual([]);
+    expect(sanitizeTagAssignments({})).toEqual([]);
+    expect(sanitizeTagAssignments("nope")).toEqual([]);
   });
 });

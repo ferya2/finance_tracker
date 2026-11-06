@@ -15,17 +15,22 @@ import {
   RefreshCw,
   Search,
   Tag,
+  Tags,
   Trash2,
   X,
 } from "lucide-react";
+import { useSession } from "@/components/auth/session-provider";
 import { ConfirmDialog } from "@/components/dashboard/confirm-dialog";
 import { EASE, WIDGET_CARD_CLASS } from "@/components/dashboard/motion";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { PageShell } from "@/components/dashboard/page-shell";
 import { SegmentedControl } from "@/components/dashboard/segmented-control";
 import { Snackbar } from "@/components/dashboard/snackbar";
+import { TagAssignModal } from "@/components/dashboard/tag-assign-modal";
 import { TransactionFormModal } from "@/components/dashboard/transaction-form-modal";
 import { usePrefersReducedMotion } from "@/components/use-prefers-reduced-motion";
+import { useTagAssignments } from "@/components/use-tag-assignments";
+import { useTags } from "@/components/use-tags";
 import { useUserData } from "@/components/use-user-data";
 import { formatCurrency } from "@/lib/finance/format";
 import { isoDate } from "@/lib/finance/period";
@@ -54,9 +59,19 @@ import {
 import { searchTransactions } from "@/lib/finance/transaction-search";
 import { clampPage, countPages, paginate } from "@/lib/finance/pagination";
 import {
+  EMPTY_TAG_FILTER,
+  filterByTags,
+  isDefaultTagFilter,
+  toggleTagFilter,
+  withTransactionTags,
+  type TagFilter,
+} from "@/lib/finance/tags";
+import { saveTagAssignments } from "@/lib/storage/tags";
+import {
   createTransaction,
   deleteTransaction,
 } from "@/lib/supabase/transactions";
+import type { Tag as TagModel } from "@/types/tag";
 import type { Transaction } from "@/types/transaction";
 
 /** What the snackbar at the foot of the page is currently saying. */
@@ -155,17 +170,86 @@ function TransactionsError({
   );
 }
 
+function TagFilterBar({
+  tags,
+  filter,
+  onChange,
+}: {
+  tags: readonly TagModel[];
+  filter: TagFilter;
+  onChange: (filter: TagFilter) => void;
+}) {
+  const reduced = usePrefersReducedMotion();
+
+  if (tags.length === 0) return null;
+
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      <span className="text-xs font-medium text-text-muted">Tags</span>
+      {tags.map((tag) => {
+        const active = filter.tagIds.includes(tag.id);
+        return (
+          <motion.button
+            key={tag.id}
+            type="button"
+            onClick={() => onChange(toggleTagFilter(filter, tag.id))}
+            aria-pressed={active}
+            whileHover={reduced ? undefined : { scale: 1.04 }}
+            whileTap={reduced ? undefined : { scale: 0.96 }}
+            transition={{ type: "spring", stiffness: 400, damping: 24 }}
+            style={{
+              backgroundColor: active ? `${tag.color}22` : undefined,
+              borderColor: active ? tag.color : undefined,
+              color: active ? tag.color : undefined,
+            }}
+            className={`inline-flex h-8 items-center gap-1.5 rounded-full border px-3 text-xs font-medium transition-colors ${
+              active
+                ? ""
+                : "border-border bg-surface text-text-secondary hover:bg-surface-subtle hover:text-text"
+            }`}
+          >
+            <span
+              aria-hidden
+              className="h-2 w-2 rounded-full"
+              style={{ backgroundColor: tag.color }}
+            />
+            {tag.name}
+          </motion.button>
+        );
+      })}
+      {filter.tagIds.length > 1 && (
+        <SegmentedControl
+          name="transactions-tag-match"
+          ariaLabel="Match any or all tags"
+          options={[
+            { value: "any", label: "Any" },
+            { value: "all", label: "All" },
+          ]}
+          value={filter.mode}
+          onChange={(mode) => onChange({ ...filter, mode })}
+        />
+      )}
+    </div>
+  );
+}
+
 export function TransactionsView() {
   const { status, data, error, reload } = useUserData();
+  const { user } = useSession();
+  const userId = user?.id ?? null;
+  const { tags } = useTags();
+  const assignments = useTagAssignments(userId);
   const reduced = usePrefersReducedMotion();
   const [typeFilter, setTypeFilter] = useState<TypeFilter>("all");
   const [categoryId, setCategoryId] = useState(ALL_CATEGORIES);
   const [monthFilter, setMonthFilter] = useState<MonthFilter>(ALL_MONTHS);
+  const [tagFilter, setTagFilter] = useState<TagFilter>(EMPTY_TAG_FILTER);
   const [query, setQuery] = useState("");
   /** The 1-based page of filtered rows currently on screen. */
   const [page, setPage] = useState(1);
   const [adding, setAdding] = useState(false);
   const [editing, setEditing] = useState<Transaction | null>(null);
+  const [tagging, setTagging] = useState<Transaction | null>(null);
   /** The transaction waiting to be confirmed, then deleted. */
   const [deleting, setDeleting] = useState<Transaction | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
@@ -198,22 +282,44 @@ export function TransactionsView() {
       : list.rows.filter((row) => !removed.has(row.id));
   }, [list, removedIds]);
 
+  const tagById = useMemo(
+    () => new Map(tags.map((tag) => [tag.id, tag])),
+    [tags],
+  );
+
+  const tagIdsByTransaction = useMemo(
+    () =>
+      new Map(
+        assignments.map((assignment) => [
+          assignment.transactionId,
+          assignment.tagIds,
+        ]),
+      ),
+    [assignments],
+  );
+
   const total = rows.length;
 
   /** The distinct months the user has transactions in, newest first. */
   const months = useMemo(() => monthOptions(rows), [rows]);
 
-  const visible = useMemo(
-    () =>
-      searchTransactions(
-        filterByMonth(
-          filterTransactions(rows, { type: typeFilter, categoryId }),
-          monthFilter,
-        ),
-        query,
+  const visible = useMemo(() => {
+    const filtered = searchTransactions(
+      filterByMonth(
+        filterTransactions(rows, { type: typeFilter, categoryId }),
+        monthFilter,
       ),
-    [rows, typeFilter, categoryId, monthFilter, query],
-  );
+      query,
+    );
+
+    return filterByTags(
+      filtered.map((row) => ({
+        ...row,
+        tagIds: tagIdsByTransaction.get(row.id) ?? [],
+      })),
+      tagFilter,
+    );
+  }, [rows, typeFilter, categoryId, monthFilter, query, tagFilter, tagIdsByTransaction]);
 
   /** The page of filtered rows on screen, clamped in case the list shrank. */
   const lastPage = countPages(visible.length, PAGE_SIZE);
@@ -228,8 +334,9 @@ export function TransactionsView() {
     () =>
       !isDefaultFilter({ type: typeFilter, categoryId }) ||
       monthFilter !== ALL_MONTHS ||
+      !isDefaultTagFilter(tagFilter) ||
       query.trim() !== "",
-    [typeFilter, categoryId, monthFilter, query],
+    [typeFilter, categoryId, monthFilter, tagFilter, query],
   );
 
   const categories = data?.categories ?? [];
@@ -238,6 +345,7 @@ export function TransactionsView() {
     setTypeFilter("all");
     setCategoryId(ALL_CATEGORIES);
     setMonthFilter(ALL_MONTHS);
+    setTagFilter(EMPTY_TAG_FILTER);
     setQuery("");
     setPage(1);
   }
@@ -366,6 +474,14 @@ export function TransactionsView() {
               </select>
               <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-text-muted" />
             </div>
+            <TagFilterBar
+              tags={tags}
+              filter={tagFilter}
+              onChange={(next) => {
+                setTagFilter(next);
+                setPage(1);
+              }}
+            />
             <div className="relative min-w-0 flex-1 sm:max-w-xs">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted" />
               <input
@@ -444,6 +560,10 @@ export function TransactionsView() {
               <AnimatePresence initial={false} mode="popLayout">
                 {paged.map((row, index) => {
                   const income = row.type === "income";
+                  const rowTags = row.tagIds.flatMap((tagId) => {
+                    const tag = tagById.get(tagId);
+                    return tag ? [tag] : [];
+                  });
                   return (
                     <motion.li
                       key={row.id}
@@ -478,6 +598,22 @@ export function TransactionsView() {
                         <p className="truncate text-xs text-text-muted">
                           {row.categoryName} · {row.dateLabel}
                         </p>
+                        {rowTags.length > 0 && (
+                          <span className="mt-1 flex flex-wrap gap-1">
+                            {rowTags.map((tag) => (
+                              <span
+                                key={tag.id}
+                                style={{
+                                  backgroundColor: `${tag.color}18`,
+                                  color: tag.color,
+                                }}
+                                className="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium"
+                              >
+                                {tag.name}
+                              </span>
+                            ))}
+                          </span>
+                        )}
                       </div>
                       <p
                         className={`shrink-0 text-sm font-semibold tabular-nums ${
@@ -487,6 +623,22 @@ export function TransactionsView() {
                         {income ? "+" : "−"}
                         {formatCurrency(row.amount)}
                       </p>
+                      <motion.button
+                        type="button"
+                        onClick={() => {
+                          const target = byId.get(row.id);
+                          if (target) setTagging(target);
+                        }}
+                        disabled={!byId.has(row.id)}
+                        aria-label={`Edit tags for ${row.note}`}
+                        title="Edit tags"
+                        whileHover={reduced ? undefined : { scale: 1.08 }}
+                        whileTap={reduced ? undefined : { scale: 0.94 }}
+                        transition={{ type: "spring", stiffness: 400, damping: 22 }}
+                        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-text-muted transition-colors hover:bg-surface-subtle hover:text-text focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-40"
+                      >
+                        <Tags className="h-4 w-4" />
+                      </motion.button>
                       <motion.button
                         type="button"
                         onClick={() => {
@@ -622,6 +774,33 @@ export function TransactionsView() {
             onSaved={() => {
               setEditing(null);
               reload();
+            }}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {tagging !== null && (
+          <TagAssignModal
+            key={tagging.id}
+            transaction={tagging}
+            tags={tags}
+            assignedTagIds={tagIdsByTransaction.get(tagging.id) ?? []}
+            onClose={() => setTagging(null)}
+            onSave={(tagIds) => {
+              const target = tagging;
+              saveTagAssignments(
+                userId,
+                withTransactionTags(assignments, target.id, tagIds),
+              );
+              setTagging(null);
+              setNotice({
+                message:
+                  tagIds.length > 0
+                    ? `Tags updated for "${target.note?.trim() || "transaction"}".`
+                    : "Tags cleared.",
+                tone: "neutral",
+              });
             }}
           />
         )}

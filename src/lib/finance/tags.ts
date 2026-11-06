@@ -24,6 +24,12 @@ export const EMPTY_TAG_FILTER: TagFilter = { tagIds: [], mode: "any" };
 /** Longest tag name allowed, in characters. */
 export const MAX_TAG_NAME_LENGTH = 32;
 
+/** The tag ids attached to one transaction, keyed by its id. */
+export interface TagAssignment {
+  transactionId: string;
+  tagIds: string[];
+}
+
 /**
  * The name as it is stored and compared: surrounding whitespace trimmed and
  * runs of inner whitespace collapsed to a single space.
@@ -108,4 +114,125 @@ export function toggleTagFilter(filter: TagFilter, tagId: string): TagFilter {
     : [...filter.tagIds, id];
 
   return { ...filter, tagIds };
+}
+
+/**
+ * Toggle one tag in a transaction's assignment: add it when missing, remove it
+ * when present. The result is normalized and never shares the input array.
+ */
+export function toggleTagId(
+  tagIds: readonly string[],
+  tagId: string,
+): string[] {
+  const id = tagId.trim();
+  const current = uniqueTagIds(tagIds);
+  if (!id) return current;
+
+  return current.includes(id)
+    ? current.filter((existing) => existing !== id)
+    : [...current, id];
+}
+
+/** The tag ids assigned to one transaction, in their stored order. */
+export function tagsForTransaction(
+  assignments: readonly TagAssignment[],
+  transactionId: string,
+): string[] {
+  const id = transactionId.trim();
+  if (!id) return [];
+
+  const match = assignments.find(
+    (assignment) => assignment.transactionId === id,
+  );
+  return match ? [...match.tagIds] : [];
+}
+
+/**
+ * Replace one transaction's tag ids. An empty selection removes its assignment
+ * entirely. Other assignments keep their order, and the input is not mutated.
+ */
+export function withTransactionTags(
+  assignments: readonly TagAssignment[],
+  transactionId: string,
+  tagIds: readonly string[],
+): TagAssignment[] {
+  const id = transactionId.trim();
+  if (!id) {
+    return assignments.map((assignment) => ({
+      transactionId: assignment.transactionId,
+      tagIds: [...assignment.tagIds],
+    }));
+  }
+
+  const nextTagIds = uniqueTagIds(tagIds);
+  const next: TagAssignment[] = [];
+  let replaced = false;
+
+  for (const assignment of assignments) {
+    if (assignment.transactionId === id) {
+      replaced = true;
+      if (nextTagIds.length > 0) {
+        next.push({ transactionId: id, tagIds: nextTagIds });
+      }
+    } else {
+      next.push({
+        transactionId: assignment.transactionId,
+        tagIds: [...assignment.tagIds],
+      });
+    }
+  }
+
+  if (!replaced && nextTagIds.length > 0) {
+    next.push({ transactionId: id, tagIds: nextTagIds });
+  }
+
+  return next;
+}
+
+/** How many transactions currently carry one tag. */
+export function countAssignedTransactions(
+  assignments: readonly TagAssignment[],
+  tagId: string,
+): number {
+  const id = tagId.trim();
+  if (!id) return 0;
+
+  return assignments.filter((assignment) => assignment.tagIds.includes(id))
+    .length;
+}
+
+/**
+ * Turn untrusted stored data into clean assignments: drop blank transaction ids
+ * and tag ids, de-duplicate both, merge repeated transaction entries and drop
+ * rows left with no tags. Anything that is not an array becomes no assignments.
+ */
+export function sanitizeTagAssignments(value: unknown): TagAssignment[] {
+  if (!Array.isArray(value)) return [];
+
+  const merged = new Map<string, string[]>();
+
+  for (const entry of value) {
+    if (entry === null || typeof entry !== "object") continue;
+
+    const record = entry as Record<string, unknown>;
+    const transactionId =
+      typeof record.transactionId === "string"
+        ? record.transactionId.trim()
+        : "";
+    if (!transactionId) continue;
+
+    const rawTagIds = Array.isArray(record.tagIds)
+      ? record.tagIds.filter((id): id is string => typeof id === "string")
+      : [];
+    const tagIds = uniqueTagIds(rawTagIds);
+    if (tagIds.length === 0) continue;
+
+    const existing = merged.get(transactionId) ?? [];
+    merged.set(transactionId, uniqueTagIds([...existing, ...tagIds]));
+  }
+
+  return Array.from(merged, ([transactionId, tagIds]) => ({
+    transactionId,
+    tagIds,
+  }));
 }
