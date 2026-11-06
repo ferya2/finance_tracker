@@ -149,7 +149,7 @@ whitespace, an interactive drag-to-rotate **3D** hero, and smooth scroll-reveal
   balance. Tests + schema note.
 - [x] **Day 63 — Accounts UI + transfers.** Transfer between accounts.
 - [x] **Day 64 — Tags (logic+data).** Tag model + filter logic. Tests.
-- [ ] **Day 65 — Tags UI.** Assign + filter by tag.
+- [x] **Day 65 — Tags UI.** Assign + filter by tag.
 - [ ] **Day 66 — Receipts.** Upload receipt image to Supabase Storage, attach to a
   transaction.
 

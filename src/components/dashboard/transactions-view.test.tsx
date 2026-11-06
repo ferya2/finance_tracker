@@ -13,20 +13,29 @@ import { ALL_CATEGORIES } from "@/lib/finance/transaction-filter";
 import { ALL_MONTHS } from "@/lib/finance/transaction-month";
 import { formatMonthLabel } from "@/lib/finance/period";
 import type { UserData } from "@/lib/supabase/dashboard";
+import { tagAssignmentStorageKey } from "@/lib/storage/tags";
 
 const {
   mockUseUserData,
+  mockUseSession,
+  mockUseTags,
   mockCreateTransaction,
   mockUpdateTransaction,
   mockDeleteTransaction,
 } = vi.hoisted(() => ({
   mockUseUserData: vi.fn(),
+  mockUseSession: vi.fn(),
+  mockUseTags: vi.fn(),
   mockCreateTransaction: vi.fn(),
   mockUpdateTransaction: vi.fn(),
   mockDeleteTransaction: vi.fn(),
 }));
 
 vi.mock("@/components/use-user-data", () => ({ useUserData: mockUseUserData }));
+vi.mock("@/components/auth/session-provider", () => ({
+  useSession: mockUseSession,
+}));
+vi.mock("@/components/use-tags", () => ({ useTags: mockUseTags }));
 vi.mock("@/lib/supabase/transactions", () => ({
   createTransaction: mockCreateTransaction,
   updateTransaction: mockUpdateTransaction,
@@ -134,8 +143,22 @@ function monthLabel(monthOffset: number): string {
 
 beforeEach(() => {
   stubMatchMedia(true);
+  window.localStorage.clear();
   mockUseUserData.mockReset();
   mockUseUserData.mockReturnValue(readyState(DATA));
+  mockUseSession.mockReset();
+  mockUseSession.mockReturnValue({
+    status: "authenticated",
+    user: { id: "user-1", email: "ada@example.com" },
+    signOut: vi.fn(),
+  });
+  mockUseTags.mockReset();
+  mockUseTags.mockReturnValue({
+    status: "ready",
+    tags: [],
+    error: null,
+    reload: vi.fn(),
+  });
   mockCreateTransaction.mockReset();
   mockCreateTransaction.mockResolvedValue({ data: null, error: null });
   mockUpdateTransaction.mockReset();
@@ -853,5 +876,70 @@ describe("TransactionsView", () => {
     expect(screen.getByText("1 of 12 shown")).toBeInTheDocument();
     expect(screen.queryByText("Page 2 of 2")).not.toBeInTheDocument();
     expect(screen.getByText("Page item 11")).toBeInTheDocument();
+  });
+
+  it("filters by tag and can require every selected tag", async () => {
+    const user = userEvent.setup();
+    mockUseTags.mockReturnValue({
+      status: "ready",
+      tags: [
+        { id: "tag-work", name: "Work", color: "#2563eb" },
+        { id: "tag-fun", name: "Fun", color: "#db2777" },
+      ],
+      error: null,
+      reload: vi.fn(),
+    });
+    window.localStorage.setItem(
+      tagAssignmentStorageKey("user-1"),
+      JSON.stringify([
+        { transactionId: "txn-1", tagIds: ["tag-work"] },
+        { transactionId: "txn-2", tagIds: ["tag-work", "tag-fun"] },
+        { transactionId: "txn-3", tagIds: ["tag-fun"] },
+      ]),
+    );
+
+    render(<TransactionsView />);
+
+    await user.click(screen.getByRole("button", { name: "Work" }));
+    expect(screen.getByText("2 of 4 shown")).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Fun" }));
+    expect(screen.getByText("3 of 4 shown")).toBeInTheDocument();
+
+    await user.click(
+      within(
+        screen.getByRole("group", { name: "Match any or all tags" }),
+      ).getByRole("button", { name: "All" }),
+    );
+    expect(screen.getByText("1 of 4 shown")).toBeInTheDocument();
+    expect(screen.getByText("Design project")).toBeInTheDocument();
+  });
+
+  it("assigns tags to a transaction and shows them on its row", async () => {
+    const user = userEvent.setup();
+    mockUseTags.mockReturnValue({
+      status: "ready",
+      tags: [{ id: "tag-work", name: "Work", color: "#2563eb" }],
+      error: null,
+      reload: vi.fn(),
+    });
+
+    render(<TransactionsView />);
+
+    await user.click(
+      screen.getByRole("button", { name: "Edit tags for Rent" }),
+    );
+    const dialog = screen.getByRole("dialog", { name: "Tags" });
+    expect(dialog).toBeInTheDocument();
+
+    await user.click(within(dialog).getByRole("button", { name: "Work" }));
+    await user.click(screen.getByRole("button", { name: "Save tags" }));
+
+    await waitFor(() =>
+      expect(
+        window.localStorage.getItem(tagAssignmentStorageKey("user-1")),
+      ).toBe(JSON.stringify([{ transactionId: "txn-3", tagIds: ["tag-work"] }])),
+    );
+    expect(screen.getAllByText("Work")).toHaveLength(2);
   });
 });
