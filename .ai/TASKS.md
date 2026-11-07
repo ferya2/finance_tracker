@@ -155,7 +155,7 @@ whitespace, an interactive drag-to-rotate **3D** hero, and smooth scroll-reveal
 
 ## Week 11 — Advanced features II
 
-- [ ] **Day 67 — Savings goals (logic).** Goal model + progress logic. Tests.
+- [x] **Day 67 — Savings goals (logic).** Goal model + progress logic. Tests.
 - [ ] **Day 68 — Savings goals UI.** Animated progress.
 - [ ] **Day 69 — Multi-currency (logic).** Currency + conversion display. Tests.
 - [ ] **Day 70 — Currency settings.** Choose currency, format everywhere.
