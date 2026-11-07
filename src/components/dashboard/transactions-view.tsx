@@ -10,6 +10,7 @@ import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
+  Paperclip,
   Pencil,
   Plus,
   RefreshCw,
@@ -24,6 +25,7 @@ import { ConfirmDialog } from "@/components/dashboard/confirm-dialog";
 import { EASE, WIDGET_CARD_CLASS } from "@/components/dashboard/motion";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { PageShell } from "@/components/dashboard/page-shell";
+import { ReceiptModal } from "@/components/dashboard/receipt-modal";
 import { SegmentedControl } from "@/components/dashboard/segmented-control";
 import { Snackbar } from "@/components/dashboard/snackbar";
 import { TagAssignModal } from "@/components/dashboard/tag-assign-modal";
@@ -250,6 +252,7 @@ export function TransactionsView() {
   const [adding, setAdding] = useState(false);
   const [editing, setEditing] = useState<Transaction | null>(null);
   const [tagging, setTagging] = useState<Transaction | null>(null);
+  const [receipting, setReceipting] = useState<Transaction | null>(null);
   /** The transaction waiting to be confirmed, then deleted. */
   const [deleting, setDeleting] = useState<Transaction | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
@@ -627,6 +630,22 @@ export function TransactionsView() {
                         type="button"
                         onClick={() => {
                           const target = byId.get(row.id);
+                          if (target) setReceipting(target);
+                        }}
+                        disabled={!byId.has(row.id) || !userId}
+                        aria-label={`Receipt for ${row.note}`}
+                        title="Receipts"
+                        whileHover={reduced ? undefined : { scale: 1.08 }}
+                        whileTap={reduced ? undefined : { scale: 0.94 }}
+                        transition={{ type: "spring", stiffness: 400, damping: 22 }}
+                        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-text-muted transition-colors hover:bg-surface-subtle hover:text-text focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-40"
+                      >
+                        <Paperclip className="h-4 w-4" />
+                      </motion.button>
+                      <motion.button
+                        type="button"
+                        onClick={() => {
+                          const target = byId.get(row.id);
                           if (target) setTagging(target);
                         }}
                         disabled={!byId.has(row.id)}
@@ -801,6 +820,20 @@ export function TransactionsView() {
                     : "Tags cleared.",
                 tone: "neutral",
               });
+            }}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {receipting !== null && userId && (
+          <ReceiptModal
+            key={receipting.id}
+            transaction={receipting}
+            userId={userId}
+            onClose={() => setReceipting(null)}
+            onChanged={(message, tone = "neutral") => {
+              setNotice({ message, tone });
             }}
           />
         )}

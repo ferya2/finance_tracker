@@ -30,7 +30,7 @@ Source of truth for **what** to build. The agent picks daily tasks from
 - [x] Trend, income/expense, donut, monthly & yearly reports
 
 ## Phase 9 — Advanced I (Week 9)
-- [ ] Recurring, accounts/transfers, tags, receipts (Storage)
+- [x] Recurring, accounts/transfers, tags, receipts (Storage)
 
 ## Phase 10 — Advanced II (Week 10)
 - [ ] Savings goals, multi-currency, export CSV/PDF, import CSV
