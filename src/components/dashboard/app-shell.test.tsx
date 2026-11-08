@@ -47,6 +47,7 @@ const navItems: Array<[string, string]> = [
   ["Categories", "/dashboard/categories"],
   ["Tags", "/dashboard/tags"],
   ["Budgets", "/dashboard/budgets"],
+  ["Goals", "/dashboard/goals"],
   ["Reports", "/dashboard/reports"],
   ["Insights", "/dashboard/insights"],
   ["Settings", "/dashboard/settings"],
