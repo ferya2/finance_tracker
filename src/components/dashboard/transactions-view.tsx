@@ -34,7 +34,7 @@ import { usePrefersReducedMotion } from "@/components/use-prefers-reduced-motion
 import { useTagAssignments } from "@/components/use-tag-assignments";
 import { useTags } from "@/components/use-tags";
 import { useUserData } from "@/components/use-user-data";
-import { formatCurrency } from "@/lib/finance/format";
+import { useCurrency } from "@/components/currency-provider";
 import { isoDate } from "@/lib/finance/period";
 import {
   ALL_CATEGORIES,
@@ -237,6 +237,7 @@ function TagFilterBar({
 
 export function TransactionsView() {
   const { status, data, error, reload } = useUserData();
+  const { currency, format } = useCurrency();
   const { user } = useSession();
   const userId = user?.id ?? null;
   const { tags } = useTags();
@@ -373,7 +374,7 @@ export function TransactionsView() {
     setDeleting(null);
     setRemovedIds((ids) => [...ids, target.id]);
     setNotice({
-      message: describeDeletedTransaction(snapshot),
+      message: describeDeletedTransaction(snapshot, currency),
       tone: "neutral",
       undo: { snapshot, restoring: false },
     });
@@ -624,7 +625,7 @@ export function TransactionsView() {
                         }`}
                       >
                         {income ? "+" : "−"}
-                        {formatCurrency(row.amount)}
+                        {format(row.amount)}
                       </p>
                       <motion.button
                         type="button"
@@ -843,7 +844,7 @@ export function TransactionsView() {
         {deleting !== null && (
           <ConfirmDialog
             title="Delete this transaction?"
-            description={`This removes ${describeTransaction(toRestorableTransaction(deleting))} from your history. You can undo it from the message that follows.`}
+            description={`This removes ${describeTransaction(toRestorableTransaction(deleting), currency)} from your history. You can undo it from the message that follows.`}
             confirmLabel="Delete"
             cancelLabel="Keep it"
             tone="danger"

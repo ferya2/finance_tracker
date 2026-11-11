@@ -8,7 +8,7 @@ import {
   WIDGET_CARD_CLASS,
 } from "@/components/dashboard/motion";
 import { usePrefersReducedMotion } from "@/components/use-prefers-reduced-motion";
-import { formatCurrency } from "@/lib/finance/format";
+import { useCurrency } from "@/components/currency-provider";
 import {
   buildIncomeExpenseSeries,
   INCOME_EXPENSE_MONTHS,
@@ -49,6 +49,7 @@ export function IncomeExpenseChart({
   loading = false,
 }: IncomeExpenseChartProps) {
   const reduced = usePrefersReducedMotion();
+  const { format } = useCurrency();
   const today = useMemo(() => isoDate(new Date()), []);
   const series = useMemo(
     () => buildIncomeExpenseSeries(transactions, { end: today }),
@@ -102,8 +103,8 @@ export function IncomeExpenseChart({
                     <motion.div
                       key={bar.name}
                       role="img"
-                      aria-label={`${bar.name} in ${point.label}: ${formatCurrency(bar.value)}`}
-                      title={`${bar.name}: ${formatCurrency(bar.value)}`}
+                      aria-label={`${bar.name} in ${point.label}: ${format(bar.value)}`}
+                      title={`${bar.name}: ${format(bar.value)}`}
                       initial={reduced ? false : { height: 0 }}
                       animate={{
                         height:
@@ -153,9 +154,9 @@ export function IncomeExpenseChart({
               {series.points.map((point) => (
                 <tr key={point.key}>
                   <th scope="row">{point.label}</th>
-                  <td>{formatCurrency(point.income)}</td>
-                  <td>{formatCurrency(point.expense)}</td>
-                  <td>{formatCurrency(point.balance)}</td>
+                  <td>{format(point.income)}</td>
+                  <td>{format(point.expense)}</td>
+                  <td>{format(point.balance)}</td>
                 </tr>
               ))}
             </tbody>

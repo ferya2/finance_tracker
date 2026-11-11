@@ -26,7 +26,7 @@ import { TrendLineChart } from "@/components/dashboard/trend-line-chart";
 import { usePrefersReducedMotion } from "@/components/use-prefers-reduced-motion";
 import { useUserData } from "@/components/use-user-data";
 import { buildDonutBreakdown } from "@/lib/finance/donut";
-import { formatCurrency } from "@/lib/finance/format";
+import { useCurrency } from "@/components/currency-provider";
 import {
   buildMonthlyReport,
   type MonthlyReport,
@@ -228,6 +228,7 @@ function MonthNavigator({
 export function MonthlyReportView() {
   const { status, data, error, reload } = useUserData();
   const reduced = usePrefersReducedMotion();
+  const { format } = useCurrency();
   const current = useMemo(() => currentPeriod(new Date()), []);
   const [period, setPeriod] = useState<YearMonth>(current);
 
@@ -338,18 +339,18 @@ export function MonthlyReportView() {
                       <div className="mt-5 grid gap-4 border-t border-border pt-5 sm:grid-cols-2 lg:grid-cols-4">
                         <Stat
                           label="Spent"
-                          value={formatCurrency(report.summary.expense)}
+                          value={format(report.summary.expense)}
                         />
                         <Stat
                           label="Average per day"
-                          value={formatCurrency(report.dailyAverageExpense)}
+                          value={format(report.dailyAverageExpense)}
                         />
                         <Stat
                           label="Biggest day"
                           value={
                             peak === null
                               ? "—"
-                              : `${formatCurrency(peak.expense)} · ${peak.label}`
+                              : `${format(peak.expense)} · ${peak.label}`
                           }
                         />
                         <Stat

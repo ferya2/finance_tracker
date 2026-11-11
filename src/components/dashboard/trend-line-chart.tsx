@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { useId, useState, type PointerEvent } from "react";
 import { EASE, staggerDelay } from "@/components/dashboard/motion";
 import { usePrefersReducedMotion } from "@/components/use-prefers-reduced-motion";
-import { formatCurrency } from "@/lib/finance/format";
+import { useCurrency } from "@/components/currency-provider";
 import type { TrendPoint } from "@/lib/finance/trend";
 
 /** Which measure of a trend the line shows. */
@@ -54,6 +54,7 @@ export function TrendLineChart({
   className = "",
 }: TrendLineChartProps) {
   const reduced = usePrefersReducedMotion();
+  const { format } = useCurrency();
   const gradientId = useId();
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
 
@@ -211,7 +212,7 @@ export function TrendLineChart({
                 {points[active.index].label}
               </span>
               <span className="block text-text-secondary tabular-nums">
-                {formatCurrency(valueOf(points[active.index], measure))}
+                {format(valueOf(points[active.index], measure))}
               </span>
             </span>
           </>
@@ -245,7 +246,7 @@ export function TrendLineChart({
           {points.map((point) => (
             <tr key={point.key}>
               <th scope="row">{point.label}</th>
-              <td>{formatCurrency(valueOf(point, measure))}</td>
+              <td>{format(valueOf(point, measure))}</td>
             </tr>
           ))}
         </tbody>

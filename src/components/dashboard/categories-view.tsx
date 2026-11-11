@@ -29,7 +29,7 @@ import {
   buildCategorySummaries,
   type CategorySummaryRow,
 } from "@/lib/finance/category-summary";
-import { formatCurrency } from "@/lib/finance/format";
+import { useCurrency } from "@/components/currency-provider";
 import { currentPeriod, formatMonthLabel } from "@/lib/finance/period";
 import { deleteCategory } from "@/lib/supabase/categories";
 import { reassignTransactions } from "@/lib/supabase/transactions";
@@ -130,6 +130,7 @@ function CategoryCard({
   onDelete: (category: Category) => void;
 }) {
   const reduced = usePrefersReducedMotion();
+  const { format } = useCurrency();
   const income = category.kind === "income";
 
   return (
@@ -193,7 +194,7 @@ function CategoryCard({
       </div>
       <h3 className="mt-4 text-sm font-semibold text-text">{category.name}</h3>
       <p className="mt-1 text-sm text-text-secondary tabular-nums">
-        {formatCurrency(category.total)}{" "}
+        {format(category.total)}{" "}
         <span className="text-xs text-text-muted">this month</span>
       </p>
     </motion.div>

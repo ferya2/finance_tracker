@@ -20,7 +20,7 @@ import {
   type BudgetSummaryRow,
 } from "@/lib/finance/budget-summary";
 import type { Budget } from "@/types/budget";
-import { formatCurrency } from "@/lib/finance/format";
+import { useCurrency } from "@/components/currency-provider";
 import { currentPeriod, formatMonthLabel } from "@/lib/finance/period";
 
 /** How many shimmering placeholder cards stand in for the grid while loading. */
@@ -129,6 +129,7 @@ function BudgetCard({
   onEdit: () => void;
 }) {
   const reduced = usePrefersReducedMotion();
+  const { format } = useCurrency();
   const over = budget.overBudget;
   const pressure = budgetPressure(budget);
   const badge = over ? pressureBadge.over : pressureBadge.warning;
@@ -179,9 +180,9 @@ function BudgetCard({
       <div className="mt-3 flex items-baseline justify-between gap-2 text-sm">
         <span className="text-text-secondary tabular-nums">
           <span className="font-medium text-text">
-            {formatCurrency(budget.spent)}
+            {format(budget.spent)}
           </span>
-          <span className="text-text-muted"> / {formatCurrency(budget.limit)}</span>
+          <span className="text-text-muted"> / {format(budget.limit)}</span>
         </span>
         <span className="text-xs text-text-muted">{budget.percent}%</span>
       </div>
@@ -203,8 +204,8 @@ function BudgetCard({
         className={`mt-2.5 text-xs ${pressureFooterClass[pressure]}`}
       >
         {over
-          ? `Over by ${formatCurrency(Math.abs(budget.remaining))}`
-          : `${formatCurrency(budget.remaining)} left this month`}
+          ? `Over by ${format(Math.abs(budget.remaining))}`
+          : `${format(budget.remaining)} left this month`}
       </p>
     </motion.div>
   );
@@ -213,6 +214,7 @@ function BudgetCard({
 export function BudgetsView() {
   const { status, data, error, reload } = useUserData();
   const reduced = usePrefersReducedMotion();
+  const { currency } = useCurrency();
   const period = useMemo(() => currentPeriod(new Date()), []);
   const monthLabel = useMemo(
     () => formatMonthLabel(period.year, period.month),
@@ -238,7 +240,7 @@ export function BudgetsView() {
     () => (budgets ? budgetAlerts(budgets) : []),
     [budgets],
   );
-  const alertMessage = budgetAlertMessage(alerts);
+  const alertMessage = budgetAlertMessage(alerts, currency);
   // Remember the message that was waved away so a reload only re-raises the
   // alert when the month's numbers actually change.
   const [dismissedAlert, setDismissedAlert] = useState<string | null>(null);

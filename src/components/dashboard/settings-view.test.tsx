@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { CurrencyProvider } from "@/components/currency-provider";
 import { SettingsView } from "./settings-view";
 
 function stubMatchMedia(matches: boolean) {
@@ -14,6 +15,7 @@ function stubMatchMedia(matches: boolean) {
 
 beforeEach(() => {
   stubMatchMedia(true);
+  window.localStorage.clear();
 });
 
 afterEach(() => {
@@ -22,7 +24,11 @@ afterEach(() => {
 
 describe("SettingsView", () => {
   it("renders the settings sections with defaults", () => {
-    render(<SettingsView />);
+    render(
+      <CurrencyProvider>
+        <SettingsView />
+      </CurrencyProvider>,
+    );
 
     expect(screen.getByRole("heading", { name: "Settings" })).toBeInTheDocument();
     expect(screen.getByText("Profile")).toBeInTheDocument();
@@ -36,7 +42,11 @@ describe("SettingsView", () => {
 
   it("edits the display name and chooses a currency", async () => {
     const user = userEvent.setup();
-    render(<SettingsView />);
+    render(
+      <CurrencyProvider>
+        <SettingsView />
+      </CurrencyProvider>,
+    );
 
     const name = screen.getByDisplayValue("Ada Lovelace");
     await user.clear(name);
@@ -50,7 +60,11 @@ describe("SettingsView", () => {
 
   it("toggles the notification switches", async () => {
     const user = userEvent.setup();
-    render(<SettingsView />);
+    render(
+      <CurrencyProvider>
+        <SettingsView />
+      </CurrencyProvider>,
+    );
 
     const switchEl = screen.getByRole("switch", { name: "Budget alerts" });
     expect(switchEl).toHaveAttribute("aria-checked", "true");

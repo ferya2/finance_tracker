@@ -33,7 +33,8 @@ import { usePrefersReducedMotion } from "@/components/use-prefers-reduced-motion
 import { useTransfers } from "@/components/use-transfers";
 import { accountKindLabel } from "@/lib/finance/account-form";
 import { accountBalances } from "@/lib/finance/accounts";
-import { formatCurrency, formatDateLabel } from "@/lib/finance/format";
+import { useCurrency } from "@/components/currency-provider";
+import { formatDateLabel } from "@/lib/finance/format";
 import { isoDate } from "@/lib/finance/period";
 import {
   applyTransfersToBalances,
@@ -155,6 +156,7 @@ function AccountCard({
   onDelete: () => void;
 }) {
   const reduced = usePrefersReducedMotion();
+  const { format } = useCurrency();
   const Icon = KIND_ICONS[account.kind] ?? Wallet;
 
   return (
@@ -219,10 +221,10 @@ function AccountCard({
           balance < 0 ? "text-danger" : "text-text"
         }`}
       >
-        {formatCurrency(balance)}
+        {format(balance)}
       </p>
       <p className="mt-1 text-xs text-text-muted">
-        Opening {formatCurrency(account.openingBalance)}
+        Opening {format(account.openingBalance)}
       </p>
     </motion.div>
   );
@@ -234,6 +236,7 @@ export function AccountsView() {
   const userId = user?.id ?? null;
   const isClient = useIsClient();
   const reduced = usePrefersReducedMotion();
+  const { format } = useCurrency();
   const transfers = useTransfers(userId);
   const referenceDate = useMemo(() => isoDate(new Date()), []);
   const [adding, setAdding] = useState(false);
@@ -277,7 +280,7 @@ export function AccountsView() {
     ]);
     setTransferring(false);
     setNotice({
-      message: `Transferred ${formatCurrency(input.amount)}.`,
+      message: `Transferred ${format(input.amount)}.`,
       tone: "neutral",
     });
   }
@@ -404,7 +407,7 @@ export function AccountsView() {
                           Total balance
                         </p>
                         <p className="text-xl font-semibold tabular-nums text-text">
-                          {formatCurrency(totalBalance)}
+                          {format(totalBalance)}
                         </p>
                       </div>
                     </div>
@@ -488,7 +491,7 @@ export function AccountsView() {
                             </p>
                           </div>
                           <p className="shrink-0 text-sm font-semibold tabular-nums text-text">
-                            {formatCurrency(transfer.amount)}
+                            {format(transfer.amount)}
                           </p>
                           <button
                             type="button"

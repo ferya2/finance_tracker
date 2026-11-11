@@ -11,7 +11,7 @@ import {
   type BudgetPressure,
 } from "@/lib/finance/budget";
 import type { DashboardBudgetRow } from "@/lib/finance/dashboard";
-import { formatCurrency } from "@/lib/finance/format";
+import { useCurrency } from "@/components/currency-provider";
 
 const barClassName: Record<BudgetPressure, string> = {
   onTrack: "bg-primary",
@@ -28,6 +28,7 @@ interface BudgetProgressProps {
 /** The month's budgets: one animated gauge, then a row per budget. */
 export function BudgetProgress({ rows, monthName }: BudgetProgressProps) {
   const reduced = usePrefersReducedMotion();
+  const { format } = useCurrency();
   const totals = useMemo(() => summarizeBudgets(rows), [rows]);
 
   return (
@@ -54,10 +55,10 @@ export function BudgetProgress({ rows, monthName }: BudgetProgressProps) {
             <BudgetGauge totals={totals} />
             <div className="min-w-0">
               <p className="truncate text-lg font-semibold text-text tabular-nums">
-                {formatCurrency(totals.spent)}
+                {format(totals.spent)}
               </p>
               <p className="text-xs text-text-muted">
-                spent of {formatCurrency(totals.limit)}
+                spent of {format(totals.limit)}
               </p>
               <p
                 className={`mt-1 text-xs font-medium ${
@@ -97,11 +98,11 @@ export function BudgetProgress({ rows, monthName }: BudgetProgressProps) {
                     </span>
                     <span className="shrink-0 text-xs text-text-secondary tabular-nums">
                       <span className="font-medium text-text">
-                        {formatCurrency(row.spent)}
+                        {format(row.spent)}
                       </span>
                       <span className="text-text-muted">
                         {" / "}
-                        {formatCurrency(row.limit)}
+                        {format(row.limit)}
                       </span>
                     </span>
                   </div>
@@ -123,7 +124,7 @@ export function BudgetProgress({ rows, monthName }: BudgetProgressProps) {
                         <span className="font-medium text-danger">Over budget</span>
                         <span className="text-text-muted">
                           {" · "}
-                          {formatCurrency(Math.abs(row.remaining))} over
+                          {format(Math.abs(row.remaining))} over
                         </span>
                       </>
                     ) : (
@@ -131,7 +132,7 @@ export function BudgetProgress({ rows, monthName }: BudgetProgressProps) {
                         <span className="text-text-muted">{row.percent}% used</span>
                         <span className="text-text-muted">
                           {" · "}
-                          {formatCurrency(row.remaining)} left
+                          {format(row.remaining)} left
                         </span>
                       </>
                     )}

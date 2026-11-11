@@ -21,7 +21,7 @@ import { PageShell } from "@/components/dashboard/page-shell";
 import { usePrefersReducedMotion } from "@/components/use-prefers-reduced-motion";
 import { useUserData } from "@/components/use-user-data";
 import { buildDonutBreakdown } from "@/lib/finance/donut";
-import { formatCurrency } from "@/lib/finance/format";
+import { useCurrency } from "@/components/currency-provider";
 import { buildYearlyReport, type YearlyReport } from "@/lib/finance/yearly";
 
 function Skeleton({ className }: { className: string }) {
@@ -180,6 +180,7 @@ function MetricCard({
 }
 
 function MonthsTable({ report }: { report: YearlyReport }) {
+  const { format } = useCurrency();
   return (
     <section className={WIDGET_CARD_CLASS}>
       <div className="flex items-center justify-between gap-3">
@@ -221,17 +222,17 @@ function MonthsTable({ report }: { report: YearlyReport }) {
                   {month.monthName}
                 </td>
                 <td className="py-2 pr-4 text-right tabular-nums text-text">
-                  {formatCurrency(month.income)}
+                  {format(month.income)}
                 </td>
                 <td className="py-2 pr-4 text-right tabular-nums text-text-secondary">
-                  {formatCurrency(month.expense)}
+                  {format(month.expense)}
                 </td>
                 <td
                   className={`py-2 pr-4 text-right tabular-nums ${
                     month.net >= 0 ? "text-text" : "text-danger"
                   }`}
                 >
-                  {formatCurrency(month.net)}
+                  {format(month.net)}
                 </td>
                 <td className="py-2 text-right tabular-nums text-text-muted">
                   {month.transactionCount}
@@ -245,17 +246,17 @@ function MonthsTable({ report }: { report: YearlyReport }) {
                 Total
               </th>
               <th className="pt-3 pr-4 text-right text-sm font-semibold text-text tabular-nums">
-                {formatCurrency(report.totalIncome)}
+                {format(report.totalIncome)}
               </th>
               <th className="pt-3 pr-4 text-right text-sm font-semibold text-text-secondary tabular-nums">
-                {formatCurrency(report.totalExpense)}
+                {format(report.totalExpense)}
               </th>
               <th
                 className={`pt-3 pr-4 text-right text-sm font-semibold tabular-nums ${
                   report.totalBalance >= 0 ? "text-text" : "text-danger"
                 }`}
               >
-                {formatCurrency(report.totalBalance)}
+                {format(report.totalBalance)}
               </th>
               <th className="pt-3 text-right text-sm font-semibold text-text-muted tabular-nums">
                 {report.months.reduce((sum, m) => sum + m.transactionCount, 0)}
@@ -304,6 +305,7 @@ function CategoryShares({ report }: { report: YearlyReport }) {
 
 export function YearlyReportView() {
   const { status, data, error, reload } = useUserData();
+  const { format } = useCurrency();
   const currentYear = useMemo(() => new Date().getFullYear(), []);
   const [year, setYear] = useState(currentYear);
 
@@ -362,24 +364,24 @@ export function YearlyReportView() {
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               <MetricCard
                 label="Total income"
-                value={formatCurrency(report.totalIncome)}
+                value={format(report.totalIncome)}
                 icon={TrendingUp}
                 tone="success"
               />
               <MetricCard
                 label="Total expenses"
-                value={formatCurrency(report.totalExpense)}
+                value={format(report.totalExpense)}
                 icon={TrendingDown}
                 tone="danger"
               />
               <MetricCard
                 label="Net balance"
-                value={formatCurrency(report.totalBalance)}
+                value={format(report.totalBalance)}
                 icon={BarChart3}
               />
               <MetricCard
                 label="Avg monthly expense"
-                value={formatCurrency(report.averageMonthlyExpense)}
+                value={format(report.averageMonthlyExpense)}
                 icon={Calendar}
               />
             </div>
@@ -396,19 +398,19 @@ export function YearlyReportView() {
                     <div className="flex items-center justify-between">
                       <dt className="text-text-muted">Daily average spend</dt>
                       <dd className="font-medium tabular-nums text-text">
-                        {formatCurrency(report.dailyAverageExpense)}
+                        {format(report.dailyAverageExpense)}
                       </dd>
                     </div>
                     <div className="flex items-center justify-between">
                       <dt className="text-text-muted">Average monthly income</dt>
                       <dd className="font-medium tabular-nums text-text">
-                        {formatCurrency(report.averageMonthlyIncome)}
+                        {format(report.averageMonthlyIncome)}
                       </dd>
                     </div>
                     <div className="flex items-center justify-between">
                       <dt className="text-text-muted">Average monthly expense</dt>
                       <dd className="font-medium tabular-nums text-text">
-                        {formatCurrency(report.averageMonthlyExpense)}
+                        {format(report.averageMonthlyExpense)}
                       </dd>
                     </div>
                   </dl>

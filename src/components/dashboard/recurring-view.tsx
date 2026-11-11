@@ -30,7 +30,8 @@ import {
   useRecurringEntries,
 } from "@/components/use-recurring-entries";
 import { useUserData } from "@/components/use-user-data";
-import { formatCurrency, formatDateLabel } from "@/lib/finance/format";
+import { useCurrency } from "@/components/currency-provider";
+import { formatDateLabel } from "@/lib/finance/format";
 import { isoDate } from "@/lib/finance/period";
 import {
   buildRecurringList,
@@ -152,6 +153,7 @@ function RecurringCard({
   onDelete: () => void;
 }) {
   const reduced = usePrefersReducedMotion();
+  const { format } = useCurrency();
   const income = item.type === "income";
   const nextLabel =
     item.nextOn === null
@@ -202,7 +204,7 @@ function RecurringCard({
           }`}
         >
           {income ? "+" : "−"}
-          {formatCurrency(item.amount)}
+          {format(item.amount)}
         </p>
       </div>
 

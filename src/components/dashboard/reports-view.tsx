@@ -18,7 +18,7 @@ import {
   DUMMY_MONTHLY_SERIES,
   getDummyCategory,
 } from "@/lib/finance/dummy";
-import { formatCurrency } from "@/lib/finance/format";
+import { useCurrency } from "@/components/currency-provider";
 
 function buildTrendPoints() {
   const balances = DUMMY_MONTHLY_SERIES.map((point) => point.balance);
@@ -39,6 +39,7 @@ function buildTrendPoints() {
 
 function BalanceTrend() {
   const reduced = usePrefersReducedMotion();
+  const { format } = useCurrency();
   const points = buildTrendPoints();
   const line = points
     .map((point, i) => `${i === 0 ? "M" : "L"} ${point.x.toFixed(1)} ${point.y.toFixed(1)}`)
@@ -98,7 +99,7 @@ function BalanceTrend() {
       <p className="mt-4 text-sm text-text-secondary">
         Balance at the end of the period:{" "}
         <span className="font-semibold text-text tabular-nums">
-          {formatCurrency(last.balance)}
+          {format(last.balance)}
         </span>
       </p>
     </section>

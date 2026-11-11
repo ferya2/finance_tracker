@@ -25,7 +25,8 @@ import { Snackbar } from "@/components/dashboard/snackbar";
 import { useIsClient } from "@/components/use-is-client";
 import { usePrefersReducedMotion } from "@/components/use-prefers-reduced-motion";
 import { useSavingsGoals } from "@/components/use-savings-goals";
-import { formatCurrency, formatDateLabel } from "@/lib/finance/format";
+import { useCurrency } from "@/components/currency-provider";
+import { formatDateLabel } from "@/lib/finance/format";
 import { DEFAULT_GOAL_COLOR } from "@/lib/finance/goal-form";
 import { goalProgress, summarizeGoals } from "@/lib/finance/goals";
 import { isoDate } from "@/lib/finance/period";
@@ -83,6 +84,7 @@ function ProgressBar({
 
 function GoalSummary({ goals }: { goals: readonly SavingsGoal[] }) {
   const reduced = usePrefersReducedMotion();
+  const { format } = useCurrency();
   const totals = useMemo(() => summarizeGoals(goals), [goals]);
 
   return (
@@ -99,10 +101,10 @@ function GoalSummary({ goals }: { goals: readonly SavingsGoal[] }) {
             All goals
           </p>
           <p className="mt-2 text-2xl font-semibold tracking-tight text-text tabular-nums">
-            {formatCurrency(totals.saved)}
+            {format(totals.saved)}
             <span className="text-sm font-normal text-text-muted">
               {" "}
-              of {formatCurrency(totals.target)}
+              of {format(totals.target)}
             </span>
           </p>
         </div>
@@ -120,7 +122,7 @@ function GoalSummary({ goals }: { goals: readonly SavingsGoal[] }) {
           {totals.tracked} {totals.tracked === 1 ? "goal" : "goals"} tracked
         </span>
         <span>{totals.completedCount} complete</span>
-        <span>{formatCurrency(totals.remaining)} to go</span>
+        <span>{format(totals.remaining)} to go</span>
       </div>
     </motion.section>
   );
@@ -140,6 +142,7 @@ function GoalCard({
   onDelete: () => void;
 }) {
   const reduced = usePrefersReducedMotion();
+  const { format } = useCurrency();
   const progress = goalProgress(goal);
   const color = goal.color ?? DEFAULT_GOAL_COLOR;
   const targetLabel = goal.targetDate
@@ -217,10 +220,10 @@ function GoalCard({
       <div className="mt-5 flex items-end justify-between gap-3">
         <div className="min-w-0">
           <p className="text-lg font-semibold text-text tabular-nums">
-            {formatCurrency(progress.saved)}
+            {format(progress.saved)}
           </p>
           <p className="text-xs text-text-muted tabular-nums">
-            of {formatCurrency(progress.target)}
+            of {format(progress.target)}
           </p>
         </div>
         <span
@@ -247,7 +250,7 @@ function GoalCard({
       >
         {progress.completed
           ? "Goal reached"
-          : `${formatCurrency(progress.remaining)} to go`}
+          : `${format(progress.remaining)} to go`}
       </p>
     </motion.li>
   );

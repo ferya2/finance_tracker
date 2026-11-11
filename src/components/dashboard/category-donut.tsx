@@ -6,7 +6,7 @@ import { AnimatedNumber } from "@/components/dashboard/animated-number";
 import { EASE, staggerDelay } from "@/components/dashboard/motion";
 import { usePrefersReducedMotion } from "@/components/use-prefers-reduced-motion";
 import type { DonutBreakdown, DonutSlice } from "@/lib/finance/donut";
-import { formatCurrency } from "@/lib/finance/format";
+import { useCurrency } from "@/components/currency-provider";
 
 const VIEW_SIZE = 168;
 const STROKE_WIDTH = 18;
@@ -65,6 +65,7 @@ export function CategoryDonut({
   caption = "spent this month",
 }: CategoryDonutProps) {
   const reduced = usePrefersReducedMotion();
+  const { format } = useCurrency();
   const arcs = donutArcs(breakdown);
   const [hoveredKey, setHoveredKey] = useState<string | null>(null);
 
@@ -170,7 +171,7 @@ export function CategoryDonut({
             </span>
             <span className="shrink-0 text-text-secondary tabular-nums">
               <span className="font-medium text-text">
-                {formatCurrency(slice.amount)}
+                {format(slice.amount)}
               </span>
               <span className="ml-2 text-xs text-text-muted">
                 {slice.percent}%

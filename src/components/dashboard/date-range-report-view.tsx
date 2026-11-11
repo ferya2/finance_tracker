@@ -28,7 +28,7 @@ import {
   type RangeGranularity,
 } from "@/lib/finance/date-range";
 import { buildDonutBreakdown } from "@/lib/finance/donut";
-import { formatCurrency } from "@/lib/finance/format";
+import { useCurrency } from "@/components/currency-provider";
 import { isoDate } from "@/lib/finance/period";
 
 const RANGE_DAYS = 30;
@@ -179,6 +179,7 @@ function RangeFilter({
 export function DateRangeReportView() {
   const { status, data, error, reload } = useUserData();
   const reduced = usePrefersReducedMotion();
+  const { format } = useCurrency();
   const today = useMemo(() => isoDate(new Date()), []);
   const [range, setRange] = useState<DateRange>(() =>
     lastNDaysRange(today, RANGE_DAYS),
@@ -325,11 +326,11 @@ export function DateRangeReportView() {
                       <div className="mt-5 grid gap-4 border-t border-border pt-5 sm:grid-cols-2 lg:grid-cols-4">
                         <Stat
                           label="Spent"
-                          value={formatCurrency(report.summary.expense)}
+                          value={format(report.summary.expense)}
                         />
                         <Stat
                           label="Average per day"
-                          value={formatCurrency(report.dailyAverageExpense)}
+                          value={format(report.dailyAverageExpense)}
                         />
                         <Stat
                           label="Transactions"

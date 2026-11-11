@@ -3,18 +3,13 @@
 import { useState, type ReactNode } from "react";
 import { motion } from "framer-motion";
 import { Bell, Download, Palette, User } from "lucide-react";
+import { useCurrency } from "@/components/currency-provider";
 import { DarkModeToggle } from "@/components/dark-mode-toggle";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { PageShell } from "@/components/dashboard/page-shell";
 import { usePrefersReducedMotion } from "@/components/use-prefers-reduced-motion";
-
-const currencies = [
-  { code: "USD", label: "US Dollar (USD)" },
-  { code: "EUR", label: "Euro (EUR)" },
-  { code: "GBP", label: "British Pound (GBP)" },
-  { code: "JPY", label: "Japanese Yen (JPY)" },
-  { code: "IDR", label: "Indonesian Rupiah (IDR)" },
-];
+import { SUPPORTED_CURRENCIES } from "@/lib/finance/currency";
+import { sanitizeCurrencyCode } from "@/lib/finance/currency-settings";
 
 function Field({
   label,
@@ -106,7 +101,7 @@ function SectionCard({
 
 export function SettingsView() {
   const [displayName, setDisplayName] = useState("Ada Lovelace");
-  const [currency, setCurrency] = useState("USD");
+  const { currency, setCurrency, format } = useCurrency();
 
   return (
     <PageShell>
@@ -149,15 +144,21 @@ export function SettingsView() {
               <Field label="Currency">
                 <select
                   value={currency}
-                  onChange={(event) => setCurrency(event.target.value)}
+                  onChange={(event) =>
+                    setCurrency(sanitizeCurrencyCode(event.target.value))
+                  }
                   className={`${inputClassName} cursor-pointer`}
                 >
-                  {currencies.map((option) => (
+                  {SUPPORTED_CURRENCIES.map((option) => (
                     <option key={option.code} value={option.code}>
-                      {option.label}
+                      {option.name} ({option.code})
                     </option>
                   ))}
                 </select>
+                <p className="text-xs text-text-muted">
+                  Amounts convert to {currency} across the app. Example:{" "}
+                  {format(123456)}
+                </p>
               </Field>
               <div className="flex flex-col gap-1.5">
                 <span className="text-xs font-medium uppercase tracking-wide text-text-muted">
