@@ -24,6 +24,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, type ReactNode } from "react";
 import { useSession } from "@/components/auth/session-provider";
+import { CurrencyProvider } from "@/components/currency-provider";
 import { DarkModeToggle } from "@/components/dark-mode-toggle";
 import { UserChip } from "@/components/dashboard/user-chip";
 import { usePrefersReducedMotion } from "@/components/use-prefers-reduced-motion";
@@ -170,48 +171,51 @@ function MobileDrawer({ onClose }: { onClose: () => void }) {
 
 export function AppShell({ children }: { children: ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { user } = useSession();
 
   return (
-    <div className="flex min-h-dvh w-full bg-background">
-      <aside className="sticky top-0 hidden h-dvh w-64 shrink-0 flex-col border-r border-border bg-surface lg:flex">
-        <div className="flex h-16 items-center border-b border-border px-5">
-          <Branding />
+    <CurrencyProvider userId={user?.id}>
+      <div className="flex min-h-dvh w-full bg-background">
+        <aside className="sticky top-0 hidden h-dvh w-64 shrink-0 flex-col border-r border-border bg-surface lg:flex">
+          <div className="flex h-16 items-center border-b border-border px-5">
+            <Branding />
+          </div>
+          <nav aria-label="Sidebar" className="mt-3 flex flex-col gap-1 px-3">
+            {navItems.map((item) => (
+              <NavLink key={item.href} item={item} />
+            ))}
+          </nav>
+          <SidebarFooter />
+        </aside>
+
+        <div className="flex min-w-0 flex-1 flex-col">
+          <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-3 border-b border-border bg-surface/80 px-4 backdrop-blur-md sm:px-6">
+            <div className="flex items-center gap-2 lg:hidden">
+              <button
+                type="button"
+                onClick={() => setMobileOpen(true)}
+                aria-label="Open menu"
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-surface text-text-secondary transition-colors hover:bg-surface-subtle hover:text-text"
+              >
+                <Menu className="h-4 w-4" />
+              </button>
+              <span className="lg:hidden">
+                <Branding />
+              </span>
+            </div>
+            <div className="ml-auto flex items-center gap-3 lg:ml-0">
+              <UserChip />
+              <DarkModeToggle />
+            </div>
+          </header>
+
+          <AnimatePresence>
+            {mobileOpen && <MobileDrawer onClose={() => setMobileOpen(false)} />}
+          </AnimatePresence>
+
+          <main className="flex flex-1 flex-col">{children}</main>
         </div>
-        <nav aria-label="Sidebar" className="mt-3 flex flex-col gap-1 px-3">
-          {navItems.map((item) => (
-            <NavLink key={item.href} item={item} />
-          ))}
-        </nav>
-        <SidebarFooter />
-      </aside>
-
-      <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-3 border-b border-border bg-surface/80 px-4 backdrop-blur-md sm:px-6">
-          <div className="flex items-center gap-2 lg:hidden">
-            <button
-              type="button"
-              onClick={() => setMobileOpen(true)}
-              aria-label="Open menu"
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-surface text-text-secondary transition-colors hover:bg-surface-subtle hover:text-text"
-            >
-              <Menu className="h-4 w-4" />
-            </button>
-            <span className="lg:hidden">
-              <Branding />
-            </span>
-          </div>
-          <div className="ml-auto flex items-center gap-3 lg:ml-0">
-            <UserChip />
-            <DarkModeToggle />
-          </div>
-        </header>
-
-        <AnimatePresence>
-          {mobileOpen && <MobileDrawer onClose={() => setMobileOpen(false)} />}
-        </AnimatePresence>
-
-        <main className="flex flex-1 flex-col">{children}</main>
       </div>
-    </div>
+    </CurrencyProvider>
   );
 }

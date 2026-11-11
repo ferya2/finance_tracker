@@ -2,12 +2,12 @@
 
 import { animate } from "framer-motion";
 import { useEffect, useState } from "react";
+import { useCurrency } from "@/components/currency-provider";
 import { usePrefersReducedMotion } from "@/components/use-prefers-reduced-motion";
-import { formatCurrency } from "@/lib/finance/format";
 
 interface AnimatedNumberProps {
   value: number;
-  /** Rounds the live value and renders it as a currency string by default. */
+  /** Rounds the live value and renders it in the chosen currency by default. */
   format?: (value: number) => string;
   className?: string;
 }
@@ -15,11 +15,14 @@ interface AnimatedNumberProps {
 /** Counts up to `value` on mount; renders the final value when reduced motion. */
 export function AnimatedNumber({
   value,
-  format = (next) => formatCurrency(Math.round(next)),
+  format,
   className,
 }: AnimatedNumberProps) {
   const reduced = usePrefersReducedMotion();
+  const { format: formatMoney } = useCurrency();
   const [display, setDisplay] = useState(0);
+  const formatter =
+    format ?? ((next: number) => formatMoney(Math.round(next)));
 
   useEffect(() => {
     if (reduced) return;
@@ -31,5 +34,5 @@ export function AnimatedNumber({
     return () => controls.stop();
   }, [value, reduced]);
 
-  return <span className={className}>{format(reduced ? value : display)}</span>;
+  return <span className={className}>{formatter(reduced ? value : display)}</span>;
 }

@@ -6,7 +6,7 @@ import Link from "next/link";
 import { EASE, WIDGET_CARD_CLASS, staggerDelay } from "@/components/dashboard/motion";
 import { usePrefersReducedMotion } from "@/components/use-prefers-reduced-motion";
 import type { DashboardTransactionRow } from "@/lib/finance/dashboard";
-import { formatCurrency } from "@/lib/finance/format";
+import { useCurrency } from "@/components/currency-provider";
 
 interface RecentTransactionsProps {
   transactions: readonly DashboardTransactionRow[];
@@ -24,6 +24,7 @@ export function RecentTransactions({
   total = transactions.length,
 }: RecentTransactionsProps) {
   const reduced = usePrefersReducedMotion();
+  const { format } = useCurrency();
   const hasMore = total > transactions.length;
 
   return (
@@ -93,7 +94,7 @@ export function RecentTransactions({
                   }`}
                 >
                   {income ? "+" : "−"}
-                  {formatCurrency(transaction.amount)}
+                  {format(transaction.amount)}
                 </p>
               </motion.li>
             );

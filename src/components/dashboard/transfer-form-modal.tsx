@@ -14,7 +14,8 @@ import {
   validateTransferForm,
   type TransferFormValues,
 } from "@/lib/finance/transfer-form";
-import { formatCurrency, parseAmount } from "@/lib/finance/format";
+import { useCurrency } from "@/components/currency-provider";
+import { parseAmount } from "@/lib/finance/format";
 import type { Account } from "@/types/account";
 import type { NewTransfer } from "@/types/transfer";
 
@@ -56,6 +57,7 @@ export function TransferFormModal({
 }: TransferFormModalProps) {
   const reduced = usePrefersReducedMotion();
   const isClient = useIsClient();
+  const { format } = useCurrency();
   const [values, setValues] = useState<TransferFormValues>(() => {
     const base = emptyTransferForm(referenceDate);
     return {
@@ -349,7 +351,7 @@ export function TransferFormModal({
                 </span>
                 <div className="min-w-0 text-sm">
                   <p className="font-medium text-text">
-                    {formatCurrency(amount)} from {from.name} to {to.name}
+                    {format(amount)} from {from.name} to {to.name}
                   </p>
                   <p className="text-xs text-text-muted">
                     {values.occurredOn}

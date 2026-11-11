@@ -12,7 +12,7 @@ import {
   DUMMY_INSIGHTS,
   getDummyCategory,
 } from "@/lib/finance/dummy";
-import { formatCurrency } from "@/lib/finance/format";
+import { useCurrency } from "@/components/currency-provider";
 
 function StatCard({
   label,
@@ -55,6 +55,7 @@ const topBreakdown = [...DUMMY_CATEGORY_BREAKDOWN]
 
 export function InsightsView() {
   const reduced = usePrefersReducedMotion();
+  const { format } = useCurrency();
   const maxTopAmount = topBreakdown[0]?.amount ?? 1;
 
   return (
@@ -70,7 +71,7 @@ export function InsightsView() {
           <StatCard
             label="Daily average"
             icon={<Wallet className="h-4 w-4" />}
-            value={formatCurrency(DUMMY_INSIGHTS.averageDailySpend)}
+            value={format(DUMMY_INSIGHTS.averageDailySpend)}
             delta="Spent per day across the month"
           />
           <StatCard
@@ -121,7 +122,7 @@ export function InsightsView() {
                         {category?.name}
                       </span>
                       <span className="text-text-secondary tabular-nums">
-                        {formatCurrency(item.amount)}
+                        {format(item.amount)}
                         <span className="ml-2 text-xs text-text-muted">
                           {item.sharePercent}%
                         </span>
@@ -159,7 +160,7 @@ export function InsightsView() {
                 Biggest single expense
               </p>
               <p className="mt-2 text-2xl font-semibold tracking-tight text-text tabular-nums">
-                {formatCurrency(DUMMY_INSIGHTS.biggestExpenseAmount)}
+                {format(DUMMY_INSIGHTS.biggestExpenseAmount)}
               </p>
               <p className="mt-1 text-sm text-text-secondary">
                 {DUMMY_INSIGHTS.biggestExpenseNote}

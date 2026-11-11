@@ -11,7 +11,7 @@ import {
 import { usePrefersReducedMotion } from "@/components/use-prefers-reduced-motion";
 import { buildDonutBreakdown } from "@/lib/finance/donut";
 import type { DashboardBreakdownRow } from "@/lib/finance/dashboard";
-import { formatCurrency } from "@/lib/finance/format";
+import { useCurrency } from "@/components/currency-provider";
 
 /** Which chart the widget shows. */
 type BreakdownView = "bars" | "donut";
@@ -28,6 +28,7 @@ interface CategoryBreakdownProps {
 /** The month's spending per category, as animated bars or a donut. */
 export function CategoryBreakdown({ rows }: CategoryBreakdownProps) {
   const reduced = usePrefersReducedMotion();
+  const { format } = useCurrency();
   const [view, setView] = useState<BreakdownView>("bars");
   const donut = useMemo(() => buildDonutBreakdown(rows), [rows]);
 
@@ -84,7 +85,7 @@ export function CategoryBreakdown({ rows }: CategoryBreakdownProps) {
                     </span>
                     <span className="text-text-secondary">
                       <span className="font-medium text-text tabular-nums">
-                        {formatCurrency(row.amount)}
+                        {format(row.amount)}
                       </span>
                       <span className="ml-2 text-xs text-text-muted">
                         {row.sharePercent}%

@@ -9,7 +9,7 @@ import {
 } from "@/components/dashboard/segmented-control";
 import { TrendLineChart } from "@/components/dashboard/trend-line-chart";
 import { usePrefersReducedMotion } from "@/components/use-prefers-reduced-motion";
-import { formatCurrency } from "@/lib/finance/format";
+import { useCurrency } from "@/components/currency-provider";
 import { isoDate } from "@/lib/finance/period";
 import {
   buildSpendingTrend,
@@ -74,6 +74,7 @@ function Skeleton({ className }: { className: string }) {
  */
 export function SpendingTrend({ transactions, loading = false }: SpendingTrendProps) {
   const reduced = usePrefersReducedMotion();
+  const { format } = useCurrency();
   const [granularity, setGranularity] = useState<TrendGranularity>("day");
   const today = useMemo(() => isoDate(new Date()), []);
 
@@ -130,17 +131,17 @@ export function SpendingTrend({ transactions, loading = false }: SpendingTrendPr
           <TrendLineChart points={points} className="mt-6" />
 
           <div className="mt-6 grid gap-4 border-t border-border pt-5 sm:grid-cols-3">
-            <Stat label="Spent" value={formatCurrency(totals.expense)} />
+            <Stat label="Spent" value={format(totals.expense)} />
             <Stat
               label={`Average per ${bucket}`}
-              value={formatCurrency(average)}
+              value={format(average)}
             />
             <Stat
               label={`Biggest ${bucket}`}
               value={
                 peak === null
                   ? "—"
-                  : `${formatCurrency(peak.expense)} · ${peak.label}`
+                  : `${format(peak.expense)} · ${peak.label}`
               }
             />
           </div>

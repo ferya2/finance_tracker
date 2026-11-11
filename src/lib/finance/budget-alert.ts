@@ -48,13 +48,14 @@ export function budgetAlerts(
  */
 export function budgetAlertMessage(
   alerts: readonly BudgetAlert[],
+  currency?: string,
 ): string | null {
   if (alerts.length === 0) return null;
 
   if (alerts.length === 1) {
     const [alert] = alerts;
     return alert.level === "over"
-      ? `${alert.categoryName} is over budget by ${formatCurrency(alert.amount)}`
+      ? `${alert.categoryName} is over budget by ${formatCurrency(alert.amount, currency)}`
       : `${alert.categoryName} is close to its limit (${alert.percent}% used)`;
   }
 

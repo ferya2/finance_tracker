@@ -13,7 +13,8 @@ import { CalendarDays, Check, Target, X } from "lucide-react";
 import { EASE } from "@/components/dashboard/motion";
 import { useIsClient } from "@/components/use-is-client";
 import { usePrefersReducedMotion } from "@/components/use-prefers-reduced-motion";
-import { formatCurrency, parseAmount } from "@/lib/finance/format";
+import { useCurrency } from "@/components/currency-provider";
+import { parseAmount } from "@/lib/finance/format";
 import {
   GOAL_COLOR_PALETTE,
   MAX_GOAL_NAME_LENGTH,
@@ -64,6 +65,7 @@ export function SavingsGoalFormModal({
 }: SavingsGoalFormModalProps) {
   const reduced = usePrefersReducedMotion();
   const isClient = useIsClient();
+  const { format } = useCurrency();
   const editing = goal !== undefined;
   const id = editing ? "edit-goal" : "add-goal";
   const [values, setValues] = useState<GoalFormValues>(() =>
@@ -361,8 +363,8 @@ export function SavingsGoalFormModal({
               </span>
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-medium text-text tabular-nums">
-                  {formatCurrency(preview.saved)} of{" "}
-                  {formatCurrency(preview.target)}
+                  {format(preview.saved)} of{" "}
+                  {format(preview.target)}
                 </p>
                 <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-surface">
                   <motion.div
