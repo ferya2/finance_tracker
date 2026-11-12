@@ -10,6 +10,7 @@ import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
+  Download,
   Paperclip,
   Pencil,
   Plus,
@@ -35,6 +36,10 @@ import { useTagAssignments } from "@/components/use-tag-assignments";
 import { useTags } from "@/components/use-tags";
 import { useUserData } from "@/components/use-user-data";
 import { useCurrency } from "@/components/currency-provider";
+import {
+  exportCsvFileName,
+  transactionsToCsv,
+} from "@/lib/finance/export-csv";
 import { isoDate } from "@/lib/finance/period";
 import {
   ALL_CATEGORIES,
@@ -354,6 +359,19 @@ export function TransactionsView() {
     setPage(1);
   }
 
+  function handleExportCsv() {
+    const csv = transactionsToCsv(visible);
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = exportCsvFileName(referenceDate);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  }
+
   async function handleConfirmDelete() {
     if (!deleting) return;
 
@@ -414,15 +432,27 @@ export function TransactionsView() {
           title="Transactions"
           description="Every income and expense you have recorded — search and filter your way through them."
           action={
-            <button
-              type="button"
-              onClick={() => setAdding(true)}
-              disabled={data === null}
-              className="inline-flex h-10 items-center gap-2 rounded-full bg-primary px-5 text-sm font-medium text-primary-foreground shadow-lg shadow-primary/25 transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0 motion-reduce:transform-none"
-            >
-              <Plus className="h-4 w-4" />
-              Add transaction
-            </button>
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={handleExportCsv}
+                disabled={data === null || visible.length === 0}
+                title="Export the filtered transactions as CSV"
+                className="inline-flex h-10 items-center gap-2 rounded-full border border-border bg-surface px-5 text-sm font-medium text-text-secondary transition-colors hover:border-primary/40 hover:text-text disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:border-border disabled:hover:text-text-secondary"
+              >
+                <Download className="h-4 w-4" />
+                Export CSV
+              </button>
+              <button
+                type="button"
+                onClick={() => setAdding(true)}
+                disabled={data === null}
+                className="inline-flex h-10 items-center gap-2 rounded-full bg-primary px-5 text-sm font-medium text-primary-foreground shadow-lg shadow-primary/25 transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0 motion-reduce:transform-none"
+              >
+                <Plus className="h-4 w-4" />
+                Add transaction
+              </button>
+            </div>
           }
         />
 

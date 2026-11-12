@@ -159,7 +159,7 @@ whitespace, an interactive drag-to-rotate **3D** hero, and smooth scroll-reveal
 - [x] **Day 68 — Savings goals UI.** Animated progress.
 - [x] **Day 69 — Multi-currency (logic).** Currency + conversion display. Tests.
 - [x] **Day 70 — Currency settings.** Choose currency, format everywhere.
-- [ ] **Day 71 — Export CSV.** Export transactions (pure serializer tested).
+- [x] **Day 71 — Export CSV.** Export transactions (pure serializer tested).
 - [ ] **Day 72 — Export PDF.** Export a report.
 - [ ] **Day 73 — Import CSV.** Parse + validate + insert (parser tested).
 
