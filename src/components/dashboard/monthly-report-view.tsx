@@ -5,6 +5,7 @@ import {
   AlertTriangle,
   ChevronLeft,
   ChevronRight,
+  Download,
   RefreshCw,
   TrendingDown,
   TrendingUp,
@@ -27,6 +28,7 @@ import { usePrefersReducedMotion } from "@/components/use-prefers-reduced-motion
 import { useUserData } from "@/components/use-user-data";
 import { buildDonutBreakdown } from "@/lib/finance/donut";
 import { useCurrency } from "@/components/currency-provider";
+import { buildReportPdf, reportPdfFileName } from "@/lib/finance/export-pdf";
 import {
   buildMonthlyReport,
   type MonthlyReport,
@@ -228,7 +230,7 @@ function MonthNavigator({
 export function MonthlyReportView() {
   const { status, data, error, reload } = useUserData();
   const reduced = usePrefersReducedMotion();
-  const { format } = useCurrency();
+  const { format, currency } = useCurrency();
   const current = useMemo(() => currentPeriod(new Date()), []);
   const [period, setPeriod] = useState<YearMonth>(current);
 
@@ -246,6 +248,21 @@ export function MonthlyReportView() {
     [report],
   );
 
+  function handleExportPdf() {
+    if (!report) return;
+
+    const pdf = buildReportPdf(report, { currency });
+    const blob = new Blob([pdf], { type: "application/pdf" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = reportPdfFileName(report);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  }
+
   const isCurrentMonth =
     period.year === current.year && period.month === current.month;
   const monthLabel = report?.monthLabel ?? formatMonthLabel(period.year, period.month);
@@ -258,13 +275,25 @@ export function MonthlyReportView() {
           title="Monthly report"
           description="A complete look at one month — income, spending, categories and budgets in one place."
           action={
-            <MonthNavigator
-              period={period}
-              label={monthLabel}
-              canGoForward={!isCurrentMonth}
-              onPrevious={() => setPeriod((value) => previousPeriod(value))}
-              onNext={() => setPeriod((value) => nextPeriod(value))}
-            />
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={handleExportPdf}
+                disabled={!report}
+                title="Download this report as a PDF"
+                className="inline-flex h-10 items-center gap-2 rounded-full border border-border bg-surface px-5 text-sm font-medium text-text-secondary transition-colors hover:border-primary/40 hover:text-text disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:border-border disabled:hover:text-text-secondary"
+              >
+                <Download className="h-4 w-4" />
+                Export PDF
+              </button>
+              <MonthNavigator
+                period={period}
+                label={monthLabel}
+                canGoForward={!isCurrentMonth}
+                onPrevious={() => setPeriod((value) => previousPeriod(value))}
+                onNext={() => setPeriod((value) => nextPeriod(value))}
+              />
+            </div>
           }
         />
 
