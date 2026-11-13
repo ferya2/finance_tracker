@@ -168,4 +168,37 @@ describe("MonthlyReportView", () => {
 
     expect(screen.getByRole("button", { name: "Next month" })).toBeDisabled();
   });
+
+  it("downloads the current report as a PDF", async () => {
+    const user = userEvent.setup();
+    const createObjectURL = vi.fn<
+      (blob: Blob | MediaSource) => string
+    >(() => "blob:report");
+    const revokeObjectURL = vi.fn();
+    const originalCreate = URL.createObjectURL;
+    const originalRevoke = URL.revokeObjectURL;
+    const click = vi
+      .spyOn(HTMLAnchorElement.prototype, "click")
+      .mockImplementation(() => {});
+
+    URL.createObjectURL = createObjectURL;
+    URL.revokeObjectURL = revokeObjectURL;
+
+    try {
+      render(<MonthlyReportView />);
+
+      await user.click(screen.getByRole("button", { name: "Export PDF" }));
+
+      expect(createObjectURL).toHaveBeenCalledOnce();
+      const blob = createObjectURL.mock.calls[0]?.[0];
+      expect(blob).toBeInstanceOf(Blob);
+      expect((blob as Blob).type).toBe("application/pdf");
+      expect(click).toHaveBeenCalledOnce();
+      expect(revokeObjectURL).toHaveBeenCalledOnce();
+    } finally {
+      URL.createObjectURL = originalCreate;
+      URL.revokeObjectURL = originalRevoke;
+      click.mockRestore();
+    }
+  });
 });
