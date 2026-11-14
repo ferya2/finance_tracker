@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { PostgrestError } from "@supabase/supabase-js";
 import {
   createTransaction,
+  createTransactions,
   deleteTransaction,
   listTransactions,
   reassignTransactions,
@@ -177,6 +178,76 @@ describe("createTransaction", () => {
       categoryId: "cat-food",
       occurredOn: "2026-09-18",
     });
+
+    expect(result.data).toBeNull();
+    expect(result.error).toBe(dbError);
+  });
+});
+
+describe("createTransactions", () => {
+  it("inserts every row in one batch and returns the saved transactions", async () => {
+    const insert = vi.fn().mockReturnThis();
+    const select = vi.fn().mockResolvedValue({ data: ROWS, error: null });
+    mockFrom.mockReturnValue({ insert, select });
+
+    const result = await createTransactions([
+      {
+        amount: 115000,
+        type: "expense",
+        categoryId: "cat-housing",
+        note: "Rent",
+        occurredOn: "2026-09-04",
+      },
+      {
+        amount: 240000,
+        type: "income",
+        categoryId: "cat-salary",
+        occurredOn: "2026-09-01",
+      },
+    ]);
+
+    expect(mockFrom).toHaveBeenCalledWith("transactions");
+    expect(insert).toHaveBeenCalledWith([
+      {
+        amount: 115000,
+        type: "expense",
+        category_id: "cat-housing",
+        note: "Rent",
+        occurred_on: "2026-09-04",
+      },
+      {
+        amount: 240000,
+        type: "income",
+        category_id: "cat-salary",
+        occurred_on: "2026-09-01",
+      },
+    ]);
+    expect(result.error).toBeNull();
+    expect(result.data).toEqual(MAPPED);
+  });
+
+  it("does not touch the database for an empty batch", async () => {
+    const result = await createTransactions([]);
+
+    expect(mockFrom).not.toHaveBeenCalled();
+    expect(result).toEqual({ data: [], error: null });
+  });
+
+  it("returns null data and the error when the insert fails", async () => {
+    const dbError = error("Failed to insert transactions");
+    mockFrom.mockReturnValue({
+      insert: vi.fn().mockReturnThis(),
+      select: vi.fn().mockResolvedValue({ data: null, error: dbError }),
+    });
+
+    const result = await createTransactions([
+      {
+        amount: 1000,
+        type: "expense",
+        categoryId: "cat-food",
+        occurredOn: "2026-09-18",
+      },
+    ]);
 
     expect(result.data).toBeNull();
     expect(result.error).toBe(dbError);

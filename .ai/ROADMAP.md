@@ -33,7 +33,7 @@ Source of truth for **what** to build. The agent picks daily tasks from
 - [x] Recurring, accounts/transfers, tags, receipts (Storage)
 
 ## Phase 10 — Advanced II (Week 10)
-- [ ] Savings goals, multi-currency, export CSV/PDF, import CSV
+- [x] Savings goals, multi-currency, export CSV/PDF, import CSV
 
 ## Phase 11 — Insights & UX (Week 11)
 - [ ] Insights, recommendations, notifications, onboarding, command palette
