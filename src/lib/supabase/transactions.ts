@@ -34,6 +34,11 @@ export interface CreateTransactionResult {
   error: PostgrestError | null;
 }
 
+export interface CreateTransactionsResult {
+  data: Transaction[] | null;
+  error: PostgrestError | null;
+}
+
 export interface UpdateTransactionResult {
   data: Transaction | null;
   error: PostgrestError | null;
@@ -96,6 +101,31 @@ export async function createTransaction(
 
   return {
     data: data ? rowToTransaction(data as TransactionRow) : null,
+    error,
+  };
+}
+
+/**
+ * Create many transactions for the current user in one insert and return the
+ * saved rows. An empty batch never reaches the database. Used by CSV import so
+ * a whole file is written in a single round trip.
+ */
+export async function createTransactions(
+  inputs: readonly NewTransaction[],
+): Promise<CreateTransactionsResult> {
+  if (inputs.length === 0) {
+    return { data: [], error: null };
+  }
+
+  const { data, error } = await getSupabaseClient()
+    .from("transactions")
+    .insert(inputs.map(transactionToRow))
+    .select();
+
+  return {
+    data: data
+      ? (data as TransactionRow[]).map((row) => rowToTransaction(row))
+      : null,
     error,
   };
 }

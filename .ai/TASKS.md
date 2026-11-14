@@ -161,7 +161,7 @@ whitespace, an interactive drag-to-rotate **3D** hero, and smooth scroll-reveal
 - [x] **Day 70 — Currency settings.** Choose currency, format everywhere.
 - [x] **Day 71 — Export CSV.** Export transactions (pure serializer tested).
 - [x] **Day 72 — Export PDF.** Export a report.
-- [ ] **Day 73 — Import CSV.** Parse + validate + insert (parser tested).
+- [x] **Day 73 — Import CSV.** Parse + validate + insert (parser tested).
 
 ## Week 12 — Insights & UX
 

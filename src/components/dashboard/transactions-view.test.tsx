@@ -20,6 +20,7 @@ const {
   mockUseSession,
   mockUseTags,
   mockCreateTransaction,
+  mockCreateTransactions,
   mockUpdateTransaction,
   mockDeleteTransaction,
 } = vi.hoisted(() => ({
@@ -27,6 +28,7 @@ const {
   mockUseSession: vi.fn(),
   mockUseTags: vi.fn(),
   mockCreateTransaction: vi.fn(),
+  mockCreateTransactions: vi.fn(),
   mockUpdateTransaction: vi.fn(),
   mockDeleteTransaction: vi.fn(),
 }));
@@ -38,6 +40,7 @@ vi.mock("@/components/auth/session-provider", () => ({
 vi.mock("@/components/use-tags", () => ({ useTags: mockUseTags }));
 vi.mock("@/lib/supabase/transactions", () => ({
   createTransaction: mockCreateTransaction,
+  createTransactions: mockCreateTransactions,
   updateTransaction: mockUpdateTransaction,
   deleteTransaction: mockDeleteTransaction,
 }));
@@ -161,6 +164,8 @@ beforeEach(() => {
   });
   mockCreateTransaction.mockReset();
   mockCreateTransaction.mockResolvedValue({ data: null, error: null });
+  mockCreateTransactions.mockReset();
+  mockCreateTransactions.mockResolvedValue({ data: null, error: null });
   mockUpdateTransaction.mockReset();
   mockUpdateTransaction.mockResolvedValue({ data: null, error: null });
   mockDeleteTransaction.mockReset();
@@ -428,6 +433,19 @@ describe("TransactionsView", () => {
         screen.getByLabelText("Category").querySelectorAll("option"),
       ).map((option) => option.textContent),
     ).toEqual(["Choose a category", "Housing", "Food & dining"]);
+  });
+
+  it("opens the CSV import dialog from the page header", async () => {
+    const user = userEvent.setup();
+    render(<TransactionsView />);
+
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: /import csv/i }));
+
+    expect(
+      screen.getByRole("dialog", { name: "Import transactions" }),
+    ).toBeInTheDocument();
   });
 
   it("saves a new transaction and reloads the list", async () => {

@@ -19,6 +19,7 @@ import {
   Tag,
   Tags,
   Trash2,
+  Upload,
   X,
 } from "lucide-react";
 import { useSession } from "@/components/auth/session-provider";
@@ -26,6 +27,7 @@ import { ConfirmDialog } from "@/components/dashboard/confirm-dialog";
 import { EASE, WIDGET_CARD_CLASS } from "@/components/dashboard/motion";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { PageShell } from "@/components/dashboard/page-shell";
+import { ImportCsvModal } from "@/components/dashboard/import-csv-modal";
 import { ReceiptModal } from "@/components/dashboard/receipt-modal";
 import { SegmentedControl } from "@/components/dashboard/segmented-control";
 import { Snackbar } from "@/components/dashboard/snackbar";
@@ -256,6 +258,7 @@ export function TransactionsView() {
   /** The 1-based page of filtered rows currently on screen. */
   const [page, setPage] = useState(1);
   const [adding, setAdding] = useState(false);
+  const [importing, setImporting] = useState(false);
   const [editing, setEditing] = useState<Transaction | null>(null);
   const [tagging, setTagging] = useState<Transaction | null>(null);
   const [receipting, setReceipting] = useState<Transaction | null>(null);
@@ -433,6 +436,16 @@ export function TransactionsView() {
           description="Every income and expense you have recorded — search and filter your way through them."
           action={
             <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setImporting(true)}
+                disabled={data === null}
+                title="Import transactions from a CSV file"
+                className="inline-flex h-10 items-center gap-2 rounded-full border border-border bg-surface px-5 text-sm font-medium text-text-secondary transition-colors hover:border-primary/40 hover:text-text disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:border-border disabled:hover:text-text-secondary"
+              >
+                <Upload className="h-4 w-4" />
+                Import CSV
+              </button>
               <button
                 type="button"
                 onClick={handleExportCsv}
@@ -798,6 +811,23 @@ export function TransactionsView() {
           </motion.nav>
         )}
       </div>
+
+      <AnimatePresence>
+        {importing && (
+          <ImportCsvModal
+            categories={data?.categories ?? []}
+            onClose={() => setImporting(false)}
+            onImported={(count) => {
+              setImporting(false);
+              reload();
+              setNotice({
+                message: `Imported ${count} transaction${count === 1 ? "" : "s"}.`,
+                tone: "neutral",
+              });
+            }}
+          />
+        )}
+      </AnimatePresence>
 
       <AnimatePresence>
         {adding && (
