@@ -26,6 +26,19 @@ vi.mock("@/lib/supabase/client", () => ({
   signOut: mockSignOut,
 }));
 
+vi.mock("@/components/use-user-data", () => ({
+  useUserData: () => ({
+    status: "ready",
+    data: { transactions: [], categories: [], budgets: [] },
+    error: null,
+    reload: vi.fn(),
+  }),
+}));
+
+vi.mock("@/components/use-recurring-entries", () => ({
+  useRecurringEntries: () => [],
+}));
+
 function stubMatchMedia(matches: boolean) {
   const mediaQueryList = {
     matches,
@@ -136,6 +149,20 @@ describe("AppShell", () => {
 
     expect(
       await screen.findByRole("button", { name: "Log out" }),
+    ).toBeInTheDocument();
+  });
+
+  it("shows the notification center for signed-in users", async () => {
+    mockGetSession.mockResolvedValue({
+      data: {
+        session: { user: { id: "user-1", email: "ada@example.com" } },
+      },
+      error: null,
+    });
+    renderShell();
+
+    expect(
+      await screen.findByRole("button", { name: "Notifications" }),
     ).toBeInTheDocument();
   });
 
