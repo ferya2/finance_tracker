@@ -26,6 +26,7 @@ import { useState, type ReactNode } from "react";
 import { useSession } from "@/components/auth/session-provider";
 import { CurrencyProvider } from "@/components/currency-provider";
 import { DarkModeToggle } from "@/components/dark-mode-toggle";
+import { NotificationCenter } from "@/components/dashboard/notification-center";
 import { UserChip } from "@/components/dashboard/user-chip";
 import { usePrefersReducedMotion } from "@/components/use-prefers-reduced-motion";
 
@@ -204,6 +205,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               </span>
             </div>
             <div className="ml-auto flex items-center gap-3 lg:ml-0">
+              <NotificationCenter />
               <UserChip />
               <DarkModeToggle />
             </div>
