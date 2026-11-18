@@ -27,6 +27,7 @@ import { useSession } from "@/components/auth/session-provider";
 import { CurrencyProvider } from "@/components/currency-provider";
 import { DarkModeToggle } from "@/components/dark-mode-toggle";
 import { NotificationCenter } from "@/components/dashboard/notification-center";
+import { OnboardingWizard } from "@/components/dashboard/onboarding-wizard";
 import { UserChip } from "@/components/dashboard/user-chip";
 import { usePrefersReducedMotion } from "@/components/use-prefers-reduced-motion";
 
@@ -214,6 +215,8 @@ export function AppShell({ children }: { children: ReactNode }) {
           <AnimatePresence>
             {mobileOpen && <MobileDrawer onClose={() => setMobileOpen(false)} />}
           </AnimatePresence>
+
+          {user?.id && <OnboardingWizard userId={user.id} />}
 
           <main className="flex flex-1 flex-col">{children}</main>
         </div>

@@ -168,7 +168,7 @@ whitespace, an interactive drag-to-rotate **3D** hero, and smooth scroll-reveal
 - [x] **Day 74 — Insights (real).** Top categories, average spend, trends (tested).
 - [x] **Day 75 — Budget recommendations.** Suggest budgets from history. Tests.
 - [x] **Day 76 — In-app notifications.** Over-budget / reminders center.
-- [ ] **Day 77 — Onboarding.** First-run guided setup, animated.
+- [x] **Day 77 — Onboarding.** First-run guided setup, animated.
 - [ ] **Day 78 — Quick add / command palette.** Fast entry via keyboard.
 - [ ] **Day 79 — Keyboard shortcuts.** Navigate + actions.
 - [ ] **Day 80 — Skeleton/empty/error states.** Everywhere, animated.
