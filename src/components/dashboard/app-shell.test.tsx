@@ -39,6 +39,12 @@ vi.mock("@/components/use-recurring-entries", () => ({
   useRecurringEntries: () => [],
 }));
 
+vi.mock("@/components/dashboard/onboarding-wizard", () => ({
+  OnboardingWizard: ({ userId }: { userId: string }) => (
+    <div data-testid="onboarding-wizard">{userId}</div>
+  ),
+}));
+
 function stubMatchMedia(matches: boolean) {
   const mediaQueryList = {
     matches,
@@ -164,6 +170,20 @@ describe("AppShell", () => {
     expect(
       await screen.findByRole("button", { name: "Notifications" }),
     ).toBeInTheDocument();
+  });
+
+  it("mounts the onboarding guide for the signed-in user", async () => {
+    mockGetSession.mockResolvedValue({
+      data: {
+        session: { user: { id: "user-1", email: "ada@example.com" } },
+      },
+      error: null,
+    });
+    renderShell();
+
+    expect(await screen.findByTestId("onboarding-wizard")).toHaveTextContent(
+      "user-1",
+    );
   });
 
   it("opens the mobile menu drawer with navigation", async () => {
