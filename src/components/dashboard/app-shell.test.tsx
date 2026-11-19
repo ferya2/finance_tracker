@@ -6,11 +6,13 @@ import { AppShell } from "./app-shell";
 
 const {
   mockUsePathname,
+  mockPush,
   mockGetSession,
   mockOnAuthStateChange,
   mockSignOut,
 } = vi.hoisted(() => ({
   mockUsePathname: vi.fn(),
+  mockPush: vi.fn(),
   mockGetSession: vi.fn(),
   mockOnAuthStateChange: vi.fn(),
   mockSignOut: vi.fn(),
@@ -18,6 +20,7 @@ const {
 
 vi.mock("next/navigation", () => ({
   usePathname: () => mockUsePathname(),
+  useRouter: () => ({ push: mockPush }),
 }));
 
 vi.mock("@/lib/supabase/client", () => ({
@@ -27,6 +30,7 @@ vi.mock("@/lib/supabase/client", () => ({
 }));
 
 vi.mock("@/components/use-user-data", () => ({
+  USER_DATA_CHANGED_EVENT: "finance:user-data-changed",
   useUserData: () => ({
     status: "ready",
     data: { transactions: [], categories: [], budgets: [] },
@@ -169,6 +173,20 @@ describe("AppShell", () => {
 
     expect(
       await screen.findByRole("button", { name: "Notifications" }),
+    ).toBeInTheDocument();
+  });
+
+  it("offers the command palette for signed-in users", async () => {
+    mockGetSession.mockResolvedValue({
+      data: {
+        session: { user: { id: "user-1", email: "ada@example.com" } },
+      },
+      error: null,
+    });
+    renderShell();
+
+    expect(
+      await screen.findByRole("button", { name: "Open command palette" }),
     ).toBeInTheDocument();
   });
 

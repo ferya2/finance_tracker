@@ -1,7 +1,7 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { PostgrestError } from "@supabase/supabase-js";
-import { useUserData } from "./use-user-data";
+import { USER_DATA_CHANGED_EVENT, useUserData } from "./use-user-data";
 import type { UserData } from "@/lib/supabase/dashboard";
 
 const { mockLoadUserData } = vi.hoisted(() => ({
@@ -67,6 +67,20 @@ describe("useUserData", () => {
     await waitFor(() => expect(result.current.status).toBe("error"));
     expect(result.current.data).toBeNull();
     expect(result.current.error).toBe(dbError);
+  });
+
+  it("refetches when a quick add announces changed data", async () => {
+    mockLoadUserData.mockResolvedValue({ data: DATA, error: null });
+
+    const { result } = renderHook(() => useUserData());
+    await waitFor(() => expect(result.current.status).toBe("ready"));
+
+    act(() => {
+      window.dispatchEvent(new Event(USER_DATA_CHANGED_EVENT));
+    });
+
+    expect(mockLoadUserData).toHaveBeenCalledTimes(2);
+    await waitFor(() => expect(result.current.status).toBe("ready"));
   });
 
   it("refetches when reload is called", async () => {
