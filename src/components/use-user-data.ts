@@ -4,6 +4,8 @@ import { useCallback, useEffect, useState } from "react";
 import type { PostgrestError } from "@supabase/supabase-js";
 import { loadUserData, type UserData } from "@/lib/supabase/dashboard";
 
+export const USER_DATA_CHANGED_EVENT = "finance:user-data-changed";
+
 export type UserDataStatus = "loading" | "ready" | "error";
 
 export interface UseUserDataResult {
@@ -48,6 +50,15 @@ export function useUserData(): UseUserDataResult {
       active = false;
     };
   }, [reloadKey]);
+
+  useEffect(() => {
+    function handleChange() {
+      reload();
+    }
+
+    window.addEventListener(USER_DATA_CHANGED_EVENT, handleChange);
+    return () => window.removeEventListener(USER_DATA_CHANGED_EVENT, handleChange);
+  }, [reload]);
 
   return { status, data, error, reload };
 }
