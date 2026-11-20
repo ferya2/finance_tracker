@@ -30,6 +30,10 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import {
+  OPEN_COMMAND_PALETTE_EVENT,
+  type CommandPaletteOpenDetail,
+} from "@/components/dashboard/command-palette-event";
 import { EASE, staggerDelay } from "@/components/dashboard/motion";
 import { SegmentedControl } from "@/components/dashboard/segmented-control";
 import { Snackbar } from "@/components/dashboard/snackbar";
@@ -172,17 +176,20 @@ export function CommandPalette() {
     [categories, values.type],
   );
 
-  const openPalette = useCallback(() => {
-    setQuery("");
-    setSelected(0);
-    setMode("commands");
-    setValues(emptyTransactionForm(referenceDate));
-    setFieldErrors({});
-    setSubmitted(false);
-    setStatus({ type: "idle" });
-    setCategoriesLoading(true);
-    setOpen(true);
-  }, [referenceDate]);
+  const openPalette = useCallback(
+    (mode: CommandPaletteOpenDetail["mode"] = "commands") => {
+      setQuery("");
+      setSelected(0);
+      setMode(mode);
+      setValues(emptyTransactionForm(referenceDate));
+      setFieldErrors({});
+      setSubmitted(false);
+      setStatus({ type: "idle" });
+      setCategoriesLoading(true);
+      setOpen(true);
+    },
+    [referenceDate],
+  );
 
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
@@ -193,6 +200,16 @@ export function CommandPalette() {
 
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [openPalette]);
+
+  useEffect(() => {
+    function handleOpen(event: Event) {
+      const detail = (event as CustomEvent<CommandPaletteOpenDetail>).detail;
+      openPalette(detail?.mode === "add" ? "add" : "commands");
+    }
+
+    window.addEventListener(OPEN_COMMAND_PALETTE_EVENT, handleOpen);
+    return () => window.removeEventListener(OPEN_COMMAND_PALETTE_EVENT, handleOpen);
   }, [openPalette]);
 
   useEffect(() => {
@@ -299,7 +316,7 @@ export function CommandPalette() {
     <>
       <button
         type="button"
-        onClick={openPalette}
+        onClick={() => openPalette()}
         aria-label="Open command palette"
         aria-haspopup="dialog"
         aria-expanded={open}
