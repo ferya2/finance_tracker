@@ -3,6 +3,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { PostgrestError } from "@supabase/supabase-js";
 import { CommandPalette } from "./command-palette";
+import { OPEN_COMMAND_PALETTE_EVENT } from "@/components/dashboard/command-palette-event";
 import { USER_DATA_CHANGED_EVENT } from "@/components/use-user-data";
 
 const { mockPush, mockListCategories, mockCreateTransaction } = vi.hoisted(() => ({
@@ -89,6 +90,18 @@ describe("CommandPalette", () => {
     await waitFor(() =>
       expect(screen.queryByRole("dialog", { name: "Command palette" })).toBeNull(),
     );
+  });
+
+  it("opens quick add from a keyboard shortcut event", async () => {
+    render(<CommandPalette />);
+
+    window.dispatchEvent(
+      new CustomEvent(OPEN_COMMAND_PALETTE_EVENT, { detail: { mode: "add" } }),
+    );
+
+    expect(
+      await screen.findByRole("heading", { name: "Quick add transaction" }),
+    ).toBeInTheDocument();
   });
 
   it("supports arrow-key selection and Escape", async () => {

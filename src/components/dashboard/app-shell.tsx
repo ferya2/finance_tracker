@@ -27,6 +27,7 @@ import { useSession } from "@/components/auth/session-provider";
 import { CurrencyProvider } from "@/components/currency-provider";
 import { DarkModeToggle } from "@/components/dark-mode-toggle";
 import { CommandPalette } from "@/components/dashboard/command-palette";
+import { KeyboardShortcuts } from "@/components/dashboard/keyboard-shortcuts";
 import { NotificationCenter } from "@/components/dashboard/notification-center";
 import { OnboardingWizard } from "@/components/dashboard/onboarding-wizard";
 import { UserChip } from "@/components/dashboard/user-chip";
@@ -207,7 +208,12 @@ export function AppShell({ children }: { children: ReactNode }) {
               </span>
             </div>
             <div className="ml-auto flex items-center gap-3 lg:ml-0">
-              {user?.id && <CommandPalette />}
+              {user?.id && (
+                <>
+                  <KeyboardShortcuts />
+                  <CommandPalette />
+                </>
+              )}
               <NotificationCenter />
               <UserChip />
               <DarkModeToggle />

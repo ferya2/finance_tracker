@@ -170,7 +170,7 @@ whitespace, an interactive drag-to-rotate **3D** hero, and smooth scroll-reveal
 - [x] **Day 76 — In-app notifications.** Over-budget / reminders center.
 - [x] **Day 77 — Onboarding.** First-run guided setup, animated.
 - [x] **Day 78 — Quick add / command palette.** Fast entry via keyboard.
-- [ ] **Day 79 — Keyboard shortcuts.** Navigate + actions.
+- [x] **Day 79 — Keyboard shortcuts.** Navigate + actions.
 - [ ] **Day 80 — Skeleton/empty/error states.** Everywhere, animated.
 
 ## Week 13 — Polish & PWA
