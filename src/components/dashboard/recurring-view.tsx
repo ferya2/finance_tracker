@@ -3,13 +3,11 @@
 import { useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
-  AlertTriangle,
   ArrowDownLeft,
   ArrowUpRight,
   Clock3,
   Pencil,
   Plus,
-  RefreshCw,
   Repeat,
   Trash2,
 } from "lucide-react";
@@ -24,6 +22,7 @@ import { PageHeader } from "@/components/dashboard/page-header";
 import { PageShell } from "@/components/dashboard/page-shell";
 import { RecurringFormModal } from "@/components/dashboard/recurring-form-modal";
 import { Snackbar } from "@/components/dashboard/snackbar";
+import { EmptyState, ErrorState, Skeleton } from "@/components/dashboard/state-view";
 import { usePrefersReducedMotion } from "@/components/use-prefers-reduced-motion";
 import {
   useIsHydrated,
@@ -66,24 +65,6 @@ function describePlan(input: NewRecurringTransaction): string {
   return note && note.length > 0 ? note : "recurring plan";
 }
 
-function Skeleton({ className }: { className: string }) {
-  const reduced = usePrefersReducedMotion();
-
-  return (
-    <motion.span
-      aria-hidden
-      initial={reduced ? false : { opacity: 0 }}
-      animate={reduced ? { opacity: 1 } : { opacity: [0.4, 0.85, 0.4] }}
-      transition={
-        reduced
-          ? { duration: 0 }
-          : { duration: 1.4, repeat: Infinity, ease: EASE }
-      }
-      className={`block rounded-full bg-surface-subtle ${className}`}
-    />
-  );
-}
-
 function RecurringSkeleton() {
   return (
     <div
@@ -103,38 +84,6 @@ function RecurringSkeleton() {
           <Skeleton className="mt-4 h-3 w-1/3" />
         </div>
       ))}
-    </div>
-  );
-}
-
-function RecurringError({
-  message,
-  onRetry,
-}: {
-  message: string;
-  onRetry: () => void;
-}) {
-  return (
-    <div className={`${WIDGET_CARD_CLASS} flex flex-col items-start gap-4`}>
-      <div className="flex items-center gap-3">
-        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-danger-light text-danger">
-          <AlertTriangle className="h-4 w-4" />
-        </span>
-        <div>
-          <h2 className="text-base font-semibold text-text">
-            Could not load your categories
-          </h2>
-          <p className="mt-0.5 text-sm text-text-secondary">{message}</p>
-        </div>
-      </div>
-      <button
-        type="button"
-        onClick={onRetry}
-        className="inline-flex h-10 items-center gap-2 rounded-full bg-primary px-5 text-sm font-medium text-primary-foreground shadow-lg shadow-primary/25 transition-transform hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary motion-reduce:transform-none"
-      >
-        <RefreshCw className="h-4 w-4" />
-        Try again
-      </button>
     </div>
   );
 }
@@ -248,37 +197,6 @@ function RecurringCard({
   );
 }
 
-function EmptyState({ onAdd }: { onAdd: () => void }) {
-  const reduced = usePrefersReducedMotion();
-
-  return (
-    <motion.div
-      initial={reduced ? false : { opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, ease: EASE }}
-      className={`${WIDGET_CARD_CLASS} flex flex-col items-center gap-3 py-14 text-center`}
-    >
-      <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary-light text-primary">
-        <Repeat className="h-6 w-6" />
-      </span>
-      <div>
-        <p className="text-sm font-semibold text-text">No recurring plans yet</p>
-        <p className="mt-1 text-sm text-text-muted">
-          Add rent, a salary or any income and expense that repeats.
-        </p>
-      </div>
-      <button
-        type="button"
-        onClick={onAdd}
-        className="mt-2 inline-flex h-10 items-center gap-2 rounded-full bg-primary px-5 text-sm font-medium text-primary-foreground shadow-lg shadow-primary/25 transition-transform hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary motion-reduce:transform-none"
-      >
-        <Plus className="h-4 w-4" />
-        Add recurring plan
-      </button>
-    </motion.div>
-  );
-}
-
 export function RecurringView() {
   const { status, data, error, reload } = useUserData();
   const { user } = useSession();
@@ -376,10 +294,11 @@ export function RecurringView() {
               exit={reduced ? undefined : { opacity: 0, y: -6 }}
               transition={{ duration: 0.35, ease: EASE }}
             >
-              <RecurringError
+              <ErrorState
+                title="Could not load your recurring plans"
                 message={
                   error?.message ??
-                  "Something went wrong while loading your categories."
+                  "Something went wrong while loading your recurring plans."
                 }
                 onRetry={reload}
               />
@@ -402,7 +321,13 @@ export function RecurringView() {
               exit={reduced ? undefined : { opacity: 0, y: -6 }}
               transition={{ duration: 0.35, ease: EASE }}
             >
-              <EmptyState onAdd={() => setAdding(true)} />
+              <EmptyState
+                icon={Repeat}
+                title="No recurring plans yet"
+                description="Add rent, a salary or any income and expense that repeats."
+                actionLabel="Add recurring plan"
+                onAction={() => setAdding(true)}
+              />
             </motion.div>
           ) : (
             <motion.ul

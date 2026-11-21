@@ -173,7 +173,7 @@ describe("RecurringView", () => {
     expect(stored()).toEqual([]);
   });
 
-  it("shows the category failure with a retry", async () => {
+  it("shows the recurring-plan failure with a retry", async () => {
     const reload = vi.fn();
     mockUseUserData.mockReturnValue({
       status: "error",
@@ -185,7 +185,7 @@ describe("RecurringView", () => {
     render(<RecurringView />);
 
     expect(
-      screen.getByText("Could not load your categories"),
+      screen.getByText("Could not load your recurring plans"),
     ).toBeInTheDocument();
     expect(screen.getByText("Failed to fetch categories")).toBeInTheDocument();
 

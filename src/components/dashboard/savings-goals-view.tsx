@@ -21,6 +21,7 @@ import {
 import { PageHeader } from "@/components/dashboard/page-header";
 import { PageShell } from "@/components/dashboard/page-shell";
 import { SavingsGoalFormModal } from "@/components/dashboard/savings-goal-form-modal";
+import { EmptyState, Skeleton } from "@/components/dashboard/state-view";
 import { Snackbar } from "@/components/dashboard/snackbar";
 import { useIsClient } from "@/components/use-is-client";
 import { usePrefersReducedMotion } from "@/components/use-prefers-reduced-motion";
@@ -256,37 +257,6 @@ function GoalCard({
   );
 }
 
-function EmptyState({ onAdd }: { onAdd: () => void }) {
-  const reduced = usePrefersReducedMotion();
-
-  return (
-    <motion.div
-      initial={reduced ? false : { opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, ease: EASE }}
-      className={`${WIDGET_CARD_CLASS} flex flex-col items-center gap-3 py-14 text-center`}
-    >
-      <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary-light text-primary">
-        <Target className="h-6 w-6" />
-      </span>
-      <div>
-        <p className="text-sm font-semibold text-text">No savings goals yet</p>
-        <p className="mt-1 text-sm text-text-muted">
-          Set a target and watch your progress grow.
-        </p>
-      </div>
-      <button
-        type="button"
-        onClick={onAdd}
-        className="mt-2 inline-flex h-10 items-center gap-2 rounded-full bg-primary px-5 text-sm font-medium text-primary-foreground shadow-lg shadow-primary/25 transition-transform hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary motion-reduce:transform-none"
-      >
-        <Plus className="h-4 w-4" />
-        Add savings goal
-      </button>
-    </motion.div>
-  );
-}
-
 export function SavingsGoalsView() {
   const { user } = useSession();
   const userId = user?.id ?? null;
@@ -356,12 +326,20 @@ export function SavingsGoalsView() {
           {!hydrated ? (
             <motion.div
               key="loading"
+              role="status"
+              aria-label="Loading savings goals"
               initial={false}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className={`${WIDGET_CARD_CLASS} py-14 text-center`}
+              className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
             >
-              <p className="text-sm text-text-muted">Loading your goals…</p>
+              {[0, 1, 2].map((index) => (
+                <div key={index} className={WIDGET_CARD_CLASS}>
+                  <Skeleton className="h-10 w-10" delay={index * 0.08} />
+                  <Skeleton className="mt-4 h-3.5 w-1/2" delay={index * 0.08} />
+                  <Skeleton className="mt-3 h-2 w-full" delay={index * 0.08} />
+                </div>
+              ))}
             </motion.div>
           ) : goals.length === 0 ? (
             <motion.div
@@ -370,7 +348,13 @@ export function SavingsGoalsView() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
             >
-              <EmptyState onAdd={() => setAdding(true)} />
+              <EmptyState
+                icon={Target}
+                title="No savings goals yet"
+                description="Set a target and watch your progress grow."
+                actionLabel="Add savings goal"
+                onAction={() => setAdding(true)}
+              />
             </motion.div>
           ) : (
             <motion.div

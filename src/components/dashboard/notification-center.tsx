@@ -13,6 +13,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useSession } from "@/components/auth/session-provider";
 import { useCurrency } from "@/components/currency-provider";
 import { EASE, staggerDelay } from "@/components/dashboard/motion";
+import { EmptyState, Skeleton } from "@/components/dashboard/state-view";
 import { usePrefersReducedMotion } from "@/components/use-prefers-reduced-motion";
 import { useRecurringEntries } from "@/components/use-recurring-entries";
 import { useUserData } from "@/components/use-user-data";
@@ -204,24 +205,21 @@ function NotificationMenu({ userId }: { userId: string }) {
               >
                 {[0, 1].map((row) => (
                   <div key={row} className="flex gap-3">
-                    <span className="h-8 w-8 shrink-0 animate-pulse rounded-full bg-surface-subtle" />
+                    <Skeleton className="h-8 w-8 shrink-0" delay={row * 0.1} />
                     <span className="flex-1 space-y-2 py-1">
-                      <span className="block h-3 w-2/3 animate-pulse rounded-full bg-surface-subtle" />
-                      <span className="block h-3 w-1/2 animate-pulse rounded-full bg-surface-subtle" />
+                      <Skeleton className="h-3 w-2/3" delay={row * 0.1} />
+                      <Skeleton className="h-3 w-1/2" delay={row * 0.1} />
                     </span>
                   </div>
                 ))}
               </div>
             ) : count === 0 ? (
-              <div className="flex flex-col items-center gap-2 px-6 py-8 text-center">
-                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-surface-subtle text-text-muted">
-                  <Inbox className="h-5 w-5" />
-                </span>
-                <p className="text-sm font-medium text-text">All caught up</p>
-                <p className="text-xs text-text-muted">
-                  Budget alerts and upcoming plans will appear here.
-                </p>
-              </div>
+              <EmptyState
+                compact
+                icon={Inbox}
+                title="All caught up"
+                description="Budget alerts and upcoming plans will appear here."
+              />
             ) : (
               <ul className="max-h-80 divide-y divide-border overflow-y-auto">
                 {visible.map((notification, index) => (
