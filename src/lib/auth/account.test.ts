@@ -27,6 +27,17 @@ describe("getProfileInitials", () => {
     ).toBe("AL");
   });
 
+  it("prefers the saved display name", () => {
+    expect(
+      getProfileInitials(
+        user({
+          email: "ada@example.com",
+          settings: { displayName: "Grace Hopper" },
+        }),
+      ),
+    ).toBe("GH");
+  });
+
   it("falls back to a placeholder when the email is missing", () => {
     expect(getProfileInitials(user({}))).toBe(UNKNOWN_INITIALS);
   });
@@ -37,6 +48,17 @@ describe("getDisplayName", () => {
     expect(
       getDisplayName(user({ email: "ada@example.com" })),
     ).toBe("ada@example.com");
+  });
+
+  it("prefers the saved display name", () => {
+    expect(
+      getDisplayName(
+        user({
+          email: "ada@example.com",
+          settings: { displayName: "Ada Lovelace" },
+        }),
+      ),
+    ).toBe("Ada Lovelace");
   });
 
   it("falls back to a generic label when the email is missing", () => {

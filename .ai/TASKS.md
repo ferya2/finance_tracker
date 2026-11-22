@@ -175,7 +175,7 @@ whitespace, an interactive drag-to-rotate **3D** hero, and smooth scroll-reveal
 
 ## Week 13 — Polish & PWA
 
-- [ ] **Day 81 — Settings (real).** Persist profile, currency, theme.
+- [x] **Day 81 — Settings (real).** Persist profile, currency, theme.
 - [ ] **Day 82 — Theme customization.** Accent colors, persisted.
 - [ ] **Day 83 — PWA.** Installable + offline app shell.
 - [ ] **Day 84 — Performance.** Lazy-load, memoization, bundle trims.

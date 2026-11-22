@@ -78,4 +78,35 @@ describe("toAuthUser", () => {
   it("omits the email property when it is null", () => {
     expect(toAuthUser({ id: "user-1", email: null })).toEqual({ id: "user-1" });
   });
+
+  it("reads the user's saved settings from auth metadata", () => {
+    expect(
+      toAuthUser({
+        id: "user-1",
+        email: "ada@example.com",
+        user_metadata: {
+          display_name: "Ada Lovelace",
+          currency: "EUR",
+          theme: "dark",
+        },
+      }),
+    ).toEqual({
+      id: "user-1",
+      email: "ada@example.com",
+      settings: {
+        displayName: "Ada Lovelace",
+        currency: "EUR",
+        theme: "dark",
+      },
+    });
+  });
+
+  it("omits settings when the metadata has no valid preferences", () => {
+    expect(
+      toAuthUser({
+        id: "user-1",
+        user_metadata: { currency: "XXX", theme: "neon" },
+      }),
+    ).toEqual({ id: "user-1" });
+  });
 });

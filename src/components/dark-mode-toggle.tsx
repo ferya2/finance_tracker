@@ -2,6 +2,7 @@
 
 import { Moon, Sun } from "lucide-react";
 import { useCallback, useEffect, useRef, useSyncExternalStore } from "react";
+import type { ThemePreference } from "@/lib/auth/settings";
 
 function getInitialDark(): boolean {
   if (typeof window === "undefined") return false;
@@ -26,6 +27,17 @@ function getServerSnapshot(): boolean {
   return false;
 }
 
+export function getTheme(): ThemePreference {
+  return isDark ? "dark" : "light";
+}
+
+export function setTheme(theme: ThemePreference): void {
+  isDark = theme === "dark";
+  document.documentElement.classList.toggle("dark", isDark);
+  localStorage.setItem("theme", theme);
+  window.dispatchEvent(new Event("theme-change"));
+}
+
 export function DarkModeToggle() {
   const dark = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
   const initialized = useRef(false);
@@ -39,10 +51,7 @@ export function DarkModeToggle() {
   }, []);
 
   const toggle = useCallback(() => {
-    isDark = !isDark;
-    document.documentElement.classList.toggle("dark", isDark);
-    localStorage.setItem("theme", isDark ? "dark" : "light");
-    window.dispatchEvent(new Event("theme-change"));
+    setTheme(getTheme() === "dark" ? "light" : "dark");
   }, []);
 
   return (

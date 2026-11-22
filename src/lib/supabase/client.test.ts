@@ -8,6 +8,7 @@ import {
   signInWithPassword,
   signOut,
   signUp,
+  updateUserSettings,
 } from "./client";
 
 const { mockAuth, mockCreateClient } = vi.hoisted(() => ({
@@ -18,6 +19,7 @@ const { mockAuth, mockCreateClient } = vi.hoisted(() => ({
     getSession: vi.fn(),
     onAuthStateChange: vi.fn(),
     resetPasswordForEmail: vi.fn(),
+    updateUser: vi.fn(),
   },
   mockCreateClient: vi.fn(),
 }));
@@ -34,6 +36,7 @@ beforeEach(() => {
   mockAuth.getSession.mockReset();
   mockAuth.onAuthStateChange.mockReset();
   mockAuth.resetPasswordForEmail.mockReset();
+  mockAuth.updateUser.mockReset();
   mockCreateClient.mockReturnValue({ auth: mockAuth });
 });
 
@@ -168,5 +171,24 @@ describe("auth helpers", () => {
     expect(mockAuth.onAuthStateChange).toHaveBeenCalledWith(callback);
     result.data.subscription.unsubscribe();
     expect(unsubscribe).toHaveBeenCalledOnce();
+  });
+
+  it("persists profile and preferences in auth user metadata", async () => {
+    mockAuth.updateUser.mockResolvedValue({ error: null });
+
+    const result = await updateUserSettings({
+      displayName: "Ada Lovelace",
+      currency: "EUR",
+      theme: "dark",
+    });
+
+    expect(mockAuth.updateUser).toHaveBeenCalledWith({
+      data: {
+        display_name: "Ada Lovelace",
+        currency: "EUR",
+        theme: "dark",
+      },
+    });
+    expect(result).toEqual({ error: null });
   });
 });
