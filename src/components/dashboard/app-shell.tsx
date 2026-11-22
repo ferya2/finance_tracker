@@ -32,6 +32,7 @@ import { NotificationCenter } from "@/components/dashboard/notification-center";
 import { OnboardingWizard } from "@/components/dashboard/onboarding-wizard";
 import { UserChip } from "@/components/dashboard/user-chip";
 import { usePrefersReducedMotion } from "@/components/use-prefers-reduced-motion";
+import { UserSettingsSync } from "@/components/user-settings-sync";
 
 interface NavItem {
   label: string;
@@ -179,6 +180,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <CurrencyProvider userId={user?.id}>
+      <UserSettingsSync />
       <div className="flex min-h-dvh w-full bg-background">
         <aside className="sticky top-0 hidden h-dvh w-64 shrink-0 flex-col border-r border-border bg-surface lg:flex">
           <div className="flex h-16 items-center border-b border-border px-5">

@@ -1,15 +1,25 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
-import { motion } from "framer-motion";
-import { Bell, Download, Palette, User } from "lucide-react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type FormEvent,
+  type ReactNode,
+} from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { Bell, Download, Loader2, Palette, Save, User } from "lucide-react";
+import { useSession } from "@/components/auth/session-provider";
 import { useCurrency } from "@/components/currency-provider";
-import { DarkModeToggle } from "@/components/dark-mode-toggle";
+import { DarkModeToggle, getTheme } from "@/components/dark-mode-toggle";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { PageShell } from "@/components/dashboard/page-shell";
 import { usePrefersReducedMotion } from "@/components/use-prefers-reduced-motion";
+import { getDisplayName } from "@/lib/auth/account";
+import { normalizeDisplayName } from "@/lib/auth/settings";
 import { SUPPORTED_CURRENCIES } from "@/lib/finance/currency";
 import { sanitizeCurrencyCode } from "@/lib/finance/currency-settings";
+import { updateUserSettings } from "@/lib/supabase/client";
 
 function Field({
   label,
@@ -99,9 +109,58 @@ function SectionCard({
   );
 }
 
+interface Feedback {
+  tone: "success" | "error";
+  message: string;
+}
+
 export function SettingsView() {
-  const [displayName, setDisplayName] = useState("Ada Lovelace");
+  const { user } = useSession();
   const { currency, setCurrency, format } = useCurrency();
+  const reduced = usePrefersReducedMotion();
+  const profileName = user ? getDisplayName(user) : "";
+  const profileKey = user ? `${user.id}:${profileName}` : "";
+  const appliedProfile = useRef("");
+  const [displayName, setDisplayName] = useState(profileName);
+  const [saving, setSaving] = useState(false);
+  const [feedback, setFeedback] = useState<Feedback | null>(null);
+
+  useEffect(() => {
+    if (!profileKey || appliedProfile.current === profileKey) return;
+    appliedProfile.current = profileKey;
+    setDisplayName(profileName);
+  }, [profileKey, profileName]);
+
+  async function handleSave(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const name = normalizeDisplayName(displayName);
+    if (!name) {
+      setFeedback({ tone: "error", message: "Enter a display name." });
+      return;
+    }
+
+    setSaving(true);
+    setFeedback(null);
+    try {
+      const { error } = await updateUserSettings({
+        displayName: name,
+        currency,
+        theme: getTheme(),
+      });
+      if (error) throw error;
+      setFeedback({ tone: "success", message: "Settings saved." });
+    } catch (error) {
+      setFeedback({
+        tone: "error",
+        message:
+          error instanceof Error
+            ? error.message
+            : "Could not save settings. Please try again.",
+      });
+    } finally {
+      setSaving(false);
+    }
+  }
 
   return (
     <PageShell>
@@ -112,7 +171,7 @@ export function SettingsView() {
           description="Your profile, preferences and notifications — all in one place."
         />
 
-        <div className="flex flex-col gap-4">
+        <form onSubmit={handleSave} className="flex flex-col gap-4">
           <SectionCard icon={<User className="h-4 w-4" />} title="Profile">
             <div className="grid gap-4 sm:grid-cols-2">
               <Field label="Display name">
@@ -127,7 +186,7 @@ export function SettingsView() {
               <Field label="Email">
                 <input
                   type="email"
-                  defaultValue="ada@example.com"
+                  value={user?.email ?? ""}
                   readOnly
                   className={`${inputClassName} opacity-60`}
                 />
@@ -204,7 +263,40 @@ export function SettingsView() {
               Export data
             </button>
           </SectionCard>
-        </div>
+
+          <div className="flex flex-col items-end gap-2 pt-2">
+            <AnimatePresence initial={false}>
+              {feedback && (
+                <motion.p
+                  key={feedback.message}
+                  role={feedback.tone === "error" ? "alert" : "status"}
+                  initial={reduced ? false : { opacity: 0, y: -4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  className={`text-sm ${
+                    feedback.tone === "error"
+                      ? "text-danger"
+                      : "text-text-secondary"
+                  }`}
+                >
+                  {feedback.message}
+                </motion.p>
+              )}
+            </AnimatePresence>
+            <button
+              type="submit"
+              disabled={saving}
+              className="inline-flex h-10 items-center gap-2 rounded-full bg-primary px-5 text-sm font-semibold text-white shadow-sm transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {saving ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Save className="h-4 w-4" />
+              )}
+              {saving ? "Saving…" : "Save changes"}
+            </button>
+          </div>
+        </form>
       </div>
     </PageShell>
   );

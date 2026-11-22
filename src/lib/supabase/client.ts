@@ -4,6 +4,10 @@ import type {
   Session,
   SupabaseClient,
 } from "@supabase/supabase-js";
+import {
+  settingsToMetadata,
+  type UserSettingsUpdate,
+} from "@/lib/auth/settings";
 
 export type { SupabaseClient };
 
@@ -68,4 +72,10 @@ export function onAuthStateChange(
   callback: (event: AuthChangeEvent, session: Session | null) => void,
 ) {
   return getSupabaseClient().auth.onAuthStateChange(callback);
+}
+
+export async function updateUserSettings(settings: UserSettingsUpdate) {
+  return getSupabaseClient().auth.updateUser({
+    data: settingsToMetadata(settings),
+  });
 }

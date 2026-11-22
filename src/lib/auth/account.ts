@@ -7,8 +7,8 @@ function localPart(email: string): string {
   return email.split("@")[0] ?? "";
 }
 
-function initialsFromLocalPart(local: string): string {
-  return local
+function initialsFromText(value: string): string {
+  return value
     .split(/[^a-z0-9]+/i)
     .filter((part) => part.length > 0)
     .slice(0, 2)
@@ -16,15 +16,16 @@ function initialsFromLocalPart(local: string): string {
     .join("");
 }
 
-/** Avatar initials derived from the email's local part (e.g. "ada" → "A"). */
+/** Avatar initials from the saved display name, else the email's local part. */
 export function getProfileInitials(user: AuthUser): string {
-  if (!user.email) return UNKNOWN_INITIALS;
-  return initialsFromLocalPart(localPart(user.email)) || UNKNOWN_INITIALS;
+  const source =
+    user.settings?.displayName ?? (user.email ? localPart(user.email) : "");
+  return source ? initialsFromText(source) || UNKNOWN_INITIALS : UNKNOWN_INITIALS;
 }
 
 /** Human-friendly label for the current user. */
 export function getDisplayName(user: AuthUser): string {
-  return user.email ?? DEFAULT_DISPLAY_NAME;
+  return user.settings?.displayName ?? user.email ?? DEFAULT_DISPLAY_NAME;
 }
 
 /** Short, scannable form of the user id for display. */

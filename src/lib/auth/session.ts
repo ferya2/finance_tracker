@@ -1,6 +1,9 @@
+import { settingsFromMetadata, type UserSettings } from "./settings";
+
 export interface AuthUser {
   id: string;
   email?: string;
+  settings?: UserSettings;
 }
 
 export type AuthStatus = "loading" | "signedIn" | "signedOut";
@@ -41,9 +44,12 @@ export function sessionReducer(
 export function toAuthUser(user: {
   id: string;
   email?: string | null;
+  user_metadata?: Record<string, unknown> | null;
 }): AuthUser {
+  const settings = settingsFromMetadata(user.user_metadata);
   return {
     id: user.id,
     ...(user.email ? { email: user.email } : {}),
+    ...(Object.keys(settings).length > 0 ? { settings } : {}),
   };
 }
