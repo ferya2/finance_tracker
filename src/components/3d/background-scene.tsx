@@ -2,20 +2,9 @@
 
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Float, MeshDistortMaterial } from "@react-three/drei";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { Group, InstancedMesh, Object3D } from "three";
-
-function useDarkMode() {
-  const [dark, setDark] = useState(false);
-  useEffect(() => {
-    const check = () =>
-      setDark(document.documentElement.classList.contains("dark"));
-    check();
-    window.addEventListener("theme-change", check);
-    return () => window.removeEventListener("theme-change", check);
-  }, []);
-  return dark;
-}
+import { useThemeColors, type ThemeColors } from "./use-theme-colors";
 
 export const PARTICLE_COUNT = 56;
 
@@ -76,7 +65,7 @@ function usePointerParallax() {
 
 const dummy = new Object3D();
 
-function ParticleField({ dark }: { dark: boolean }) {
+function ParticleField({ colors }: { colors: ThemeColors }) {
   const mesh = useRef<InstancedMesh>(null);
   const particles = useMemo(() => createParticles(PARTICLE_COUNT), []);
 
@@ -109,13 +98,13 @@ function ParticleField({ dark }: { dark: boolean }) {
     >
       <sphereGeometry args={[1, 12, 12]} />
       <meshStandardMaterial
-        color={dark ? "#34d399" : "#059669"}
-        emissive={dark ? "#2dd4bf" : "#0d9488"}
+        color={colors.primary}
+        emissive={colors.accent}
         emissiveIntensity={0.5}
         metalness={0.1}
         roughness={0.3}
         transparent
-        opacity={dark ? 0.55 : 0.4}
+        opacity={colors.dark ? 0.55 : 0.4}
       />
     </instancedMesh>
   );
@@ -150,23 +139,32 @@ function AmbientOrb({
 }
 
 function Scene() {
-  const dark = useDarkMode();
+  const colors = useThemeColors();
   const parallaxRef = usePointerParallax();
-
-  const primary = dark ? "#34d399" : "#059669";
-  const accent = dark ? "#2dd4bf" : "#0d9488";
 
   return (
     <>
       <ambientLight intensity={0.45} />
       <directionalLight position={[4, 6, 6]} intensity={0.8} />
-      <pointLight position={[-6, -4, 3]} intensity={2} color={accent} />
+      <pointLight position={[-6, -4, 3]} intensity={2} color={colors.accent} />
 
       <group ref={parallaxRef}>
-        <ParticleField dark={dark} />
-        <AmbientOrb position={[-5.5, 3.4, -3]} scale={2.3} color={primary} />
-        <AmbientOrb position={[6, -3.6, -4]} scale={3.1} color={accent} />
-        <AmbientOrb position={[0.5, -5.2, -2]} scale={2.6} color={primary} />
+        <ParticleField colors={colors} />
+        <AmbientOrb
+          position={[-5.5, 3.4, -3]}
+          scale={2.3}
+          color={colors.primary}
+        />
+        <AmbientOrb
+          position={[6, -3.6, -4]}
+          scale={3.1}
+          color={colors.accent}
+        />
+        <AmbientOrb
+          position={[0.5, -5.2, -2]}
+          scale={2.6}
+          color={colors.primary}
+        />
       </group>
     </>
   );

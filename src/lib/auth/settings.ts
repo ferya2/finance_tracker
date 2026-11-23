@@ -1,4 +1,9 @@
 import {
+  DEFAULT_ACCENT_COLOR,
+  isAccentColor,
+  type AccentColor,
+} from "@/lib/finance/accent-color";
+import {
   BASE_CURRENCY,
   isSupportedCurrency,
   type CurrencyCode,
@@ -10,12 +15,14 @@ export interface UserSettings {
   displayName?: string;
   currency?: CurrencyCode;
   theme?: ThemePreference;
+  accentColor?: AccentColor;
 }
 
 export interface UserSettingsUpdate {
   displayName: string;
   currency: CurrencyCode;
   theme: ThemePreference;
+  accentColor: AccentColor;
 }
 
 export type UserMetadata = Record<string, unknown> | null | undefined;
@@ -51,6 +58,9 @@ export function settingsFromMetadata(metadata: UserMetadata): UserSettings {
   const theme = parseThemePreference(metadata?.theme);
   if (theme) settings.theme = theme;
 
+  const accentColor = metadata?.accent_color;
+  if (isAccentColor(accentColor)) settings.accentColor = accentColor;
+
   return settings;
 }
 
@@ -61,5 +71,8 @@ export function settingsToMetadata(
     display_name: normalizeDisplayName(settings.displayName) ?? "",
     currency: parseCurrency(settings.currency) ?? BASE_CURRENCY,
     theme: parseThemePreference(settings.theme) ?? "light",
+    accent_color: isAccentColor(settings.accentColor)
+      ? settings.accentColor
+      : DEFAULT_ACCENT_COLOR,
   };
 }

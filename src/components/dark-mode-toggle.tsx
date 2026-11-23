@@ -3,6 +3,13 @@
 import { Moon, Sun } from "lucide-react";
 import { useCallback, useEffect, useRef, useSyncExternalStore } from "react";
 import type { ThemePreference } from "@/lib/auth/settings";
+import {
+  DEFAULT_ACCENT_COLOR,
+  accentPalette,
+  parseAccentSetting,
+  sanitizeAccentColor,
+  type AccentColor,
+} from "@/lib/finance/accent-color";
 
 function getInitialDark(): boolean {
   if (typeof window === "undefined") return false;
@@ -13,6 +20,43 @@ function getInitialDark(): boolean {
 }
 
 let isDark = false;
+let accentColor: AccentColor = DEFAULT_ACCENT_COLOR;
+
+const ACCENT_STORAGE_KEY = "accent-color";
+
+function applyAccent(color: AccentColor): void {
+  const palette = accentPalette(color);
+  const root = document.documentElement;
+  root.style.setProperty("--accent-light", palette.light);
+  root.style.setProperty("--accent-dark", palette.dark);
+  root.style.setProperty("--accent-soft", palette.soft);
+  root.style.setProperty("--accent-soft-dark", palette.softDark);
+  root.style.setProperty("--accent-secondary-light", palette.secondaryLight);
+  root.style.setProperty("--accent-secondary-dark", palette.secondaryDark);
+}
+
+export function getAccentColor(): AccentColor {
+  return accentColor;
+}
+
+export function setAccentColor(color: AccentColor): void {
+  accentColor = sanitizeAccentColor(color);
+  applyAccent(accentColor);
+  localStorage.setItem(ACCENT_STORAGE_KEY, accentColor);
+  window.dispatchEvent(new Event("theme-change"));
+}
+
+function getServerAccentSnapshot(): AccentColor {
+  return DEFAULT_ACCENT_COLOR;
+}
+
+export function useAccentColor(): AccentColor {
+  return useSyncExternalStore(
+    subscribe,
+    getAccentColor,
+    getServerAccentSnapshot,
+  );
+}
 
 function subscribe(callback: () => void): () => void {
   window.addEventListener("theme-change", callback);
@@ -45,8 +89,11 @@ export function DarkModeToggle() {
   useEffect(() => {
     if (!initialized.current) {
       isDark = getInitialDark();
+      accentColor = parseAccentSetting(localStorage.getItem(ACCENT_STORAGE_KEY));
       document.documentElement.classList.toggle("dark", isDark);
+      applyAccent(accentColor);
       initialized.current = true;
+      window.dispatchEvent(new Event("theme-change"));
     }
   }, []);
 

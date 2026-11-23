@@ -180,6 +180,7 @@ describe("auth helpers", () => {
       displayName: "Ada Lovelace",
       currency: "EUR",
       theme: "dark",
+      accentColor: "blue",
     });
 
     expect(mockAuth.updateUser).toHaveBeenCalledWith({
@@ -187,6 +188,7 @@ describe("auth helpers", () => {
         display_name: "Ada Lovelace",
         currency: "EUR",
         theme: "dark",
+        accent_color: "blue",
       },
     });
     expect(result).toEqual({ error: null });

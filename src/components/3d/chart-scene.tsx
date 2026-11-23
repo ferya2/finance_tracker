@@ -4,18 +4,7 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { Float } from "@react-three/drei";
 import { useEffect, useRef, useState } from "react";
 import { Group, type Mesh } from "three";
-
-function useDarkMode() {
-  const [dark, setDark] = useState(false);
-  useEffect(() => {
-    const check = () =>
-      setDark(document.documentElement.classList.contains("dark"));
-    check();
-    window.addEventListener("theme-change", check);
-    return () => window.removeEventListener("theme-change", check);
-  }, []);
-  return dark;
-}
+import { useThemeColors } from "./use-theme-colors";
 
 export const BAR_COUNT = 6;
 
@@ -37,7 +26,7 @@ function FloatingBars({ bars }: { bars: ChartBar[] }) {
   const groupRef = useRef<Group>(null);
   const meshes = useRef<Array<Mesh | null>>([]);
   const pointer = useRef({ x: 0, y: 0 });
-  const dark = useDarkMode();
+  const colors = useThemeColors();
 
   useEffect(() => {
     const onPointerMove = (event: PointerEvent) => {
@@ -63,8 +52,8 @@ function FloatingBars({ bars }: { bars: ChartBar[] }) {
     });
   });
 
-  const barColor = dark ? "#34d399" : "#059669";
-  const barAccent = dark ? "#10b981" : "#047857";
+  const barColor = colors.primary;
+  const barAccent = colors.accent;
 
   return (
     <group ref={groupRef} position={[0, -0.35, 0]}>
@@ -91,16 +80,16 @@ function FloatingBars({ bars }: { bars: ChartBar[] }) {
 }
 
 function OrbitRing() {
-  const dark = useDarkMode();
+  const colors = useThemeColors();
   return (
     <Float speed={1.6} rotationIntensity={0.35} floatIntensity={0.9}>
       <mesh rotation={[0.6, 0.3, 0]}>
         <torusGeometry args={[2.15, 0.045, 16, 100]} />
         <meshStandardMaterial
-          color={dark ? "#2dd4bf" : "#0d9488"}
+          color={colors.accent}
           transparent
           opacity={0.35}
-          emissive={dark ? "#2dd4bf" : "#0d9488"}
+          emissive={colors.accent}
           emissiveIntensity={0.3}
         />
       </mesh>

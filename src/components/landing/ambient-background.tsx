@@ -33,7 +33,13 @@ function useIdleMount() {
 
 function AmbientGlow() {
   return (
-    <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_0%,rgba(5,150,105,0.08),transparent_70%)] dark:bg-[radial-gradient(ellipse_60%_50%_at_50%_0%,rgba(52,211,153,0.07),transparent_70%)]" />
+    <div
+      className="absolute inset-0"
+      style={{
+        background:
+          "radial-gradient(ellipse 60% 50% at 50% 0%, var(--color-primary-light), transparent 70%)",
+      }}
+    />
   );
 }
 

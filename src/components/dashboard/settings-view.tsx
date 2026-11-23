@@ -8,15 +8,21 @@ import {
   type ReactNode,
 } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Bell, Download, Loader2, Palette, Save, User } from "lucide-react";
+import { Bell, Check, Download, Loader2, Palette, Save, User } from "lucide-react";
 import { useSession } from "@/components/auth/session-provider";
 import { useCurrency } from "@/components/currency-provider";
-import { DarkModeToggle, getTheme } from "@/components/dark-mode-toggle";
+import {
+  DarkModeToggle,
+  getTheme,
+  setAccentColor,
+  useAccentColor,
+} from "@/components/dark-mode-toggle";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { PageShell } from "@/components/dashboard/page-shell";
 import { usePrefersReducedMotion } from "@/components/use-prefers-reduced-motion";
 import { getDisplayName } from "@/lib/auth/account";
 import { normalizeDisplayName } from "@/lib/auth/settings";
+import { ACCENT_PALETTES } from "@/lib/finance/accent-color";
 import { SUPPORTED_CURRENCIES } from "@/lib/finance/currency";
 import { sanitizeCurrencyCode } from "@/lib/finance/currency-settings";
 import { updateUserSettings } from "@/lib/supabase/client";
@@ -117,6 +123,7 @@ interface Feedback {
 export function SettingsView() {
   const { user } = useSession();
   const { currency, setCurrency, format } = useCurrency();
+  const accentColor = useAccentColor();
   const reduced = usePrefersReducedMotion();
   const profileName = user ? getDisplayName(user) : "";
   const profileKey = user ? `${user.id}:${profileName}` : "";
@@ -146,6 +153,7 @@ export function SettingsView() {
         displayName: name,
         currency,
         theme: getTheme(),
+        accentColor,
       });
       if (error) throw error;
       setFeedback({ tone: "success", message: "Settings saved." });
@@ -227,6 +235,42 @@ export function SettingsView() {
                   <DarkModeToggle />
                 </div>
               </div>
+            </div>
+            <div className="mt-5 flex flex-col gap-2">
+              <span className="text-xs font-medium uppercase tracking-wide text-text-muted">
+                Accent colour
+              </span>
+              <div
+                role="group"
+                aria-label="Accent colour"
+                className="flex flex-wrap items-center gap-2"
+              >
+                {ACCENT_PALETTES.map((palette) => {
+                  const selected = accentColor === palette.id;
+                  return (
+                    <motion.button
+                      key={palette.id}
+                      type="button"
+                      onClick={() => setAccentColor(palette.id)}
+                      aria-label={`Use ${palette.label} accent`}
+                      aria-pressed={selected}
+                      whileHover={reduced ? undefined : { scale: 1.1 }}
+                      whileTap={reduced ? undefined : { scale: 0.94 }}
+                      transition={{ type: "spring", stiffness: 400, damping: 24 }}
+                      style={{ backgroundColor: palette.light }}
+                      className={`flex h-8 w-8 items-center justify-center rounded-full ring-2 ring-offset-2 ring-offset-surface transition-shadow ${
+                        selected ? "ring-text" : "ring-transparent"
+                      }`}
+                    >
+                      {selected && <Check className="h-4 w-4 text-white" />}
+                    </motion.button>
+                  );
+                })}
+              </div>
+              <p className="text-xs text-text-muted">
+                Applied to buttons, charts and highlights across the app. Save
+                changes to keep it on your account.
+              </p>
             </div>
           </SectionCard>
 

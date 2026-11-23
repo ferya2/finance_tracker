@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import { useSession } from "@/components/auth/session-provider";
 import { useCurrency } from "@/components/currency-provider";
-import { setTheme } from "@/components/dark-mode-toggle";
+import { setAccentColor, setTheme } from "@/components/dark-mode-toggle";
 
 export function UserSettingsSync() {
   const { user } = useSession();
@@ -19,12 +19,14 @@ export function UserSettingsSync() {
       settings.displayName ?? "",
       settings.currency ?? "",
       settings.theme ?? "",
+      settings.accentColor ?? "",
     ].join(":");
     if (appliedKey.current === key) return;
     appliedKey.current = key;
 
     if (settings.currency) setCurrency(settings.currency);
     if (settings.theme) setTheme(settings.theme);
+    if (settings.accentColor) setAccentColor(settings.accentColor);
   }, [user, settings, setCurrency]);
 
   return null;
