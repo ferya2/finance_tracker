@@ -2,20 +2,9 @@
 
 import { Canvas, useFrame, type ThreeEvent } from "@react-three/fiber";
 import { Float } from "@react-three/drei";
-import { useRef, useState, useCallback, useEffect } from "react";
+import { useRef, useCallback } from "react";
 import { Group, type Mesh, type MeshStandardMaterial } from "three";
-
-function useDarkMode() {
-  const [dark, setDark] = useState(false);
-  useEffect(() => {
-    const check = () =>
-      setDark(document.documentElement.classList.contains("dark"));
-    check();
-    window.addEventListener("theme-change", check);
-    return () => window.removeEventListener("theme-change", check);
-  }, []);
-  return dark;
-}
+import { useThemeColors } from "./use-theme-colors";
 
 /* ── Coin ── */
 
@@ -23,7 +12,7 @@ function Coin() {
   const ref = useRef<Mesh>(null);
   const mat = useRef<MeshStandardMaterial>(null);
   const target = useRef({ x: 0, y: 0 });
-  const dark = useDarkMode();
+  const colors = useThemeColors();
 
   const onPointerMove = useCallback(
     (e: ThreeEvent<PointerEvent>) => {
@@ -50,8 +39,8 @@ function Coin() {
     }
   });
 
-  const baseColor = dark ? "#34d399" : "#059669";
-  const emissiveColor = dark ? "#10b981" : "#047857";
+  const baseColor = colors.primary;
+  const emissiveColor = colors.accent;
 
   return (
     <mesh
@@ -86,7 +75,6 @@ function FloatingDecor({
   size?: number;
 }) {
   const ref = useRef<Mesh>(null);
-  const dark = useDarkMode();
 
   useFrame((_, delta) => {
     if (!ref.current) return;
@@ -99,7 +87,7 @@ function FloatingDecor({
       <mesh ref={ref} position={position}>
         <octahedronGeometry args={[size]} />
         <meshStandardMaterial
-          color={dark ? "#2dd4bf" : color}
+          color={color}
           metalness={0.7}
           roughness={0.2}
           transparent
@@ -114,7 +102,7 @@ function FloatingDecor({
 
 function AmbientRing() {
   const ref = useRef<Group>(null);
-  const dark = useDarkMode();
+  const colors = useThemeColors();
 
   useFrame((state) => {
     if (!ref.current) return;
@@ -127,10 +115,10 @@ function AmbientRing() {
       <mesh>
         <torusGeometry args={[2.2, 0.04, 16, 100]} />
         <meshStandardMaterial
-          color={dark ? "#34d399" : "#059669"}
+          color={colors.primary}
           transparent
           opacity={0.15}
-          emissive={dark ? "#34d399" : "#059669"}
+          emissive={colors.primary}
           emissiveIntensity={0.4}
         />
       </mesh>
@@ -141,6 +129,8 @@ function AmbientRing() {
 /* ── Scene ── */
 
 function Scene() {
+  const colors = useThemeColors();
+
   return (
     <>
       <ambientLight intensity={0.5} />
@@ -153,13 +143,13 @@ function Scene() {
 
       <FloatingDecor
         position={[-2.2, 1, -0.5]}
-        color="#0d9488"
+        color={colors.accent}
         speed={0.8}
         size={0.3}
       />
       <FloatingDecor
         position={[2, -0.8, -0.4]}
-        color="#059669"
+        color={colors.primary}
         speed={0.6}
         size={0.22}
       />

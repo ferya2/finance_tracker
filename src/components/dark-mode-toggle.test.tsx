@@ -3,7 +3,9 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import {
   DarkModeToggle,
+  getAccentColor,
   getTheme,
+  setAccentColor,
   setTheme,
 } from "./dark-mode-toggle";
 
@@ -21,6 +23,7 @@ beforeEach(() => {
   window.localStorage.clear();
   document.documentElement.classList.remove("dark");
   setTheme("light");
+  setAccentColor("emerald");
 });
 
 afterEach(() => {
@@ -38,6 +41,27 @@ describe("theme helpers", () => {
     setTheme("light");
     expect(getTheme()).toBe("light");
     expect(document.documentElement).not.toHaveClass("dark");
+  });
+});
+
+describe("accent helpers", () => {
+  it("applies and stores the chosen accent", () => {
+    setAccentColor("violet");
+
+    expect(getAccentColor()).toBe("violet");
+    expect(window.localStorage.getItem("accent-color")).toBe("violet");
+    expect(
+      document.documentElement.style.getPropertyValue("--accent-light"),
+    ).toBe("#7c3aed");
+    expect(
+      document.documentElement.style.getPropertyValue("--accent-dark"),
+    ).toBe("#a78bfa");
+
+    setAccentColor("emerald");
+    expect(getAccentColor()).toBe("emerald");
+    expect(
+      document.documentElement.style.getPropertyValue("--accent-light"),
+    ).toBe("#059669");
   });
 });
 

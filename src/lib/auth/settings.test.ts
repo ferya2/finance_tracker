@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import type { AccentColor } from "@/lib/finance/accent-color";
 import type { CurrencyCode } from "@/lib/finance/currency";
 import {
   normalizeDisplayName,
@@ -43,8 +44,14 @@ describe("settingsFromMetadata", () => {
         display_name: " Grace Hopper ",
         currency: "EUR",
         theme: "dark",
+        accent_color: "violet",
       }),
-    ).toEqual({ displayName: "Grace Hopper", currency: "EUR", theme: "dark" });
+    ).toEqual({
+      displayName: "Grace Hopper",
+      currency: "EUR",
+      theme: "dark",
+      accentColor: "violet",
+    });
   });
 
   it("ignores invalid metadata and tolerates missing metadata", () => {
@@ -53,6 +60,7 @@ describe("settingsFromMetadata", () => {
         display_name: "  ",
         currency: "XXX",
         theme: "neon",
+        accent_color: "lime",
       }),
     ).toEqual({});
     expect(settingsFromMetadata(null)).toEqual({});
@@ -67,8 +75,14 @@ describe("settingsToMetadata", () => {
         displayName: " Ada Lovelace ",
         currency: "GBP",
         theme: "dark",
+        accentColor: "rose",
       }),
-    ).toEqual({ display_name: "Ada Lovelace", currency: "GBP", theme: "dark" });
+    ).toEqual({
+      display_name: "Ada Lovelace",
+      currency: "GBP",
+      theme: "dark",
+      accent_color: "rose",
+    });
   });
 
   it("falls back to safe values for invalid input", () => {
@@ -77,7 +91,13 @@ describe("settingsToMetadata", () => {
         displayName: " ",
         currency: "XXX" as unknown as CurrencyCode,
         theme: "neon" as unknown as ThemePreference,
+        accentColor: "lime" as unknown as AccentColor,
       }),
-    ).toEqual({ display_name: "", currency: "USD", theme: "light" });
+    ).toEqual({
+      display_name: "",
+      currency: "USD",
+      theme: "light",
+      accent_color: "emerald",
+    });
   });
 });

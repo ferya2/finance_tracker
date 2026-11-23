@@ -310,3 +310,4 @@ gauge (SVG ring, percentage in the middle) and each row now shows its
 - Day 79: keyboard shortcuts — `G` then a letter jumps between dashboard pages, `N` opens quick add, `?` shows an animated shortcut guide, and Ctrl/⌘+K opens the palette; matching/formatting logic is pure and unit-tested, and typing in form fields never triggers shortcuts.
 - Day 80: shared animated skeleton, empty and error state panels with reduced-motion support, now used consistently on savings goals, recurring plans and notifications.
 - Day 81: Settings now persist display name, currency and theme to Supabase auth metadata, with a save state and user-facing feedback; saved preferences apply app-wide on sign-in.
+- Day 82: accent-colour customization — five tested palettes applied through CSS variables (including 3D accents), remembered locally and saved with the user's settings.

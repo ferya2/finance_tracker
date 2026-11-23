@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { CurrencyProvider } from "@/components/currency-provider";
-import { setTheme } from "@/components/dark-mode-toggle";
+import { setAccentColor, setTheme } from "@/components/dark-mode-toggle";
 import { SettingsView } from "./settings-view";
 
 const { mockUseSession, mockUpdateUserSettings } = vi.hoisted(() => ({
@@ -39,6 +39,7 @@ beforeEach(() => {
   stubMatchMedia(true);
   window.localStorage.clear();
   setTheme("light");
+  setAccentColor("emerald");
   mockUseSession.mockReset();
   mockUseSession.mockReturnValue({
     status: "signedIn",
@@ -49,6 +50,7 @@ beforeEach(() => {
         displayName: "Ada Lovelace",
         currency: "USD",
         theme: "light",
+        accentColor: "emerald",
       },
     },
     signOut: vi.fn(),
@@ -73,9 +75,10 @@ describe("SettingsView", () => {
     expect(screen.getByDisplayValue("Ada Lovelace")).toBeInTheDocument();
     expect(screen.getByDisplayValue("ada@example.com")).toBeInTheDocument();
     expect(screen.getByDisplayValue("US Dollar (USD)")).toBeInTheDocument();
+    expect(screen.getByRole("group", { name: "Accent colour" })).toBeInTheDocument();
   });
 
-  it("persists the profile, currency and theme", async () => {
+  it("persists the profile, currency, theme and accent", async () => {
     const user = userEvent.setup();
     renderSettings();
 
@@ -89,10 +92,33 @@ describe("SettingsView", () => {
       displayName: "Grace",
       currency: "EUR",
       theme: "light",
+      accentColor: "emerald",
     });
     expect(await screen.findByRole("status")).toHaveTextContent(
       "Settings saved.",
     );
+  });
+
+  it("applies a new accent and saves it with the settings", async () => {
+    const user = userEvent.setup();
+    renderSettings();
+
+    const rose = screen.getByRole("button", { name: "Use Rose accent" });
+    await user.click(rose);
+
+    expect(rose).toHaveAttribute("aria-pressed", "true");
+    expect(
+      document.documentElement.style.getPropertyValue("--accent-light"),
+    ).toBe("#e11d48");
+
+    await user.click(screen.getByRole("button", { name: "Save changes" }));
+
+    expect(mockUpdateUserSettings).toHaveBeenCalledWith({
+      displayName: "Ada Lovelace",
+      currency: "USD",
+      theme: "light",
+      accentColor: "rose",
+    });
   });
 
   it("shows an error returned by the save request", async () => {

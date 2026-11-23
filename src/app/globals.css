@@ -8,13 +8,21 @@
   --background: #ffffff;
   --foreground: #171717;
 
-  /* Primary — emerald */
-  --color-primary: #059669;
-  --color-primary-light: #d1fae5;
-  --color-primary-foreground: #ffffff;
+  /* Accent palette — the user's choice overrides these via inline styles */
+  --accent-light: #059669;
+  --accent-dark: #34d399;
+  --accent-soft: #d1fae5;
+  --accent-soft-dark: rgba(52, 211, 153, 0.12);
+  --accent-secondary-light: #0d9488;
+  --accent-secondary-dark: #2dd4bf;
+  --accent-active: var(--accent-light);
+  --accent-secondary-active: var(--accent-secondary-light);
 
-  /* Accent — teal */
-  --color-accent: #0d9488;
+  /* Primary follows the chosen accent */
+  --color-primary: var(--accent-active);
+  --color-primary-light: var(--accent-soft);
+  --color-primary-foreground: #ffffff;
+  --color-accent: var(--accent-secondary-active);
 
   /* Surfaces */
   --color-surface: #ffffff;
@@ -66,13 +74,13 @@
   --background: #09090b;
   --foreground: #fafafa;
 
-  /* Primary — lighter emerald for dark bg contrast */
-  --color-primary: #34d399;
-  --color-primary-light: rgba(52, 211, 153, 0.12);
+  /* Lighter accent variants keep dark backgrounds legible */
+  --accent-active: var(--accent-dark);
+  --accent-secondary-active: var(--accent-secondary-dark);
+  --color-primary: var(--accent-active);
+  --color-primary-light: var(--accent-soft-dark);
   --color-primary-foreground: #022c22;
-
-  /* Accent */
-  --color-accent: #2dd4bf;
+  --color-accent: var(--accent-secondary-active);
 
   /* Surfaces */
   --color-surface: #18181b;

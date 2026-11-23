@@ -11,8 +11,20 @@ function PageMotif() {
       aria-hidden
       className="pointer-events-none absolute inset-0 overflow-hidden"
     >
-      <div className="absolute -right-24 -top-32 h-80 w-80 rounded-full bg-[radial-gradient(circle,rgba(5,150,105,0.12),transparent_65%)] dark:bg-[radial-gradient(circle,rgba(52,211,153,0.09),transparent_65%)]" />
-      <div className="absolute -bottom-24 left-1/4 h-96 w-96 rounded-full bg-[radial-gradient(circle,rgba(13,148,136,0.1),transparent_65%)] dark:bg-[radial-gradient(circle,rgba(45,212,191,0.07),transparent_65%)]" />
+      <div
+        className="absolute -right-24 -top-32 h-80 w-80 rounded-full"
+        style={{
+          background:
+            "radial-gradient(circle, var(--color-primary-light), transparent 65%)",
+        }}
+      />
+      <div
+        className="absolute -bottom-24 left-1/4 h-96 w-96 rounded-full"
+        style={{
+          background:
+            "radial-gradient(circle, var(--color-primary-light), transparent 65%)",
+        }}
+      />
       <div className="absolute inset-0 [background-image:radial-gradient(rgba(9,9,11,0.09)_1px,transparent_1px)] [background-size:26px_26px] dark:[background-image:radial-gradient(rgba(244,244,245,0.05)_1px,transparent_1px)]" />
     </div>
   );

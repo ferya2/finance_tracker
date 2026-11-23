@@ -88,6 +88,7 @@ describe("toAuthUser", () => {
           display_name: "Ada Lovelace",
           currency: "EUR",
           theme: "dark",
+          accent_color: "blue",
         },
       }),
     ).toEqual({
@@ -97,6 +98,7 @@ describe("toAuthUser", () => {
         displayName: "Ada Lovelace",
         currency: "EUR",
         theme: "dark",
+        accentColor: "blue",
       },
     });
   });
