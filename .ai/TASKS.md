@@ -177,7 +177,7 @@ whitespace, an interactive drag-to-rotate **3D** hero, and smooth scroll-reveal
 
 - [x] **Day 81 — Settings (real).** Persist profile, currency, theme.
 - [x] **Day 82 — Theme customization.** Accent colors, persisted.
-- [ ] **Day 83 — PWA.** Installable + offline app shell.
+- [x] **Day 83 — PWA.** Installable + offline app shell.
 - [ ] **Day 84 — Performance.** Lazy-load, memoization, bundle trims.
 - [ ] **Day 85 — Accessibility.** Focus, aria, contrast pass.
 - [ ] **Day 86 — Error boundaries + 404/500.** Animated fallback pages.
