@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 import { Geist, Geist_Mono } from "next/font/google";
 import { SessionProvider } from "@/components/auth/session-provider";
+import { PwaRegistrar } from "@/components/pwa-registrar";
 import { RootHeader } from "@/components/root-header";
 import "./globals.css";
 
@@ -19,6 +20,11 @@ export const metadata: Metadata = {
   title: "Finance Tracker — Track income, budget smarter",
   description:
     "A modern personal finance tracker. Track income and expenses, set monthly budgets, and understand your spending with clear reports.",
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    title: "Finance Tracker",
+  },
 };
 
 export const viewport: Viewport = {
@@ -41,6 +47,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <SessionProvider>
           <RootHeader />
           {children}
+          <PwaRegistrar />
         </SessionProvider>
       </body>
     </html>
