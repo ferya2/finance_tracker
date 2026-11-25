@@ -20,19 +20,27 @@ import {
   X,
   type LucideIcon,
 } from "lucide-react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, type ReactNode } from "react";
 import { useSession } from "@/components/auth/session-provider";
 import { CurrencyProvider } from "@/components/currency-provider";
 import { DarkModeToggle } from "@/components/dark-mode-toggle";
-import { CommandPalette } from "@/components/dashboard/command-palette";
 import { KeyboardShortcuts } from "@/components/dashboard/keyboard-shortcuts";
 import { NotificationCenter } from "@/components/dashboard/notification-center";
 import { OnboardingWizard } from "@/components/dashboard/onboarding-wizard";
 import { UserChip } from "@/components/dashboard/user-chip";
 import { usePrefersReducedMotion } from "@/components/use-prefers-reduced-motion";
 import { UserSettingsSync } from "@/components/user-settings-sync";
+
+const CommandPalette = dynamic(
+  () =>
+    import("@/components/dashboard/command-palette").then(
+      (m) => m.CommandPalette,
+    ),
+  { ssr: false, loading: () => null },
+);
 
 interface NavItem {
   label: string;
