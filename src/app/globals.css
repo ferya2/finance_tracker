@@ -32,7 +32,7 @@
   /* Text */
   --color-text: #09090b;
   --color-text-secondary: #52525b;
-  --color-text-muted: #a1a1aa;
+  --color-text-muted: #71717a;
 
   /* Borders */
   --color-border: #e4e4e7;
@@ -90,7 +90,7 @@
   /* Text */
   --color-text: #fafafa;
   --color-text-secondary: #a1a1aa;
-  --color-text-muted: #71717a;
+  --color-text-muted: #a1a1aa;
 
   /* Borders */
   --color-border: #27272a;
@@ -154,6 +154,12 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
+}
+
+/* ── Always show a keyboard focus ring, even where components omit one ── */
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
 }
 
 /* ── Respect prefers-reduced-motion (keep static layout, no movement) ── */

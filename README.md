@@ -313,3 +313,4 @@ gauge (SVG ring, percentage in the middle) and each row now shows its
 - Day 82: accent-colour customization — five tested palettes applied through CSS variables (including 3D accents), remembered locally and saved with the user's settings.
 - Day 83: installable PWA — web manifest and 192/512px icons, root-scoped service worker that precaches the public shell and serves an animated offline fallback, with tested cache policies and registration.
 - Day 84: performance — the command palette is now lazy-loaded from the app shell in a separate client-only chunk, trimming the initial dashboard bundle; lint, typecheck and all tests pass.
+- Day 85: accessibility — a global keyboard focus ring, a skip link to main content, hidden decorative icons, and WCAG-AA muted text tokens in both themes.

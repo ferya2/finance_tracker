@@ -88,7 +88,7 @@ function NavLink({ item, onClick }: { item: NavItem; onClick?: () => void }) {
           : "text-text-secondary hover:bg-surface-subtle hover:text-text"
       }`}
     >
-      <Icon className="h-4 w-4 shrink-0" />
+      <Icon aria-hidden="true" className="h-4 w-4 shrink-0" />
       {item.label}
     </Link>
   );
@@ -98,7 +98,7 @@ function Branding() {
   return (
     <p className="flex items-center gap-2 text-sm font-semibold text-text">
       <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-light text-primary">
-        <Wallet className="h-4 w-4" />
+        <Wallet aria-hidden="true" className="h-4 w-4" />
       </span>
       Finance Tracker
     </p>
@@ -115,7 +115,7 @@ function SidebarFooter() {
         onClick={() => void signOut()}
         className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-text-secondary transition-colors hover:bg-danger-subtle hover:text-danger"
       >
-        <LogOut className="h-4 w-4 shrink-0" />
+        <LogOut aria-hidden="true" className="h-4 w-4 shrink-0" />
         Log out
       </button>
     </div>
@@ -158,7 +158,7 @@ function MobileDrawer({ onClose }: { onClose: () => void }) {
             aria-label="Close menu"
             className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-surface text-text-secondary transition-colors hover:bg-surface-subtle hover:text-text"
           >
-            <X className="h-4 w-4" />
+            <X aria-hidden="true" className="h-4 w-4" />
           </button>
         </div>
         <nav aria-label="Sidebar" className="flex flex-col gap-1 p-3">
@@ -190,6 +190,12 @@ export function AppShell({ children }: { children: ReactNode }) {
     <CurrencyProvider userId={user?.id}>
       <UserSettingsSync />
       <div className="flex min-h-dvh w-full bg-background">
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-surface focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-text focus:shadow-lg"
+        >
+          Skip to content
+        </a>
         <aside className="sticky top-0 hidden h-dvh w-64 shrink-0 flex-col border-r border-border bg-surface lg:flex">
           <div className="flex h-16 items-center border-b border-border px-5">
             <Branding />
@@ -211,7 +217,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 aria-label="Open menu"
                 className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-surface text-text-secondary transition-colors hover:bg-surface-subtle hover:text-text"
               >
-                <Menu className="h-4 w-4" />
+                <Menu aria-hidden="true" className="h-4 w-4" />
               </button>
               <span className="lg:hidden">
                 <Branding />
@@ -236,7 +242,9 @@ export function AppShell({ children }: { children: ReactNode }) {
 
           {user?.id && <OnboardingWizard userId={user.id} />}
 
-          <main className="flex flex-1 flex-col">{children}</main>
+          <main id="main-content" tabIndex={-1} className="flex flex-1 flex-col">
+            {children}
+          </main>
         </div>
       </div>
     </CurrencyProvider>

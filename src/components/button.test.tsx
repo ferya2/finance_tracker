@@ -27,4 +27,30 @@ describe("Button", () => {
     );
     expect(container.querySelector("svg")).not.toBeNull();
   });
+
+  it("hides decorative icons from assistive technology", () => {
+    const { container } = render(
+      <Button href="#features" icon={Wallet} arrow>
+        See features
+      </Button>,
+    );
+    const icons = container.querySelectorAll("svg");
+    expect(icons).toHaveLength(2);
+    icons.forEach((icon) => {
+      expect(icon).toHaveAttribute("aria-hidden", "true");
+    });
+    expect(
+      screen.getByRole("link", { name: "See features" }),
+    ).toBeInTheDocument();
+  });
+
+  it("keeps a visible keyboard focus ring", () => {
+    render(<Button href="#features">See features</Button>);
+    expect(screen.getByRole("link", { name: "See features" })).toHaveClass(
+      "focus-visible:outline",
+      "focus-visible:outline-2",
+      "focus-visible:outline-offset-2",
+      "focus-visible:outline-primary",
+    );
+  });
 });

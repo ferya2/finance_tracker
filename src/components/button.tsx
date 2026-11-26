@@ -16,7 +16,7 @@ interface ButtonProps {
 }
 
 const baseClassName =
-  "group inline-flex h-12 items-center justify-center gap-2 rounded-full px-7 text-sm font-medium transition-colors";
+  "group inline-flex h-12 items-center justify-center gap-2 rounded-full px-7 text-sm font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary";
 
 const variantClassName: Record<ButtonVariant, string> = {
   primary:
@@ -43,11 +43,17 @@ export function Button({
       className={`${baseClassName} ${variantClassName[variant]} ${className}`}
     >
       {Icon && (
-        <Icon className="h-4 w-4 transition-transform duration-300 group-hover:-translate-x-0.5" />
+        <Icon
+          aria-hidden="true"
+          className="h-4 w-4 transition-transform duration-300 group-hover:-translate-x-0.5"
+        />
       )}
       {children}
       {arrow && (
-        <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5" />
+        <ArrowRight
+          aria-hidden="true"
+          className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5"
+        />
       )}
     </motion.a>
   );
