@@ -99,6 +99,17 @@ beforeEach(() => {
 });
 
 describe("AppShell", () => {
+  it("provides a skip link to the main content", () => {
+    renderShell();
+
+    const skipLink = screen.getByRole("link", { name: "Skip to content" });
+    expect(skipLink).toHaveAttribute("href", "#main-content");
+
+    const main = screen.getByRole("main");
+    expect(main).toHaveAttribute("id", "main-content");
+    expect(main).toHaveAttribute("tabindex", "-1");
+  });
+
   it("links every planned area from the sidebar", () => {
     mockGetSession.mockResolvedValue({
       data: {
