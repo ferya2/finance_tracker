@@ -315,3 +315,4 @@ gauge (SVG ring, percentage in the middle) and each row now shows its
 - Day 84: performance — the command palette is now lazy-loaded from the app shell in a separate client-only chunk, trimming the initial dashboard bundle; lint, typecheck and all tests pass.
 - Day 85: accessibility — a global keyboard focus ring, a skip link to main content, hidden decorative icons, and WCAG-AA muted text tokens in both themes.
 - Day 86: animated 404 and 500 fallbacks — a shared reduced-motion-aware error view with decorative motifs and home/dashboard links, wired to Next.js's `not-found` and route error boundary with a working retry.
+- Fixed `/_not-found` prerendering by rendering the 404 fallback in the client boundary, preventing icon components from crossing the server/client prop boundary.

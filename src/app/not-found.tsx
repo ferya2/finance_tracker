@@ -1,3 +1,5 @@
+"use client";
+
 import { Home, LayoutDashboard } from "lucide-react";
 import { ErrorFallback } from "@/components/error-fallback";
 
