@@ -314,3 +314,4 @@ gauge (SVG ring, percentage in the middle) and each row now shows its
 - Day 83: installable PWA — web manifest and 192/512px icons, root-scoped service worker that precaches the public shell and serves an animated offline fallback, with tested cache policies and registration.
 - Day 84: performance — the command palette is now lazy-loaded from the app shell in a separate client-only chunk, trimming the initial dashboard bundle; lint, typecheck and all tests pass.
 - Day 85: accessibility — a global keyboard focus ring, a skip link to main content, hidden decorative icons, and WCAG-AA muted text tokens in both themes.
+- Day 86: animated 404 and 500 fallbacks — a shared reduced-motion-aware error view with decorative motifs and home/dashboard links, wired to Next.js's `not-found` and route error boundary with a working retry.
