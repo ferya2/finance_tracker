@@ -180,7 +180,7 @@ whitespace, an interactive drag-to-rotate **3D** hero, and smooth scroll-reveal
 - [x] **Day 83 — PWA.** Installable + offline app shell.
 - [x] **Day 84 — Performance.** Lazy-load, memoization, bundle trims.
 - [x] **Day 85 — Accessibility.** Focus, aria, contrast pass.
-- [ ] **Day 86 — Error boundaries + 404/500.** Animated fallback pages.
+- [x] **Day 86 — Error boundaries + 404/500.** Animated fallback pages.
 - [ ] **Day 87 — SEO/meta.** Metadata + Open Graph for the landing page.
 
 ## Week 14 — Finalize (app)
