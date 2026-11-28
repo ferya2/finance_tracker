@@ -4,6 +4,11 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { SessionProvider } from "@/components/auth/session-provider";
 import { PwaRegistrar } from "@/components/pwa-registrar";
 import { RootHeader } from "@/components/root-header";
+import {
+  LANDING_DESCRIPTION,
+  LANDING_TITLE,
+  resolveSiteUrl,
+} from "@/lib/seo/metadata";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -17,9 +22,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Finance Tracker — Track income, budget smarter",
-  description:
-    "A modern personal finance tracker. Track income and expenses, set monthly budgets, and understand your spending with clear reports.",
+  metadataBase: resolveSiteUrl(process.env.NEXT_PUBLIC_SITE_URL),
+  title: LANDING_TITLE,
+  description: LANDING_DESCRIPTION,
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
