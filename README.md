@@ -316,3 +316,4 @@ gauge (SVG ring, percentage in the middle) and each row now shows its
 - Day 85: accessibility — a global keyboard focus ring, a skip link to main content, hidden decorative icons, and WCAG-AA muted text tokens in both themes.
 - Day 86: animated 404 and 500 fallbacks — a shared reduced-motion-aware error view with decorative motifs and home/dashboard links, wired to Next.js's `not-found` and route error boundary with a working retry.
 - Fixed `/_not-found` prerendering by rendering the 404 fallback in the client boundary, preventing icon components from crossing the server/client prop boundary.
+- Day 87: landing SEO metadata with canonical/OG/Twitter tags, indexable robots rules, a generated branded Open Graph image, and `NEXT_PUBLIC_SITE_URL`-driven metadata base with a localhost fallback (pure helpers unit-tested).

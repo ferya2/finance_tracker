@@ -1,8 +1,12 @@
+import type { Metadata } from "next";
 import { Hero } from "@/components/landing/hero";
 import { Features } from "@/components/landing/features";
 import { HowItWorks } from "@/components/landing/how-it-works";
 import { Footer } from "@/components/landing/footer";
 import { AmbientBackground } from "@/components/landing/ambient-background";
+import { landingMetadata } from "@/lib/seo/metadata";
+
+export const metadata: Metadata = landingMetadata();
 
 export default function Home() {
   return (

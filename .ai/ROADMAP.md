@@ -39,7 +39,7 @@ Source of truth for **what** to build. The agent picks daily tasks from
 - [ ] Insights, recommendations, notifications, onboarding, command palette
 
 ## Phase 12 — Polish & PWA (Week 12)
-- [ ] Settings, theming, PWA, performance, a11y, error pages, SEO
+- [x] Settings, theming, PWA, performance, a11y, error pages, SEO
 
 ## Phase 13 — Finalize (Week 13)
 - [ ] Responsive audit, micro-interactions, 3D refinement, tests, docs, deploy
